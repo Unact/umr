@@ -9,7 +9,7 @@ extension UmrApi on RenewApi {
     return ApiUserData.fromJson(await get('v1/umr/user_info'));
   }
 
-  Future<ApiScanData> getScanData() async {
-    return ApiScanData.fromJson(await get('v1/umr/scan'));
+  Future<ApiCode> scan({ required String code }) async {
+    return ApiCode.fromJson(await post('v1/umr/scan', dataGenerator: () => { 'code': code }));
   }
 }

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
@@ -56,18 +55,12 @@ class _ScanViewState extends State<_ScanView> {
       },
       listener: (context, state) async {
         switch (state.status) {
-          case ScanStateStatus.loadFailure:
-            Misc.showMessage(context, state.message);
-            Navigator.of(context).pop();
-            break;
-          case ScanStateStatus.loadFinished:
-            break;
           case ScanStateStatus.scanFailure:
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message), backgroundColor: Colors.red[400])
             );
             break;
-          case ScanStateStatus.scanFinished:
+          case ScanStateStatus.scanSuccess:
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message), backgroundColor: Colors.green[400])
             );
