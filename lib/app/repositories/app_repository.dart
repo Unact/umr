@@ -8,9 +8,9 @@ import '/app/services/umr_api.dart';
 class AppRepository extends BaseRepository {
   AppRepository(super.dataStore, super.api);
 
-  Future<ApiScanData> getScanData() async {
+  Future<ApiCode> scan({ required String code }) async {
     try {
-      return await api.getScanData();
+      return await api.scan(code: code);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
