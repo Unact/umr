@@ -1,7 +1,7 @@
 name: umr
 description: Приложение для сканирования кодов ЧЗ
 publish_to: 'none'
-version: 1.0.2+4
+version: 1.0.2+5
 
 environment:
   sdk: '>=3.4.4 <4.0.0'
