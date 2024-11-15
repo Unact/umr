@@ -11,10 +11,8 @@ class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
   Future<void> readCode(String? code) async {
     if (code == null) return;
 
-    final formattedCode = code.substring(1);
-
     try {
-      await appRepository.scan(code: formattedCode);
+      await appRepository.scan(code: code);
 
       emit(state.copyWith(status: ScanStateStatus.scanSuccess, message: 'КМ найден'));
     } on AppError catch(e) {
