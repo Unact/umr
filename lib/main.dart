@@ -38,7 +38,6 @@ void main() async {
     return true;
   };
 
-  Initialization.intializeFlogs(isDebug: isDebug);
   await Initialization.initializeSentry(
     dsn: const String.fromEnvironment('UMR_SENTRY_DSN'),
     isDebug: isDebug,
@@ -58,6 +57,7 @@ void main() async {
           scaffoldMessengerKey: scaffoldMessengerKey,
           title: Strings.ruAppName,
           theme: FlexThemeData.light(
+            useMaterial3: false,
             scheme: FlexScheme.mallardGreen,
             subThemesData: const FlexSubThemesData(
               inputDecoratorBorderType: FlexInputBorderType.underline,

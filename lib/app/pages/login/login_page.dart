@@ -182,7 +182,7 @@ class _LoginViewState extends State<_LoginView> {
                       Misc.unfocus(context);
                       vm.apiLogin(urlController.text, loginController.text, passwordController.text);
                     },
-                    child: const Text('Войти', style: Styles.formStyle),
+                    child: const Text('Войти'),
                   ),
                 )
               ),
@@ -199,7 +199,7 @@ class _LoginViewState extends State<_LoginView> {
                       Misc.unfocus(context);
                       vm.getNewPassword(urlController.text, loginController.text);
                     },
-                    child: const Text('Получить пароль', textAlign: TextAlign.center, style: Styles.formStyle),
+                    child: const Text('Получить пароль', textAlign: TextAlign.center),
                   ),
                 )
               ),
