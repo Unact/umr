@@ -3,14 +3,10 @@ part of 'sale_order_page.dart';
 enum SaleOrderStateStatus {
   initial,
   dataLoaded,
-  needUserConfirmation,
   inProgress,
   success,
   failure,
-  showScan,
-  paymentStarted,
-  paymentFailure,
-  paymentFinished
+  showScan
 }
 
 class SaleOrderState {
