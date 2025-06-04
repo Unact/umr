@@ -14,7 +14,6 @@ class ApiSaleOrder extends Equatable {
   });
 
   factory ApiSaleOrder.fromJson(Map<String, dynamic> json) {
-    print(json);
     return ApiSaleOrder(
       id: json['id'],
       ndoc: json['ndoc'],
