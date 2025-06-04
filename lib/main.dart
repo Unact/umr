@@ -13,6 +13,7 @@ import 'app/constants/strings.dart';
 import 'app/data/database.dart';
 import 'app/pages/landing/landing_page.dart';
 import 'app/repositories/app_repository.dart';
+import 'app/repositories/sale_orders_repository.dart';
 import 'app/repositories/users_repository.dart';
 
 void main() async {
@@ -25,6 +26,7 @@ void main() async {
   AppDataStore dataStore = AppDataStore(logStatements: isDebug);
   AppRepository appRepository = AppRepository(dataStore, api);
 
+  SaleOrdersRepository saleOrdersRepository = SaleOrdersRepository(dataStore, api);
   UsersRepository usersRepository = UsersRepository(dataStore, api);
 
   GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -38,7 +40,6 @@ void main() async {
     return true;
   };
 
-  Initialization.intializeFlogs(isDebug: isDebug);
   await Initialization.initializeSentry(
     dsn: const String.fromEnvironment('UMR_SENTRY_DSN'),
     isDebug: isDebug,
@@ -52,12 +53,14 @@ void main() async {
         providers: [
           Provider.value(value: scaffoldMessengerKey),
           RepositoryProvider.value(value: appRepository),
+          RepositoryProvider.value(value: saleOrdersRepository),
           RepositoryProvider.value(value: usersRepository)
         ],
         child: MaterialApp(
           scaffoldMessengerKey: scaffoldMessengerKey,
           title: Strings.ruAppName,
           theme: FlexThemeData.light(
+            useMaterial3: false,
             scheme: FlexScheme.mallardGreen,
             subThemesData: const FlexSubThemesData(
               inputDecoratorBorderType: FlexInputBorderType.underline,

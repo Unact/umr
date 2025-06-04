@@ -1,0 +1,63 @@
+part of 'scan_page.dart';
+
+class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
+  final SaleOrdersRepository saleOrdersRepository;
+
+  StreamSubscription<List<SaleOrderLineCode>>? saleOrderLineCodesSubscription;
+
+  ScanViewModel(this.saleOrdersRepository, {required ApiSaleOrder saleOrder, required SaleOrderScanType type}) :
+    super(ScanState(saleOrder: saleOrder, type: type));
+
+  @override
+  ScanStateStatus get status => state.status;
+
+  @override
+  Future<void> initViewModel() async {
+    await super.initViewModel();
+
+    saleOrderLineCodesSubscription = saleOrdersRepository.watchSaleOrderLineCodes(state.saleOrder.id).listen((event) {
+      emit(state.copyWith(status: ScanStateStatus.dataLoaded, lineCodes: event));
+    });
+  }
+
+  @override
+  Future<void> close() async {
+    await super.close();
+
+    await saleOrderLineCodesSubscription?.cancel();
+  }
+
+  Future<void> readCode(String? code) async {
+    if (code == null) return;
+
+    try {
+      final codeInfo = await saleOrdersRepository.scan(code);
+
+      final codeVols = state.lineCodes.fold({}, (prev, e) {
+        prev[e.subid] = (prev[e.subid] ?? 0) + e.vol;
+        return prev;
+      });
+      final availableLine = state.saleOrder.lines.where((e) => e.gtin == codeInfo.gtin).firstWhereOrNull((e) {
+        if ((codeVols[e.subid] ?? 0) + codeInfo.vol <= e.vol) return true;
+        return false;
+      });
+
+      if (availableLine == null) {
+        emit(state.copyWith(status: ScanStateStatus.failure, message: 'Для КМ в заказе не найден товар'));
+        return;
+      }
+
+      await saleOrdersRepository.addSaleOrderLineCode(
+        id: state.saleOrder.id,
+        subid: availableLine.subid,
+        type: state.type,
+        code: codeInfo.code,
+        vol: codeInfo.vol
+      );
+
+      emit(state.copyWith(status: ScanStateStatus.success, message: 'КМ успешно отсканирован'));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: ScanStateStatus.failure, message: e.message));
+    }
+  }
+}

@@ -1,4 +1,4 @@
-package ru.unact.umr
+package com.selvis.umr
 
 import io.flutter.embedding.android.FlutterActivity
 

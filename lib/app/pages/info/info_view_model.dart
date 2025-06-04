@@ -1,14 +1,13 @@
 part of 'info_page.dart';
 
 class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
-  final AppRepository appRepository;
+  final SaleOrdersRepository saleOrdersRepository;
   final UsersRepository usersRepository;
-
 
   Timer? syncTimer;
 
   InfoViewModel(
-    this.appRepository,
+    this.saleOrdersRepository,
     this.usersRepository,
   ) : super(InfoState());
 
@@ -35,5 +34,17 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     try {
       await usersRepository.loadUserData();
     } on AppError catch(_) {}
+  }
+
+  Future<void> findSaleOrder(String ndoc, SaleOrderScanType type) async {
+    emit(state.copyWith(status: InfoStateStatus.inProgress));
+
+    try {
+      final saleOrder = await saleOrdersRepository.findSaleOrder(ndoc);
+
+      emit(state.copyWith(status: InfoStateStatus.success, foundSaleOrder: saleOrder, type: type));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: InfoStateStatus.failure, message: e.message));
+    }
   }
 }

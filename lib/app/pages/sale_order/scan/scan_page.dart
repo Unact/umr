@@ -1,19 +1,26 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
+import 'package:umr/app/entities/entities.dart';
 
 import '/app/constants/styles.dart';
-import '/app/entities/entities.dart';
+import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
-import '/app/repositories/app_repository.dart';
+import '/app/repositories/sale_orders_repository.dart';
 
 part 'scan_state.dart';
 part 'scan_view_model.dart';
 
 class ScanPage extends StatelessWidget {
+  final ApiSaleOrder saleOrder;
+  final SaleOrderScanType type;
+
   ScanPage({
+    required this.saleOrder,
+    required this.type,
     super.key
   });
 
@@ -21,7 +28,9 @@ class ScanPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<ScanViewModel>(
       create: (context) => ScanViewModel(
-        RepositoryProvider.of<AppRepository>(context),
+        RepositoryProvider.of<SaleOrdersRepository>(context),
+        saleOrder: saleOrder,
+        type: type
       ),
       child: _ScanView(),
     );
@@ -55,12 +64,12 @@ class _ScanViewState extends State<_ScanView> {
       },
       listener: (context, state) async {
         switch (state.status) {
-          case ScanStateStatus.scanFailure:
+          case ScanStateStatus.failure:
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message), backgroundColor: Colors.red[400])
             );
             break;
-          case ScanStateStatus.scanSuccess:
+          case ScanStateStatus.success:
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message), backgroundColor: Colors.green[400])
             );

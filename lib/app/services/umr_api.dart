@@ -9,7 +9,22 @@ extension UmrApi on RenewApi {
     return ApiUserData.fromJson(await get('v1/umr/user_info'));
   }
 
-  Future<ApiCode> scan({ required String code }) async {
-    return ApiCode.fromJson(await post('v1/umr/scan', dataGenerator: () => { 'code': code }));
+  Future<ApiSaleOrder> saleOrdersIndex({ required String ndoc }) async {
+    return ApiSaleOrder.fromJson(await get('v1/umr/sale_orders', queryParameters:   { 'ndoc': ndoc }));
+  }
+
+  Future<void> saleOrdersCompleteScan({
+    required int saleOrderId,
+    required int type,
+    required List<Map<String, dynamic>> codes
+  }) async {
+    await post(
+      'v1/umr/sale_orders/complete_scan',
+      dataGenerator: () => { 'saleOrderId': saleOrderId, 'type': type, 'codes': codes }
+    );
+  }
+
+  Future<ApiMarkirovkaCode> scan({ required String code }) async {
+    return ApiMarkirovkaCode.fromJson(await get('v1/umr/sale_orders/scan', queryParameters: { 'code': code }));
   }
 }
