@@ -11,14 +11,17 @@ import '/app/constants/strings.dart';
 
 part 'schema.dart';
 part 'database.g.dart';
+part 'sale_orders_dao.dart';
 part 'users_dao.dart';
 
 @DriftDatabase(
   tables: [
-    Users
+    Users,
+    SaleOrderLineCodes
   ],
   daos: [
-    UsersDao
+    UsersDao,
+    SaleOrdersDao
   ]
 )
 class AppDataStore extends _$AppDataStore {
@@ -53,7 +56,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
