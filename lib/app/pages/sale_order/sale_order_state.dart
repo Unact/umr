@@ -26,6 +26,9 @@ class SaleOrderState {
   final String message;
   final bool finished;
 
+  bool get fullyScanned => lineCodes.fold(0.0, (prev, e) => prev + e.vol) ==
+    saleOrder.lines.fold(0.0, (prev, e) => prev + e.vol);
+
   SaleOrderState copyWith({
     SaleOrderStateStatus? status,
     ApiSaleOrder? saleOrder,

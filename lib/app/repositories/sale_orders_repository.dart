@@ -68,11 +68,17 @@ class SaleOrdersRepository extends BaseRepository {
     );
   }
 
-  Future<void> clearSaleOrderLineCodes({required ApiSaleOrder saleOrder, ApiSaleOrderLine? line}) async {
-    if (line != null) {
-      dataStore.saleOrdersDao.clearSaleOrderLineCodes(id: saleOrder.id, subid: line.subid);
-    } else {
-      dataStore.saleOrdersDao.clearSaleOrderLineCodes(id: saleOrder.id);
+  Future<void> clearSaleOrderLineCodes({ApiSaleOrder? saleOrder, ApiSaleOrderLine? line}) async {
+    if (saleOrder == null) {
+      await dataStore.saleOrdersDao.clearSaleOrderLineCodes();
+      return;
     }
+
+    if (line != null) {
+      await dataStore.saleOrdersDao.clearSaleOrderLineCodes(id: saleOrder.id, subid: line.subid);
+      return;
+    }
+
+    await dataStore.saleOrdersDao.clearSaleOrderLineCodes(id: saleOrder.id);
   }
 }

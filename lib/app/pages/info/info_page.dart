@@ -49,6 +49,35 @@ class _InfoViewState extends State<_InfoView> {
     super.dispose();
   }
 
+  Future<void> showScanView(SaleOrderScanType type) async {
+    InfoViewModel vm = context.read<InfoViewModel>();
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => ScanView(
+          actions: [
+            IconButton(
+                color: Colors.white,
+                icon: const Icon(Icons.text_fields),
+                tooltip: 'Ручной поиск',
+                onPressed: () {
+                  Navigator.pop(context);
+                  showManualInput(type);
+                }
+              ),
+          ],
+          onRead: (String ndoc) {
+            Navigator.pop(context);
+            vm.findSaleOrder(ndoc, type);
+          },
+          child: Container()
+        ),
+        fullscreenDialog: true
+      )
+    );
+  }
+
   Future<void> showManualInput(SaleOrderScanType type) async {
     InfoViewModel vm = context.read<InfoViewModel>();
     TextEditingController ndocController = TextEditingController();
@@ -89,6 +118,37 @@ class _InfoViewState extends State<_InfoView> {
     if (!result) return;
 
     await vm.findSaleOrder(ndocController.text, type);
+  }
+
+  Future<void> showClearSaleOrderLineCodesDialog() async {
+    InfoViewModel vm = context.read<InfoViewModel>();
+
+    bool result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return SimpleAlertDialog(
+          title: Text('Вы точно хотите удалить данные о КМ?'),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('Да')
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Нет')
+            )
+          ]
+        );
+      }
+    ) ?? false;
+
+    if (!result) return;
+
+    await vm.clearSaleOrderLineCodes();
   }
 
   @override
@@ -163,20 +223,25 @@ class _InfoViewState extends State<_InfoView> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          const ListTile(
-            title: Text('Сканирование', textAlign: TextAlign.center, style: TextStyle(fontSize: 20))
+          ListTile(
+            title: Text('Сканирование', style: TextStyle(fontSize: 20)),
+            trailing: IconButton(
+              onPressed: showClearSaleOrderLineCodesDialog,
+              icon: Icon(Icons.delete),
+              tooltip: 'Удалить данные',
+            )
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               TextButton(
                 child: const Text('Заказ'),
-                onPressed: () => showManualInput(SaleOrderScanType.realization)
+                onPressed: () => showScanView(SaleOrderScanType.realization)
               ),
               const SizedBox(width: 8),
               TextButton(
                 child: const Text('Возврат'),
-                onPressed: () => showManualInput(SaleOrderScanType.correction)
+                onPressed: () => showScanView(SaleOrderScanType.correction)
               ),
             ],
           ),
