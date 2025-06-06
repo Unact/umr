@@ -48,7 +48,20 @@ class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
       }
 
       if (availableLine == null) {
-        emit(state.copyWith(status: ScanStateStatus.failure, message: 'Не удается связать КМ с товаром'));
+        final goodsName = state.saleOrder.lines.firstWhereOrNull((e) => e.gtin == codeInfo.gtin)?.goodsName;
+
+        if (goodsName != null) {
+          emit(state.copyWith(
+            status: ScanStateStatus.failure,
+            message: 'Позиция $goodsName уже полностью отсканирована'
+          ));
+        } else {
+          emit(state.copyWith(
+            status: ScanStateStatus.failure,
+            message: 'Товар для КМ не найден'
+          ));
+        }
+
         return;
       }
 
