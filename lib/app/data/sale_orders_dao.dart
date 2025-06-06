@@ -9,16 +9,20 @@ class SaleOrdersDao extends DatabaseAccessor<AppDataStore> with _$SaleOrdersDaoM
   }
 
   Future<void> clearSaleOrderLineCodes({
-    required int id,
+    int? id,
     int? subid
   }) async {
-    if (subid != null) {
-      await (
-        delete(saleOrderLineCodes)..where((tbl) => tbl.id.equals(id))..where((tbl) => tbl.subid.equals(subid))
-      ).go();
-    } else {
-      await (delete(saleOrderLineCodes)..where((tbl) => tbl.id.equals(id))).go();
+    if (id == null) {
+      await delete(saleOrderLineCodes).go();
+      return;
     }
+
+    if (subid == null) {
+      await (delete(saleOrderLineCodes)..where((tbl) => tbl.id.equals(id))).go();
+      return;
+    }
+
+    await (delete(saleOrderLineCodes)..where((tbl) => tbl.id.equals(id))..where((tbl) => tbl.subid.equals(subid))).go();
   }
 
   Future<void> addSaleOrderLineCode(SaleOrderLineCodesCompanion newLineCode) async {

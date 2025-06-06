@@ -73,7 +73,7 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
         return Scaffold(
           persistentFooterButtons: _buildFooterButtons(context),
           appBar: AppBar(
-            title: const Text('Заказ'),
+            title: Text(state.type == SaleOrderScanType.realization ? "Заказ" : "Возврат"),
           ),
           body: _buildBody(context)
         );
@@ -136,14 +136,19 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
     SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
     final amount = vm.state.lineCodes.where((e) => e.subid == line.subid).fold(0.0, (v, el) => v + el.vol);
 
-    return Dismissible(
-      key: Key(line.hashCode.toString()),
-      background: Container(color: Colors.red[500]),
-      onDismissed: (direction) => vm.clearOrderLineCodes(line),
-      child: ListTile(
-        dense: true,
-        title: Text(line.goodsName),
-        trailing: vm.state.finished ? Text("${line.vol.toInt()}") : Text("${amount.toInt()} из ${line.vol.toInt()}")
+    return ListTile(
+      dense: true,
+      title: Text(line.goodsName),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          vm.state.finished ? Text("${line.vol.toInt()}") : Text("${amount.toInt()} из ${line.vol.toInt()}"),
+          !vm.state.finished ? IconButton(
+            onPressed: () => vm.clearOrderLineCodes(line),
+            icon: Icon(Icons.delete),
+            tooltip: 'Удалить КМ',
+          ) : null
+        ].whereType<Widget>().toList()
       )
     );
   }
@@ -155,12 +160,8 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
 
     return [
       TextButton(
-        style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
-          backgroundColor: Theme.of(context).colorScheme.primary
-        ),
-        onPressed: vm.deliverOrder,
-        child: const Text('Завершить', style: TextStyle(color: Colors.white)),
+        onPressed: vm.state.fullyScanned ? vm.deliverOrder : null,
+        child: const Text('Завершить')
       )
     ];
   }

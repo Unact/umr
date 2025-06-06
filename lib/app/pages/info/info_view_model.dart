@@ -47,4 +47,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       emit(state.copyWith(status: InfoStateStatus.failure, message: e.message));
     }
   }
+
+  Future<void> clearSaleOrderLineCodes() async {
+    await saleOrdersRepository.clearSaleOrderLineCodes();
+  }
 }
