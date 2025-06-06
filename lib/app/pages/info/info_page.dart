@@ -12,6 +12,7 @@ import '/app/pages/sale_order/sale_order_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/sale_orders_repository.dart';
 import '/app/repositories/users_repository.dart';
+import '/app/utils/formatter.dart';
 import '/app/widgets/widgets.dart';
 
 part 'info_state.dart';
@@ -56,6 +57,7 @@ class _InfoViewState extends State<_InfoView> {
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => ScanView(
+          showScanner: true,
           actions: [
             IconButton(
                 color: Colors.white,
@@ -67,9 +69,9 @@ class _InfoViewState extends State<_InfoView> {
                 }
               ),
           ],
-          onRead: (String ndoc) {
+          onRead: (String rawValue) {
             Navigator.pop(context);
-            vm.findSaleOrder(ndoc, type);
+            vm.findSaleOrder(rawValue, type);
           },
           child: Container()
         ),

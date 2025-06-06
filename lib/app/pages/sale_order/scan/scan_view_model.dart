@@ -27,8 +27,8 @@ class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
     await saleOrderLineCodesSubscription?.cancel();
   }
 
-  Future<void> readCode(String? code) async {
-    if (code == null) return;
+  Future<void> readCode(String rawValue) async {
+    final code = Formatter.formatScanValue(rawValue);
 
     try {
       final codeInfo = await saleOrdersRepository.scan(code);

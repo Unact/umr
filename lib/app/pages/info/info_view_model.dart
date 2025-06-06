@@ -36,7 +36,9 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     } on AppError catch(_) {}
   }
 
-  Future<void> findSaleOrder(String ndoc, SaleOrderScanType type) async {
+  Future<void> findSaleOrder(String rawValue, SaleOrderScanType type) async {
+    final ndoc = Formatter.formatScanValue(rawValue);
+
     emit(state.copyWith(status: InfoStateStatus.inProgress));
 
     try {
