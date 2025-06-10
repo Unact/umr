@@ -13,6 +13,7 @@ class SaleOrderLineCodes extends Table {
   IntColumn get type => integer()();
   TextColumn get code => text()();
   RealColumn get vol => real()();
+  BoolColumn get isTracking => boolean()();
 
   @override
   Set<Column> get primaryKey => {id, subid, type, code};
