@@ -24,7 +24,9 @@ extension UmrApi on RenewApi {
     );
   }
 
-  Future<ApiMarkirovkaCode> scan({ required String code }) async {
-    return ApiMarkirovkaCode.fromJson(await get('v1/umr/sale_orders/scan', queryParameters: { 'code': code }));
+  Future<ApiMarkirovkaCode> scan({ required int saleOrderId, required String code }) async {
+    return ApiMarkirovkaCode.fromJson(
+      await get('v1/umr/sale_orders/scan', queryParameters: { 'saleOrderId': saleOrderId, 'code': code })
+    );
   }
 }

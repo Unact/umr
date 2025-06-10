@@ -20,9 +20,9 @@ class SaleOrdersRepository extends BaseRepository {
     }
   }
 
-  Future<ApiMarkirovkaCode> scan(String code) async {
+  Future<ApiMarkirovkaCode> scan(ApiSaleOrder saleOrder, String code) async {
     try {
-      return await api.scan(code: code);
+      return await api.scan(code: code, saleOrderId: saleOrder.id);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -32,11 +32,18 @@ class SaleOrdersRepository extends BaseRepository {
   }
 
   Future<void> completeScan(ApiSaleOrder saleOrder, SaleOrderScanType type, List<SaleOrderLineCode> lineCodes) async {
+    final codes = lineCodes.map((e) => {
+      'subid': e.subid,
+      'code': e.code,
+      'vol': e.vol,
+      'isTracking': e.isTracking
+    }).toList();
+
     try {
       await api.saleOrdersCompleteScan(
         saleOrderId: saleOrder.id,
         type: type.index,
-        codes: lineCodes.map((e) => {'subid': e.subid, 'code': e.code}).toList()
+        codes: codes
       );
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
@@ -55,7 +62,8 @@ class SaleOrdersRepository extends BaseRepository {
     required int subid,
     required SaleOrderScanType type,
     required String code,
-    required int vol
+    required int vol,
+    required bool isTracking
   }) {
     return dataStore.saleOrdersDao.addSaleOrderLineCode(
       SaleOrderLineCodesCompanion.insert(
@@ -63,7 +71,8 @@ class SaleOrdersRepository extends BaseRepository {
         subid: subid,
         type: type.index,
         code: code,
-        vol: vol.toDouble()
+        vol: vol.toDouble(),
+        isTracking: isTracking
       )
     );
   }

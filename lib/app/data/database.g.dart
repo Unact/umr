@@ -289,8 +289,18 @@ class $SaleOrderLineCodesTable extends SaleOrderLineCodes
   late final GeneratedColumn<double> vol = GeneratedColumn<double>(
       'vol', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _isTrackingMeta =
+      const VerificationMeta('isTracking');
   @override
-  List<GeneratedColumn> get $columns => [id, subid, type, code, vol];
+  late final GeneratedColumn<bool> isTracking = GeneratedColumn<bool>(
+      'is_tracking', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_tracking" IN (0, 1))'));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, subid, type, code, vol, isTracking];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -330,6 +340,14 @@ class $SaleOrderLineCodesTable extends SaleOrderLineCodes
     } else if (isInserting) {
       context.missing(_volMeta);
     }
+    if (data.containsKey('is_tracking')) {
+      context.handle(
+          _isTrackingMeta,
+          isTracking.isAcceptableOrUnknown(
+              data['is_tracking']!, _isTrackingMeta));
+    } else if (isInserting) {
+      context.missing(_isTrackingMeta);
+    }
     return context;
   }
 
@@ -349,6 +367,8 @@ class $SaleOrderLineCodesTable extends SaleOrderLineCodes
           .read(DriftSqlType.string, data['${effectivePrefix}code'])!,
       vol: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}vol'])!,
+      isTracking: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_tracking'])!,
     );
   }
 
@@ -365,12 +385,14 @@ class SaleOrderLineCode extends DataClass
   final int type;
   final String code;
   final double vol;
+  final bool isTracking;
   const SaleOrderLineCode(
       {required this.id,
       required this.subid,
       required this.type,
       required this.code,
-      required this.vol});
+      required this.vol,
+      required this.isTracking});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -379,6 +401,7 @@ class SaleOrderLineCode extends DataClass
     map['type'] = Variable<int>(type);
     map['code'] = Variable<String>(code);
     map['vol'] = Variable<double>(vol);
+    map['is_tracking'] = Variable<bool>(isTracking);
     return map;
   }
 
@@ -389,6 +412,7 @@ class SaleOrderLineCode extends DataClass
       type: Value(type),
       code: Value(code),
       vol: Value(vol),
+      isTracking: Value(isTracking),
     );
   }
 
@@ -401,6 +425,7 @@ class SaleOrderLineCode extends DataClass
       type: serializer.fromJson<int>(json['type']),
       code: serializer.fromJson<String>(json['code']),
       vol: serializer.fromJson<double>(json['vol']),
+      isTracking: serializer.fromJson<bool>(json['isTracking']),
     );
   }
   @override
@@ -412,17 +437,24 @@ class SaleOrderLineCode extends DataClass
       'type': serializer.toJson<int>(type),
       'code': serializer.toJson<String>(code),
       'vol': serializer.toJson<double>(vol),
+      'isTracking': serializer.toJson<bool>(isTracking),
     };
   }
 
   SaleOrderLineCode copyWith(
-          {int? id, int? subid, int? type, String? code, double? vol}) =>
+          {int? id,
+          int? subid,
+          int? type,
+          String? code,
+          double? vol,
+          bool? isTracking}) =>
       SaleOrderLineCode(
         id: id ?? this.id,
         subid: subid ?? this.subid,
         type: type ?? this.type,
         code: code ?? this.code,
         vol: vol ?? this.vol,
+        isTracking: isTracking ?? this.isTracking,
       );
   SaleOrderLineCode copyWithCompanion(SaleOrderLineCodesCompanion data) {
     return SaleOrderLineCode(
@@ -431,6 +463,8 @@ class SaleOrderLineCode extends DataClass
       type: data.type.present ? data.type.value : this.type,
       code: data.code.present ? data.code.value : this.code,
       vol: data.vol.present ? data.vol.value : this.vol,
+      isTracking:
+          data.isTracking.present ? data.isTracking.value : this.isTracking,
     );
   }
 
@@ -441,13 +475,14 @@ class SaleOrderLineCode extends DataClass
           ..write('subid: $subid, ')
           ..write('type: $type, ')
           ..write('code: $code, ')
-          ..write('vol: $vol')
+          ..write('vol: $vol, ')
+          ..write('isTracking: $isTracking')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, subid, type, code, vol);
+  int get hashCode => Object.hash(id, subid, type, code, vol, isTracking);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -456,7 +491,8 @@ class SaleOrderLineCode extends DataClass
           other.subid == this.subid &&
           other.type == this.type &&
           other.code == this.code &&
-          other.vol == this.vol);
+          other.vol == this.vol &&
+          other.isTracking == this.isTracking);
 }
 
 class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
@@ -465,6 +501,7 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
   final Value<int> type;
   final Value<String> code;
   final Value<double> vol;
+  final Value<bool> isTracking;
   final Value<int> rowid;
   const SaleOrderLineCodesCompanion({
     this.id = const Value.absent(),
@@ -472,6 +509,7 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
     this.type = const Value.absent(),
     this.code = const Value.absent(),
     this.vol = const Value.absent(),
+    this.isTracking = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SaleOrderLineCodesCompanion.insert({
@@ -480,18 +518,21 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
     required int type,
     required String code,
     required double vol,
+    required bool isTracking,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         subid = Value(subid),
         type = Value(type),
         code = Value(code),
-        vol = Value(vol);
+        vol = Value(vol),
+        isTracking = Value(isTracking);
   static Insertable<SaleOrderLineCode> custom({
     Expression<int>? id,
     Expression<int>? subid,
     Expression<int>? type,
     Expression<String>? code,
     Expression<double>? vol,
+    Expression<bool>? isTracking,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -500,6 +541,7 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
       if (type != null) 'type': type,
       if (code != null) 'code': code,
       if (vol != null) 'vol': vol,
+      if (isTracking != null) 'is_tracking': isTracking,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -510,6 +552,7 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
       Value<int>? type,
       Value<String>? code,
       Value<double>? vol,
+      Value<bool>? isTracking,
       Value<int>? rowid}) {
     return SaleOrderLineCodesCompanion(
       id: id ?? this.id,
@@ -517,6 +560,7 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
       type: type ?? this.type,
       code: code ?? this.code,
       vol: vol ?? this.vol,
+      isTracking: isTracking ?? this.isTracking,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -539,6 +583,9 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
     if (vol.present) {
       map['vol'] = Variable<double>(vol.value);
     }
+    if (isTracking.present) {
+      map['is_tracking'] = Variable<bool>(isTracking.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -553,6 +600,7 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
           ..write('type: $type, ')
           ..write('code: $code, ')
           ..write('vol: $vol, ')
+          ..write('isTracking: $isTracking, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -725,6 +773,7 @@ typedef $$SaleOrderLineCodesTableCreateCompanionBuilder
   required int type,
   required String code,
   required double vol,
+  required bool isTracking,
   Value<int> rowid,
 });
 typedef $$SaleOrderLineCodesTableUpdateCompanionBuilder
@@ -734,6 +783,7 @@ typedef $$SaleOrderLineCodesTableUpdateCompanionBuilder
   Value<int> type,
   Value<String> code,
   Value<double> vol,
+  Value<bool> isTracking,
   Value<int> rowid,
 });
 
@@ -760,6 +810,9 @@ class $$SaleOrderLineCodesTableFilterComposer
 
   ColumnFilters<double> get vol => $composableBuilder(
       column: $table.vol, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isTracking => $composableBuilder(
+      column: $table.isTracking, builder: (column) => ColumnFilters(column));
 }
 
 class $$SaleOrderLineCodesTableOrderingComposer
@@ -785,6 +838,9 @@ class $$SaleOrderLineCodesTableOrderingComposer
 
   ColumnOrderings<double> get vol => $composableBuilder(
       column: $table.vol, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isTracking => $composableBuilder(
+      column: $table.isTracking, builder: (column) => ColumnOrderings(column));
 }
 
 class $$SaleOrderLineCodesTableAnnotationComposer
@@ -810,6 +866,9 @@ class $$SaleOrderLineCodesTableAnnotationComposer
 
   GeneratedColumn<double> get vol =>
       $composableBuilder(column: $table.vol, builder: (column) => column);
+
+  GeneratedColumn<bool> get isTracking => $composableBuilder(
+      column: $table.isTracking, builder: (column) => column);
 }
 
 class $$SaleOrderLineCodesTableTableManager extends RootTableManager<
@@ -846,6 +905,7 @@ class $$SaleOrderLineCodesTableTableManager extends RootTableManager<
             Value<int> type = const Value.absent(),
             Value<String> code = const Value.absent(),
             Value<double> vol = const Value.absent(),
+            Value<bool> isTracking = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               SaleOrderLineCodesCompanion(
@@ -854,6 +914,7 @@ class $$SaleOrderLineCodesTableTableManager extends RootTableManager<
             type: type,
             code: code,
             vol: vol,
+            isTracking: isTracking,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -862,6 +923,7 @@ class $$SaleOrderLineCodesTableTableManager extends RootTableManager<
             required int type,
             required String code,
             required double vol,
+            required bool isTracking,
             Value<int> rowid = const Value.absent(),
           }) =>
               SaleOrderLineCodesCompanion.insert(
@@ -870,6 +932,7 @@ class $$SaleOrderLineCodesTableTableManager extends RootTableManager<
             type: type,
             code: code,
             vol: vol,
+            isTracking: isTracking,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
