@@ -138,6 +138,9 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
 
     return ListTile(
       dense: true,
+      leading: amount == line.vol ?
+        Icon(Icons.check, color: Colors.green) :
+        Icon(Icons.hourglass_empty, color: Colors.yellow),
       title: Text(line.goodsName),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
