@@ -59,6 +59,7 @@ class _InfoViewState extends State<_InfoView> {
       MaterialPageRoute(
         builder: (BuildContext context) => ScanView(
           showScanner: true,
+          barcodeMode: true,
           actions: [
             IconButton(
                 color: Colors.white,
