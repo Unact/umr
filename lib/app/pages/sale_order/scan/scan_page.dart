@@ -11,6 +11,7 @@ import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/sale_orders_repository.dart';
 import '/app/utils/formatter.dart';
+import '/app/utils/page_helpers.dart';
 
 part 'scan_state.dart';
 part 'scan_view_model.dart';
@@ -53,6 +54,7 @@ class _ScanViewState extends State<_ScanView> {
         return ScanView(
           showScanner: true,
           onRead: vm.readCode,
+          barcodeMode: true,
           child: Column(
             children: [
               Container(
@@ -66,14 +68,10 @@ class _ScanViewState extends State<_ScanView> {
       listener: (context, state) async {
         switch (state.status) {
           case ScanStateStatus.failure:
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: Colors.red[400])
-            );
+            PageHelpers.showMessage(context, state.message, Colors.red[400]!);
             break;
           case ScanStateStatus.success:
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: Colors.green[400])
-            );
+            PageHelpers.showMessage(context, state.message, Colors.green[400]!);
             break;
           default:
         }
