@@ -6,7 +6,7 @@ class SaleOrderViewModel extends PageViewModel<SaleOrderState, SaleOrderStateSta
   StreamSubscription<List<SaleOrderLineCode>>? saleOrderLineCodesSubscription;
 
   SaleOrderViewModel(this.saleOrdersRepository, { required ApiSaleOrder saleOrder, required SaleOrderScanType type}) :
-    super(SaleOrderState(saleOrder: saleOrder, type: type));
+    super(SaleOrderState(saleOrder: saleOrder, type: type, confirmationCallback: () {}));
 
   @override
   SaleOrderStateStatus get status => state.status;
@@ -40,7 +40,23 @@ class SaleOrderViewModel extends PageViewModel<SaleOrderState, SaleOrderStateSta
     emit(state.copyWith(status: SaleOrderStateStatus.showScan));
   }
 
-  Future<void> deliverOrder() async {
+  Future<void> tryCompleteScan() async {
+    if (state.type == SaleOrderScanType.correction) {
+      emit(state.copyWith(
+        status: SaleOrderStateStatus.needUserConfirmation,
+        message: 'Вы точно хотите завершить?',
+        confirmationCallback: completeScan
+      ));
+
+      return;
+    }
+
+    await completeScan(true);
+  }
+
+  Future<void> completeScan(bool confirmed) async {
+    if (!confirmed) return;
+
     emit(state.copyWith(status: SaleOrderStateStatus.inProgress));
 
     try {

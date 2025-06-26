@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
+import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
-import 'scan/scan_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/sale_orders_repository.dart';
+import '/app/utils/page_helpers.dart';
+import 'scan/scan_page.dart';
 
 part 'sale_order_state.dart';
 part 'sale_order_view_model.dart';
@@ -54,6 +56,25 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
     super.dispose();
   }
 
+  Future<void> showConfirmationDialog(String message) async {
+    SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
+
+    bool result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Подтверждение'),
+        content: SingleChildScrollView(child: ListBody(children: <Widget>[Text(message)])),
+        actions: <Widget>[
+          TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(false)),
+          TextButton(child: const Text('Подтверждаю'), onPressed: () => Navigator.of(context).pop(true))
+        ],
+      )
+    ) ?? false;
+
+    vm.state.confirmationCallback(result);
+  }
+
   Future<void> showScan() async {
     SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
 
@@ -80,6 +101,11 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
       },
       listener: (context, state) async {
         switch (state.status) {
+          case SaleOrderStateStatus.needUserConfirmation:
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              await showConfirmationDialog(state.message);
+            });
+            break;
           case SaleOrderStateStatus.inProgress:
             _progressDialog.open();
             break;
@@ -88,11 +114,11 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
             break;
           case SaleOrderStateStatus.failure:
             _progressDialog.close();
-            Misc.showSnackBar(context, SnackBar(content: Text(state.message), backgroundColor: Colors.red[400]));
+            PageHelpers.showMessage(context, state.message, Colors.red[400]!);
             break;
           case SaleOrderStateStatus.success:
             _progressDialog.close();
-            Misc.showSnackBar(context, SnackBar(content: Text(state.message), backgroundColor: Colors.green[400]));
+            PageHelpers.showMessage(context, state.message, Colors.green[400]!);
             break;
           default:
         }
@@ -163,7 +189,7 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
 
     return [
       TextButton(
-        onPressed: vm.state.fullyScanned ? vm.deliverOrder : null,
+        onPressed: vm.state.fullyScanned || vm.state.type == SaleOrderScanType.correction ? vm.tryCompleteScan : null,
         child: const Text('Завершить')
       )
     ];

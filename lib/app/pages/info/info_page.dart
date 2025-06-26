@@ -13,6 +13,7 @@ import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/sale_orders_repository.dart';
 import '/app/repositories/users_repository.dart';
 import '/app/utils/formatter.dart';
+import '/app/utils/page_helpers.dart';
 import '/app/widgets/widgets.dart';
 
 part 'info_state.dart';
@@ -101,16 +102,16 @@ class _InfoViewState extends State<_InfoView> {
           ),
           actions: [
             TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text(Strings.cancel)
+            ),
+            TextButton(
               onPressed: () async {
                 Navigator.of(context).pop(true);
               },
               child: const Text('Подтвердить')
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text('Отменить')
             )
           ]
         );
@@ -196,7 +197,7 @@ class _InfoViewState extends State<_InfoView> {
             break;
           case InfoStateStatus.failure:
             _progressDialog.close();
-            Misc.showSnackBar(context, SnackBar(content: Text(state.message), backgroundColor: Colors.red[400]));
+            PageHelpers.showMessage(context, state.message, Colors.red[400]!);
             break;
           case InfoStateStatus.success:
             _progressDialog.close();
