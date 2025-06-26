@@ -54,6 +54,7 @@ class _ScanViewState extends State<_ScanView> {
         return ScanView(
           showScanner: true,
           onRead: vm.readCode,
+          barcodeMode: true,
           child: Column(
             children: [
               Container(
