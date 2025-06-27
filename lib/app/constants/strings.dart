@@ -1,7 +1,7 @@
 class Strings {
   static const appName = 'UMR';
   static const repoName = 'umr';
-  static const ruAppName = 'ЮМоб';
+  static const ruAppName = 'Кладовщик';
   static const envDevelopment = 'development';
   static const envProduction = 'production';
   static const optsLoginKeyword = '81234567890';
