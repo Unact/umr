@@ -31,7 +31,7 @@ class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
     final code = Formatter.formatScanValue(rawValue);
 
     try {
-      final codeInfo = await saleOrdersRepository.scan(state.saleOrder, code);
+      final codeInfo = await saleOrdersRepository.scan(state.saleOrder, state.type, code);
 
       final codeVols = state.lineCodes.fold({}, (prev, e) {
         prev[e.subid] = (prev[e.subid] ?? 0) + e.vol;
