@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:toastification/toastification.dart';
 
 class PageHelpers {
   static void showMessage(BuildContext context, String message, Color color) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-      duration: const Duration(milliseconds: 8000),
+    toastification.show(
+      context: context,
       backgroundColor: color,
-      behavior: SnackBarBehavior.floating,
-      margin: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        bottom: MediaQuery.of(context).size.height - MediaQuery.of(context).size.height * 0.2
-      )
-    ));
+      foregroundColor: Colors.white,
+      title: Text(message),
+      showIcon: false,
+      closeButton: ToastCloseButton(showType: CloseButtonShowType.none),
+      dismissDirection: DismissDirection.down,
+      alignment: Alignment.topCenter,
+      autoCloseDuration: const Duration(seconds: 5),
+    );
   }
 }
