@@ -7,7 +7,7 @@ class PageHelpers {
       context: context,
       backgroundColor: color,
       foregroundColor: Colors.white,
-      title: Text(message),
+      description: Text(message),
       showIcon: false,
       closeButton: ToastCloseButton(showType: CloseButtonShowType.none),
       dismissDirection: DismissDirection.down,
