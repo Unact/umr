@@ -10,10 +10,16 @@ class SaleOrdersDao extends DatabaseAccessor<AppDataStore> with _$SaleOrdersDaoM
 
   Future<void> clearSaleOrderLineCodes({
     int? id,
-    int? subid
+    int? subid,
+    String? groupCode
   }) async {
     if (id == null) {
       await delete(saleOrderLineCodes).go();
+      return;
+    }
+
+    if (groupCode != null) {
+      await (delete(saleOrderLineCodes)..where((tbl) => tbl.groupCode.equals(groupCode))).go();
       return;
     }
 

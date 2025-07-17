@@ -13,7 +13,8 @@ class ScanState {
     this.message = '',
     required this.saleOrder,
     this.lineCodes = const [],
-    required this.type
+    required this.type,
+    required this.groupCode
   });
 
   final ScanStateStatus status;
@@ -21,13 +22,15 @@ class ScanState {
   final ApiSaleOrder saleOrder;
   final List<SaleOrderLineCode> lineCodes;
   final SaleOrderScanType type;
+  final String? groupCode;
 
   ScanState copyWith({
     ScanStateStatus? status,
     String? message,
     ApiSaleOrder? saleOrder,
     List<SaleOrderLineCode>? lineCodes,
-    SaleOrderScanType? type
+    SaleOrderScanType? type,
+    String? groupCode
   }) {
     return ScanState(
       status: status ?? this.status,
@@ -35,6 +38,7 @@ class ScanState {
       saleOrder: saleOrder ?? this.saleOrder,
       lineCodes: lineCodes ?? this.lineCodes,
       type: type ?? this.type,
+      groupCode: groupCode ?? this.groupCode
     );
   }
 }

@@ -31,6 +31,29 @@ class SaleOrderViewModel extends PageViewModel<SaleOrderState, SaleOrderStateSta
     await saleOrdersRepository.clearSaleOrderLineCodes(saleOrder: state.saleOrder, line: line);
   }
 
+  Future<void> clearGroupCodes(String groupCode) async {
+    await saleOrdersRepository.clearSaleOrderLineCodes(groupCode: groupCode);
+  }
+
+  Future<void> startGroupScan(String rawValue) async {
+    final code = Formatter.formatScanValue(rawValue);
+
+    emit(state.copyWith(
+      status: SaleOrderStateStatus.success,
+      message: 'Начат режим агрегации кодов',
+      currentGroupCode: (value: code)
+    ));
+  }
+
+  void tryShowGroupScan() async {
+    if (!await Permissions.hasCameraPermissions()) {
+      emit(state.copyWith(message: 'Не разрешено использование камеры', status: SaleOrderStateStatus.failure));
+      return;
+    }
+
+    emit(state.copyWith(status: SaleOrderStateStatus.showGroupScan));
+  }
+
   void tryShowScan() async {
     if (!await Permissions.hasCameraPermissions()) {
       emit(state.copyWith(message: 'Не разрешено использование камеры', status: SaleOrderStateStatus.failure));
@@ -38,6 +61,14 @@ class SaleOrderViewModel extends PageViewModel<SaleOrderState, SaleOrderStateSta
     }
 
     emit(state.copyWith(status: SaleOrderStateStatus.showScan));
+  }
+
+  Future<void> completeGroupScan() async {
+    emit(state.copyWith(
+      status: SaleOrderStateStatus.success,
+      message: 'Завершен режим агрегации кодов',
+      currentGroupCode: (value: null)
+    ));
   }
 
   Future<void> tryCompleteScan() async {

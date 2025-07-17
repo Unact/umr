@@ -19,10 +19,12 @@ part 'scan_view_model.dart';
 class ScanPage extends StatelessWidget {
   final ApiSaleOrder saleOrder;
   final SaleOrderScanType type;
+  final String? groupCode;
 
   ScanPage({
     required this.saleOrder,
     required this.type,
+    required this.groupCode,
     super.key
   });
 
@@ -32,7 +34,8 @@ class ScanPage extends StatelessWidget {
       create: (context) => ScanViewModel(
         RepositoryProvider.of<SaleOrdersRepository>(context),
         saleOrder: saleOrder,
-        type: type
+        type: type,
+        groupCode: groupCode
       ),
       child: _ScanView(),
     );
@@ -59,7 +62,7 @@ class _ScanViewState extends State<_ScanView> {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                child: const Text('Отсканируйте КМ', style: Styles.scanTitleText)
+                child: const Text('Отсканируйте код', style: Styles.scanTitleText)
               )
             ]
           )
