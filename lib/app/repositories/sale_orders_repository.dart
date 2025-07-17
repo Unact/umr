@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
@@ -35,6 +36,7 @@ class SaleOrdersRepository extends BaseRepository {
     final codes = lineCodes.map((e) => {
       'subid': e.subid,
       'code': e.code,
+      'groupCode': e.groupCode,
       'vol': e.vol,
       'isTracking': e.isTracking
     }).toList();
@@ -62,6 +64,7 @@ class SaleOrdersRepository extends BaseRepository {
     required int subid,
     required SaleOrderScanType type,
     required String code,
+    required String? groupCode,
     required int vol,
     required bool isTracking
   }) {
@@ -71,13 +74,19 @@ class SaleOrdersRepository extends BaseRepository {
         subid: subid,
         type: type.index,
         code: code,
+        groupCode: Value(groupCode),
         vol: vol.toDouble(),
         isTracking: isTracking
       )
     );
   }
 
-  Future<void> clearSaleOrderLineCodes({ApiSaleOrder? saleOrder, ApiSaleOrderLine? line}) async {
+  Future<void> clearSaleOrderLineCodes({ApiSaleOrder? saleOrder, ApiSaleOrderLine? line, String? groupCode}) async {
+    if (groupCode != null) {
+      await dataStore.saleOrdersDao.clearSaleOrderLineCodes(groupCode: groupCode);
+      return;
+    }
+
     if (saleOrder == null) {
       await dataStore.saleOrdersDao.clearSaleOrderLineCodes();
       return;

@@ -5,8 +5,15 @@ class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
 
   StreamSubscription<List<SaleOrderLineCode>>? saleOrderLineCodesSubscription;
 
-  ScanViewModel(this.saleOrdersRepository, {required ApiSaleOrder saleOrder, required SaleOrderScanType type}) :
-    super(ScanState(saleOrder: saleOrder, type: type));
+  ScanViewModel(
+    this.saleOrdersRepository,
+    {
+      required ApiSaleOrder saleOrder,
+      required SaleOrderScanType type,
+      required String? groupCode
+    }
+  ) :
+    super(ScanState(saleOrder: saleOrder, type: type, groupCode: groupCode));
 
   @override
   ScanStateStatus get status => state.status;
@@ -29,6 +36,25 @@ class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
 
   Future<void> readCode(String rawValue) async {
     final code = Formatter.formatScanValue(rawValue);
+
+    if (state.type == SaleOrderScanType.correction && state.saleOrder.lineCodes.any((e) => e.groupCode == code)) {
+      state.saleOrder.lineCodes.where((e) => e.groupCode == code).forEach((e) async {
+        if (state.lineCodes.any((lc) => lc.code == e.code)) return;
+
+        await saleOrdersRepository.addSaleOrderLineCode(
+          id: state.saleOrder.id,
+          subid: e.subid,
+          type: state.type,
+          code: e.code,
+          groupCode: e.groupCode,
+          vol: e.vol,
+          isTracking: e.isTracking
+        );
+      });
+
+      emit(state.copyWith(status: ScanStateStatus.success, message: 'АК успешно отсканирован'));
+      return;
+    }
 
     try {
       final codeInfo = await saleOrdersRepository.scan(state.saleOrder, state.type, code);
@@ -70,6 +96,7 @@ class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
         subid: availableLine.subid,
         type: state.type,
         code: codeInfo.code,
+        groupCode: state.groupCode,
         vol: codeInfo.vol,
         isTracking: codeInfo.isTracking
       );

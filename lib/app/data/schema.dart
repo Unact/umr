@@ -12,6 +12,7 @@ class SaleOrderLineCodes extends Table {
   IntColumn get subid => integer()();
   IntColumn get type => integer()();
   TextColumn get code => text()();
+  TextColumn get groupCode => text().nullable()();
   RealColumn get vol => real()();
   BoolColumn get isTracking => boolean()();
 

@@ -284,6 +284,12 @@ class $SaleOrderLineCodesTable extends SaleOrderLineCodes
   late final GeneratedColumn<String> code = GeneratedColumn<String>(
       'code', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _groupCodeMeta =
+      const VerificationMeta('groupCode');
+  @override
+  late final GeneratedColumn<String> groupCode = GeneratedColumn<String>(
+      'group_code', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _volMeta = const VerificationMeta('vol');
   @override
   late final GeneratedColumn<double> vol = GeneratedColumn<double>(
@@ -300,7 +306,7 @@ class $SaleOrderLineCodesTable extends SaleOrderLineCodes
           'CHECK ("is_tracking" IN (0, 1))'));
   @override
   List<GeneratedColumn> get $columns =>
-      [id, subid, type, code, vol, isTracking];
+      [id, subid, type, code, groupCode, vol, isTracking];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -334,6 +340,10 @@ class $SaleOrderLineCodesTable extends SaleOrderLineCodes
     } else if (isInserting) {
       context.missing(_codeMeta);
     }
+    if (data.containsKey('group_code')) {
+      context.handle(_groupCodeMeta,
+          groupCode.isAcceptableOrUnknown(data['group_code']!, _groupCodeMeta));
+    }
     if (data.containsKey('vol')) {
       context.handle(
           _volMeta, vol.isAcceptableOrUnknown(data['vol']!, _volMeta));
@@ -365,6 +375,8 @@ class $SaleOrderLineCodesTable extends SaleOrderLineCodes
           .read(DriftSqlType.int, data['${effectivePrefix}type'])!,
       code: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}code'])!,
+      groupCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}group_code']),
       vol: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}vol'])!,
       isTracking: attachedDatabase.typeMapping
@@ -384,6 +396,7 @@ class SaleOrderLineCode extends DataClass
   final int subid;
   final int type;
   final String code;
+  final String? groupCode;
   final double vol;
   final bool isTracking;
   const SaleOrderLineCode(
@@ -391,6 +404,7 @@ class SaleOrderLineCode extends DataClass
       required this.subid,
       required this.type,
       required this.code,
+      this.groupCode,
       required this.vol,
       required this.isTracking});
   @override
@@ -400,6 +414,9 @@ class SaleOrderLineCode extends DataClass
     map['subid'] = Variable<int>(subid);
     map['type'] = Variable<int>(type);
     map['code'] = Variable<String>(code);
+    if (!nullToAbsent || groupCode != null) {
+      map['group_code'] = Variable<String>(groupCode);
+    }
     map['vol'] = Variable<double>(vol);
     map['is_tracking'] = Variable<bool>(isTracking);
     return map;
@@ -411,6 +428,9 @@ class SaleOrderLineCode extends DataClass
       subid: Value(subid),
       type: Value(type),
       code: Value(code),
+      groupCode: groupCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(groupCode),
       vol: Value(vol),
       isTracking: Value(isTracking),
     );
@@ -424,6 +444,7 @@ class SaleOrderLineCode extends DataClass
       subid: serializer.fromJson<int>(json['subid']),
       type: serializer.fromJson<int>(json['type']),
       code: serializer.fromJson<String>(json['code']),
+      groupCode: serializer.fromJson<String?>(json['groupCode']),
       vol: serializer.fromJson<double>(json['vol']),
       isTracking: serializer.fromJson<bool>(json['isTracking']),
     );
@@ -436,6 +457,7 @@ class SaleOrderLineCode extends DataClass
       'subid': serializer.toJson<int>(subid),
       'type': serializer.toJson<int>(type),
       'code': serializer.toJson<String>(code),
+      'groupCode': serializer.toJson<String?>(groupCode),
       'vol': serializer.toJson<double>(vol),
       'isTracking': serializer.toJson<bool>(isTracking),
     };
@@ -446,6 +468,7 @@ class SaleOrderLineCode extends DataClass
           int? subid,
           int? type,
           String? code,
+          Value<String?> groupCode = const Value.absent(),
           double? vol,
           bool? isTracking}) =>
       SaleOrderLineCode(
@@ -453,6 +476,7 @@ class SaleOrderLineCode extends DataClass
         subid: subid ?? this.subid,
         type: type ?? this.type,
         code: code ?? this.code,
+        groupCode: groupCode.present ? groupCode.value : this.groupCode,
         vol: vol ?? this.vol,
         isTracking: isTracking ?? this.isTracking,
       );
@@ -462,6 +486,7 @@ class SaleOrderLineCode extends DataClass
       subid: data.subid.present ? data.subid.value : this.subid,
       type: data.type.present ? data.type.value : this.type,
       code: data.code.present ? data.code.value : this.code,
+      groupCode: data.groupCode.present ? data.groupCode.value : this.groupCode,
       vol: data.vol.present ? data.vol.value : this.vol,
       isTracking:
           data.isTracking.present ? data.isTracking.value : this.isTracking,
@@ -475,6 +500,7 @@ class SaleOrderLineCode extends DataClass
           ..write('subid: $subid, ')
           ..write('type: $type, ')
           ..write('code: $code, ')
+          ..write('groupCode: $groupCode, ')
           ..write('vol: $vol, ')
           ..write('isTracking: $isTracking')
           ..write(')'))
@@ -482,7 +508,8 @@ class SaleOrderLineCode extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, subid, type, code, vol, isTracking);
+  int get hashCode =>
+      Object.hash(id, subid, type, code, groupCode, vol, isTracking);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -491,6 +518,7 @@ class SaleOrderLineCode extends DataClass
           other.subid == this.subid &&
           other.type == this.type &&
           other.code == this.code &&
+          other.groupCode == this.groupCode &&
           other.vol == this.vol &&
           other.isTracking == this.isTracking);
 }
@@ -500,6 +528,7 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
   final Value<int> subid;
   final Value<int> type;
   final Value<String> code;
+  final Value<String?> groupCode;
   final Value<double> vol;
   final Value<bool> isTracking;
   final Value<int> rowid;
@@ -508,6 +537,7 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
     this.subid = const Value.absent(),
     this.type = const Value.absent(),
     this.code = const Value.absent(),
+    this.groupCode = const Value.absent(),
     this.vol = const Value.absent(),
     this.isTracking = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -517,6 +547,7 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
     required int subid,
     required int type,
     required String code,
+    this.groupCode = const Value.absent(),
     required double vol,
     required bool isTracking,
     this.rowid = const Value.absent(),
@@ -531,6 +562,7 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
     Expression<int>? subid,
     Expression<int>? type,
     Expression<String>? code,
+    Expression<String>? groupCode,
     Expression<double>? vol,
     Expression<bool>? isTracking,
     Expression<int>? rowid,
@@ -540,6 +572,7 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
       if (subid != null) 'subid': subid,
       if (type != null) 'type': type,
       if (code != null) 'code': code,
+      if (groupCode != null) 'group_code': groupCode,
       if (vol != null) 'vol': vol,
       if (isTracking != null) 'is_tracking': isTracking,
       if (rowid != null) 'rowid': rowid,
@@ -551,6 +584,7 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
       Value<int>? subid,
       Value<int>? type,
       Value<String>? code,
+      Value<String?>? groupCode,
       Value<double>? vol,
       Value<bool>? isTracking,
       Value<int>? rowid}) {
@@ -559,6 +593,7 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
       subid: subid ?? this.subid,
       type: type ?? this.type,
       code: code ?? this.code,
+      groupCode: groupCode ?? this.groupCode,
       vol: vol ?? this.vol,
       isTracking: isTracking ?? this.isTracking,
       rowid: rowid ?? this.rowid,
@@ -580,6 +615,9 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
     if (code.present) {
       map['code'] = Variable<String>(code.value);
     }
+    if (groupCode.present) {
+      map['group_code'] = Variable<String>(groupCode.value);
+    }
     if (vol.present) {
       map['vol'] = Variable<double>(vol.value);
     }
@@ -599,6 +637,7 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
           ..write('subid: $subid, ')
           ..write('type: $type, ')
           ..write('code: $code, ')
+          ..write('groupCode: $groupCode, ')
           ..write('vol: $vol, ')
           ..write('isTracking: $isTracking, ')
           ..write('rowid: $rowid')
@@ -772,6 +811,7 @@ typedef $$SaleOrderLineCodesTableCreateCompanionBuilder
   required int subid,
   required int type,
   required String code,
+  Value<String?> groupCode,
   required double vol,
   required bool isTracking,
   Value<int> rowid,
@@ -782,6 +822,7 @@ typedef $$SaleOrderLineCodesTableUpdateCompanionBuilder
   Value<int> subid,
   Value<int> type,
   Value<String> code,
+  Value<String?> groupCode,
   Value<double> vol,
   Value<bool> isTracking,
   Value<int> rowid,
@@ -807,6 +848,9 @@ class $$SaleOrderLineCodesTableFilterComposer
 
   ColumnFilters<String> get code => $composableBuilder(
       column: $table.code, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get groupCode => $composableBuilder(
+      column: $table.groupCode, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get vol => $composableBuilder(
       column: $table.vol, builder: (column) => ColumnFilters(column));
@@ -836,6 +880,9 @@ class $$SaleOrderLineCodesTableOrderingComposer
   ColumnOrderings<String> get code => $composableBuilder(
       column: $table.code, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get groupCode => $composableBuilder(
+      column: $table.groupCode, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<double> get vol => $composableBuilder(
       column: $table.vol, builder: (column) => ColumnOrderings(column));
 
@@ -863,6 +910,9 @@ class $$SaleOrderLineCodesTableAnnotationComposer
 
   GeneratedColumn<String> get code =>
       $composableBuilder(column: $table.code, builder: (column) => column);
+
+  GeneratedColumn<String> get groupCode =>
+      $composableBuilder(column: $table.groupCode, builder: (column) => column);
 
   GeneratedColumn<double> get vol =>
       $composableBuilder(column: $table.vol, builder: (column) => column);
@@ -904,6 +954,7 @@ class $$SaleOrderLineCodesTableTableManager extends RootTableManager<
             Value<int> subid = const Value.absent(),
             Value<int> type = const Value.absent(),
             Value<String> code = const Value.absent(),
+            Value<String?> groupCode = const Value.absent(),
             Value<double> vol = const Value.absent(),
             Value<bool> isTracking = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -913,6 +964,7 @@ class $$SaleOrderLineCodesTableTableManager extends RootTableManager<
             subid: subid,
             type: type,
             code: code,
+            groupCode: groupCode,
             vol: vol,
             isTracking: isTracking,
             rowid: rowid,
@@ -922,6 +974,7 @@ class $$SaleOrderLineCodesTableTableManager extends RootTableManager<
             required int subid,
             required int type,
             required String code,
+            Value<String?> groupCode = const Value.absent(),
             required double vol,
             required bool isTracking,
             Value<int> rowid = const Value.absent(),
@@ -931,6 +984,7 @@ class $$SaleOrderLineCodesTableTableManager extends RootTableManager<
             subid: subid,
             type: type,
             code: code,
+            groupCode: groupCode,
             vol: vol,
             isTracking: isTracking,
             rowid: rowid,

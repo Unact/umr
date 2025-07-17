@@ -10,7 +10,7 @@ extension UmrApi on RenewApi {
   }
 
   Future<ApiSaleOrder> saleOrdersIndex({ required String ndoc }) async {
-    return ApiSaleOrder.fromJson(await get('v1/umr/sale_orders', queryParameters:   { 'ndoc': ndoc }));
+    return ApiSaleOrder.fromJson(await get('v1/umr/sale_orders', queryParameters: { 'ndoc': ndoc }));
   }
 
   Future<void> saleOrdersCompleteScan({

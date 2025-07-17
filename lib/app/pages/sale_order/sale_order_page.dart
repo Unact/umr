@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
@@ -9,6 +10,7 @@ import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/sale_orders_repository.dart';
+import '/app/utils/formatter.dart';
 import '/app/utils/page_helpers.dart';
 import 'scan/scan_page.dart';
 
@@ -81,7 +83,31 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (BuildContext context) => ScanPage(saleOrder: vm.state.saleOrder, type: vm.state.type),
+        builder: (BuildContext context) => ScanPage(
+          saleOrder: vm.state.saleOrder,
+          type: vm.state.type,
+          groupCode: vm.state.currentGroupCode
+        ),
+        fullscreenDialog: true
+      )
+    );
+  }
+
+  Future<void> showGroupScanView() async {
+    SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => ScanView(
+          showScanner: true,
+          barcodeMode: true,
+          onRead: (String rawValue) {
+            Navigator.pop(context);
+            vm.startGroupScan(rawValue);
+          },
+          child: Container()
+        ),
         fullscreenDialog: true
       )
     );
@@ -94,7 +120,7 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
         return Scaffold(
           persistentFooterButtons: _buildFooterButtons(context),
           appBar: AppBar(
-            title: Text(state.type == SaleOrderScanType.realization ? "Заказ" : "Возврат"),
+            title: Text(state.type == SaleOrderScanType.realization ? 'Заказ' : 'Возврат'),
           ),
           body: _buildBody(context)
         );
@@ -111,6 +137,9 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
             break;
           case SaleOrderStateStatus.showScan:
             await showScan();
+            break;
+          case SaleOrderStateStatus.showGroupScan:
+            await showGroupScanView();
             break;
           case SaleOrderStateStatus.failure:
             _progressDialog.close();
@@ -138,7 +167,8 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
             InfoRow(title: const Text('Покупатель'), trailing: ExpandingText(vm.state.saleOrder.buyerName))
           ])
         ),
-        _buildOrderLinesTile(context)
+        _buildOrderLinesTile(context),
+        _buildGroupCodesTile(context)
       ],
     );
   }
@@ -150,11 +180,48 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
       title: const Text('Позиции', style: TextStyle(fontSize: 14)),
       initiallyExpanded: true,
       trailing: vm.state.finished ? null : IconButton(
-        tooltip: "Отсканировать код маркировки",
+        tooltip: 'Отсканировать код маркировки',
         icon: const Icon(Icons.qr_code_scanner),
         onPressed: vm.tryShowScan
       ),
       children: vm.state.saleOrder.lines.map((e) => _buildOrderLineTile(context, e)).toList()
+    );
+  }
+
+  Widget _buildGroupCodesTile(BuildContext context) {
+    SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
+
+    if (vm.state.lineCodes.none((e) => e.groupCode != null)) return Container();
+
+    return ExpansionTile(
+      initiallyExpanded: true,
+      title: Text('Агрегационные коды', style: TextStyle(fontSize: 14)),
+      showTrailingIcon: false,
+      children: vm.state.lineCodes.where((e) => e.groupCode != null).map((e) => e.groupCode).toSet().map((e) {
+        return ExpansionTile(
+          title: Text(e!, style: TextStyle(fontSize: 14)),
+          initiallyExpanded: true,
+          trailing: vm.state.finished ? null : IconButton(
+            tooltip: 'Расформировать код агрегации',
+            icon: const Icon(Icons.delete),
+            onPressed: () => vm.clearGroupCodes(e)
+          ),
+          children: vm.state.lineCodes.where((lc) => lc.groupCode == e).map(
+            (lc) => _buildGroupCodeLineTile(context, lc)
+          ).toList()
+        );
+      }).toList()
+    );
+  }
+
+  Widget _buildGroupCodeLineTile(BuildContext context, SaleOrderLineCode line) {
+    SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
+    final saleOrderLine = vm.state.saleOrder.lines.firstWhere((e) => e.subid == line.subid);
+
+    return ListTile(
+      dense: true,
+      title: Text(saleOrderLine.goodsName),
+      trailing: Text(line.vol.toInt().toString())
     );
   }
 
@@ -171,7 +238,7 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          vm.state.finished ? Text("${line.vol.toInt()}") : Text("${amount.toInt()} из ${line.vol.toInt()}"),
+          vm.state.finished ? Text('${line.vol.toInt()}') : Text('${amount.toInt()} из ${line.vol.toInt()}'),
           !vm.state.finished ? IconButton(
             onPressed: () => vm.clearOrderLineCodes(line),
             icon: Icon(Icons.delete),
@@ -187,9 +254,18 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
 
     if (vm.state.finished) return [];
 
+    if (vm.state.type == SaleOrderScanType.correction) {
+      return [
+        TextButton(onPressed: vm.tryCompleteScan, child: const Text('Завершить'))
+      ];
+    }
+
     return [
+      vm.state.currentGroupCode == null ?
+        TextButton(onPressed: vm.tryShowGroupScan, child: const Text('Добавить АК')) :
+        TextButton(onPressed: vm.completeGroupScan, child: const Text('Завершить АК')),
       TextButton(
-        onPressed: vm.state.fullyScanned || vm.state.type == SaleOrderScanType.correction ? vm.tryCompleteScan : null,
+        onPressed: vm.state.fullyScanned ? vm.tryCompleteScan : null,
         child: const Text('Завершить')
       )
     ];
