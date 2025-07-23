@@ -40,6 +40,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
 
   Future<void> loadMarkirovkaOrganizations() async {
     emit(state.copyWith(status: InfoStateStatus.loadMarkirovkaOrganizationInProgress));
+
     try {
       final markirovkaOrganizations = await appRepository.loadMarkirovkaOrganizations();
 
