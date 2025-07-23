@@ -10,6 +10,17 @@ import '/app/services/umr_api.dart';
 class SaleOrdersRepository extends BaseRepository {
   SaleOrdersRepository(super.dataStore, super.api);
 
+  Future<ApiInfoScan> infoScan(String code, ApiMarkirovkaOrganization markirovkaOrganization) async {
+    try {
+      return await api.saleOrdersInfoScan(code: code, markirovkaOrganizationId: markirovkaOrganization.id);
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await Misc.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
   Future<ApiSaleOrder> findSaleOrder(String ndoc) async {
     try {
       return await api.saleOrdersIndex(ndoc: ndoc);

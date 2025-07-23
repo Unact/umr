@@ -9,6 +9,18 @@ extension UmrApi on RenewApi {
     return ApiUserData.fromJson(await get('v1/umr/user_info'));
   }
 
+  Future<List<ApiMarkirovkaOrganization>> markirovkaOrganizations() async {
+    return (await get('v1/umr/dictionaries/markirovka_organizations')).map<ApiMarkirovkaOrganization>(
+      (e) => ApiMarkirovkaOrganization.fromJson(e)
+    ).toList();
+  }
+
+  Future<ApiInfoScan> saleOrdersInfoScan({ required String code, required int markirovkaOrganizationId}) async {
+    final queryParameters = { 'code': code, 'markirovkaOrganizationId': markirovkaOrganizationId };
+
+    return ApiInfoScan.fromJson(await get('v1/umr/sale_orders/info_scan', queryParameters: queryParameters));
+  }
+
   Future<ApiSaleOrder> saleOrdersIndex({ required String ndoc }) async {
     return ApiSaleOrder.fromJson(await get('v1/umr/sale_orders', queryParameters: { 'ndoc': ndoc }));
   }

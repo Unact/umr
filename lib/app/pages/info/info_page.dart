@@ -7,9 +7,11 @@ import 'package:u_app_utils/u_app_utils.dart';
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
+import '/app/pages/info_scan/info_scan_page.dart';
 import '/app/pages/person/person_page.dart';
 import '/app/pages/sale_order/sale_order_page.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/app_repository.dart';
 import '/app/repositories/sale_orders_repository.dart';
 import '/app/repositories/users_repository.dart';
 import '/app/utils/formatter.dart';
@@ -28,6 +30,7 @@ class InfoPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<InfoViewModel>(
       create: (context) => InfoViewModel(
+        RepositoryProvider.of<AppRepository>(context),
         RepositoryProvider.of<SaleOrdersRepository>(context),
         RepositoryProvider.of<UsersRepository>(context)
       ),
@@ -51,7 +54,7 @@ class _InfoViewState extends State<_InfoView> {
     super.dispose();
   }
 
-  Future<void> showScanView(SaleOrderScanType type) async {
+  Future<void> showSaleOrderScanView() async {
     InfoViewModel vm = context.read<InfoViewModel>();
 
     await Navigator.push(
@@ -62,18 +65,18 @@ class _InfoViewState extends State<_InfoView> {
           barcodeMode: true,
           actions: [
             IconButton(
-                color: Colors.white,
-                icon: const Icon(Icons.text_fields),
-                tooltip: 'Ручной поиск',
-                onPressed: () {
-                  Navigator.pop(context);
-                  showManualInput(type);
-                }
-              ),
+              color: Colors.white,
+              icon: const Icon(Icons.text_fields),
+              tooltip: 'Ручной поиск',
+              onPressed: () {
+                Navigator.pop(context);
+                showSaleOrderManualInput();
+              }
+            ),
           ],
           onRead: (String rawValue) {
             Navigator.pop(context);
-            vm.findSaleOrder(rawValue, type);
+            vm.findSaleOrder(rawValue);
           },
           child: Container()
         ),
@@ -82,7 +85,7 @@ class _InfoViewState extends State<_InfoView> {
     );
   }
 
-  Future<void> showManualInput(SaleOrderScanType type) async {
+  Future<void> showSaleOrderManualInput() async {
     InfoViewModel vm = context.read<InfoViewModel>();
     TextEditingController ndocController = TextEditingController();
 
@@ -121,7 +124,80 @@ class _InfoViewState extends State<_InfoView> {
 
     if (!result) return;
 
-    await vm.findSaleOrder(ndocController.text, type);
+    await vm.findSaleOrder(ndocController.text);
+  }
+
+  Future<void> showInfoCodeScanView() async {
+    InfoViewModel vm = context.read<InfoViewModel>();
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => ScanView(
+          showScanner: true,
+          barcodeMode: true,
+          actions: [
+            IconButton(
+              color: Colors.white,
+              icon: const Icon(Icons.text_fields),
+              tooltip: 'Ручной поиск',
+              onPressed: () {
+                Navigator.pop(context);
+                showInfoCodeManualInput();
+              }
+            ),
+          ],
+          onRead: (String rawValue) {
+            Navigator.pop(context);
+            vm.infoScan(rawValue);
+          },
+          child: Container()
+        ),
+        fullscreenDialog: true
+      )
+    );
+  }
+
+  Future<void> showInfoCodeManualInput() async {
+    InfoViewModel vm = context.read<InfoViewModel>();
+    TextEditingController codeController = TextEditingController();
+
+    bool result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return SimpleAlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                autofocus: true,
+                enableInteractiveSelection: false,
+                controller: codeController,
+                decoration: const InputDecoration(labelText: 'Код'),
+              )
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text(Strings.cancel)
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('Подтвердить')
+            )
+          ]
+        );
+      }
+    ) ?? false;
+
+    if (!result) return;
+
+    await vm.infoScan(codeController.text);
   }
 
   Future<void> showClearSaleOrderLineCodesDialog() async {
@@ -193,14 +269,26 @@ class _InfoViewState extends State<_InfoView> {
       },
       listener: (context, state) async {
         switch (state.status) {
-          case InfoStateStatus.inProgress:
+          case InfoStateStatus.showInfoCodeScan:
+            showInfoCodeScanView();
+            break;
+          case InfoStateStatus.showSaleOrderScan:
+            showSaleOrderScanView();
+            break;
+          case InfoStateStatus.showInfoCodeScanFailure:
+          case InfoStateStatus.showSaleOrderScanFailure:
+            PageHelpers.showMessage(context, state.message, Colors.red[400]!);
+            break;
+          case InfoStateStatus.infoScanInProgress:
+          case InfoStateStatus.findSaleOrderInProgress:
             await _progressDialog.open();
             break;
-          case InfoStateStatus.failure:
+          case InfoStateStatus.infoScanFailure:
+          case InfoStateStatus.findSaleOrderFailure:
             _progressDialog.close();
             PageHelpers.showMessage(context, state.message, Colors.red[400]!);
             break;
-          case InfoStateStatus.success:
+          case InfoStateStatus.findSaleOrderSuccess:
             _progressDialog.close();
             Navigator.push(
               context,
@@ -210,10 +298,76 @@ class _InfoViewState extends State<_InfoView> {
               )
             );
             break;
+          case InfoStateStatus.infoScanSuccess:
+            _progressDialog.close();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => InfoScanPage(infoScan: state.infoScan!),
+                fullscreenDialog: false
+              )
+            );
+            break;
+          case InfoStateStatus.loadMarkirovkaOrganizationFailure:
+            PageHelpers.showMessage(context, state.message, Colors.red[400]!);
+            break;
+          case InfoStateStatus.loadMarkirovkaOrganizationSuccess:
+            await showMarkirovkaOrganizationDialog();
+            break;
           default:
         }
       }
     );
+  }
+
+  Future<void> showMarkirovkaOrganizationDialog() async {
+    InfoViewModel vm = context.read<InfoViewModel>();
+
+    final result = await showDialog<ApiMarkirovkaOrganization?>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        ApiMarkirovkaOrganization? selectedMarkirovkaOrganization;
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return SimpleAlertDialog(
+              title: const Text('Укажите организацию'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    DropdownButtonFormField(
+                      isExpanded: true,
+                      menuMaxHeight: 200,
+                      decoration: const InputDecoration(labelText: 'Организация'),
+                      value: selectedMarkirovkaOrganization,
+                      items: vm.state.markirovkaOrganizations.map((e) => DropdownMenuItem(
+                        value: e,
+                        child: Text(e.name)
+                      )).toList(),
+                      onChanged: (newVal) => setState(() => selectedMarkirovkaOrganization = newVal)
+                    )
+                  ]
+                )
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: selectedMarkirovkaOrganization == null ?
+                    null :
+                    () => Navigator.of(context).pop(selectedMarkirovkaOrganization),
+                  child: const Text(Strings.ok)
+                ),
+                TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(null))
+              ],
+            );
+          }
+        );
+      }
+    );
+
+    if (result == null) return;
+
+    vm.tryShowInfoCodeScan(result);
   }
 
   List<Widget> buildInfoCards(BuildContext context) {
@@ -223,6 +377,8 @@ class _InfoViewState extends State<_InfoView> {
   }
 
   Widget buildScanCard(BuildContext context) {
+    InfoViewModel vm = context.read<InfoViewModel>();
+
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -240,13 +396,22 @@ class _InfoViewState extends State<_InfoView> {
             children: <Widget>[
               TextButton(
                 child: const Text('Заказ'),
-                onPressed: () => showScanView(SaleOrderScanType.realization)
+                onPressed: () => vm.tryShowSaleOrderScan(SaleOrderScanType.realization)
               ),
               const SizedBox(width: 8),
               TextButton(
                 child: const Text('Возврат'),
-                onPressed: () => showScanView(SaleOrderScanType.correction)
+                onPressed: () => vm.tryShowSaleOrderScan(SaleOrderScanType.correction)
               ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              TextButton(
+                onPressed: () => vm.loadMarkirovkaOrganizations(),
+                child: const Text('Инфо')
+              )
             ],
           ),
         ],
