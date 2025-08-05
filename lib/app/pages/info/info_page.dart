@@ -54,14 +54,13 @@ class _InfoViewState extends State<_InfoView> {
     super.dispose();
   }
 
-  Future<void> showSaleOrderScanView() async {
+  Future<void> showSaleOrderScanView(SaleOrderScanType type) async {
     InfoViewModel vm = context.read<InfoViewModel>();
 
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => ScanView(
-          showScanner: true,
           barcodeMode: true,
           actions: [
             IconButton(
@@ -70,13 +69,13 @@ class _InfoViewState extends State<_InfoView> {
               tooltip: 'Ручной поиск',
               onPressed: () {
                 Navigator.pop(context);
-                showSaleOrderManualInput();
+                showSaleOrderManualInput(type);
               }
             ),
           ],
           onRead: (String rawValue) {
             Navigator.pop(context);
-            vm.findSaleOrder(rawValue);
+            vm.findSaleOrder(type, rawValue);
           },
           child: Container()
         ),
@@ -85,7 +84,7 @@ class _InfoViewState extends State<_InfoView> {
     );
   }
 
-  Future<void> showSaleOrderManualInput() async {
+  Future<void> showSaleOrderManualInput(SaleOrderScanType type) async {
     InfoViewModel vm = context.read<InfoViewModel>();
     TextEditingController ndocController = TextEditingController();
 
@@ -124,17 +123,16 @@ class _InfoViewState extends State<_InfoView> {
 
     if (!result) return;
 
-    await vm.findSaleOrder(ndocController.text);
+    await vm.findSaleOrder(type, ndocController.text);
   }
 
-  Future<void> showInfoCodeScanView() async {
+  Future<void> showInfoCodeScanView(ApiMarkirovkaOrganization markirovkaOrganization) async {
     InfoViewModel vm = context.read<InfoViewModel>();
 
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => ScanView(
-          showScanner: true,
           barcodeMode: true,
           actions: [
             IconButton(
@@ -143,13 +141,13 @@ class _InfoViewState extends State<_InfoView> {
               tooltip: 'Ручной поиск',
               onPressed: () {
                 Navigator.pop(context);
-                showInfoCodeManualInput();
+                showInfoCodeManualInput(markirovkaOrganization);
               }
             ),
           ],
           onRead: (String rawValue) {
             Navigator.pop(context);
-            vm.infoScan(rawValue);
+            vm.infoScan(markirovkaOrganization, rawValue);
           },
           child: Container()
         ),
@@ -158,7 +156,7 @@ class _InfoViewState extends State<_InfoView> {
     );
   }
 
-  Future<void> showInfoCodeManualInput() async {
+  Future<void> showInfoCodeManualInput(ApiMarkirovkaOrganization markirovkaOrganization) async {
     InfoViewModel vm = context.read<InfoViewModel>();
     TextEditingController codeController = TextEditingController();
 
@@ -197,7 +195,7 @@ class _InfoViewState extends State<_InfoView> {
 
     if (!result) return;
 
-    await vm.infoScan(codeController.text);
+    await vm.infoScan(markirovkaOrganization, codeController.text);
   }
 
   Future<void> showClearSaleOrderLineCodesDialog() async {
@@ -269,16 +267,6 @@ class _InfoViewState extends State<_InfoView> {
       },
       listener: (context, state) async {
         switch (state.status) {
-          case InfoStateStatus.showInfoCodeScan:
-            showInfoCodeScanView();
-            break;
-          case InfoStateStatus.showSaleOrderScan:
-            showSaleOrderScanView();
-            break;
-          case InfoStateStatus.showInfoCodeScanFailure:
-          case InfoStateStatus.showSaleOrderScanFailure:
-            PageHelpers.showMessage(context, state.message, Colors.red[400]!);
-            break;
           case InfoStateStatus.infoScanInProgress:
           case InfoStateStatus.findSaleOrderInProgress:
             await _progressDialog.open();
@@ -367,7 +355,7 @@ class _InfoViewState extends State<_InfoView> {
 
     if (result == null) return;
 
-    vm.tryShowInfoCodeScan(result);
+    showInfoCodeScanView(result);
   }
 
   List<Widget> buildInfoCards(BuildContext context) {
@@ -396,12 +384,12 @@ class _InfoViewState extends State<_InfoView> {
             children: <Widget>[
               TextButton(
                 child: const Text('Заказ'),
-                onPressed: () => vm.tryShowSaleOrderScan(SaleOrderScanType.realization)
+                onPressed: () => showSaleOrderScanView(SaleOrderScanType.realization)
               ),
               const SizedBox(width: 8),
               TextButton(
                 child: const Text('Возврат'),
-                onPressed: () => vm.tryShowSaleOrderScan(SaleOrderScanType.correction)
+                onPressed: () => showSaleOrderScanView(SaleOrderScanType.correction)
               ),
             ],
           ),
