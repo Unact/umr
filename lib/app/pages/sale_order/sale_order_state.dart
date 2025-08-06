@@ -6,8 +6,6 @@ enum SaleOrderStateStatus {
   inProgress,
   success,
   failure,
-  showScan,
-  showGroupScan,
   needUserConfirmation
 }
 

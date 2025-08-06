@@ -45,24 +45,6 @@ class SaleOrderViewModel extends PageViewModel<SaleOrderState, SaleOrderStateSta
     ));
   }
 
-  void tryShowGroupScan() async {
-    if (!await Permissions.hasCameraPermissions()) {
-      emit(state.copyWith(message: 'Не разрешено использование камеры', status: SaleOrderStateStatus.failure));
-      return;
-    }
-
-    emit(state.copyWith(status: SaleOrderStateStatus.showGroupScan));
-  }
-
-  void tryShowScan() async {
-    if (!await Permissions.hasCameraPermissions()) {
-      emit(state.copyWith(message: 'Не разрешено использование камеры', status: SaleOrderStateStatus.failure));
-      return;
-    }
-
-    emit(state.copyWith(status: SaleOrderStateStatus.showScan));
-  }
-
   Future<void> completeGroupScan() async {
     emit(state.copyWith(
       status: SaleOrderStateStatus.success,

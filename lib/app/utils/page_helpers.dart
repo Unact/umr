@@ -3,6 +3,7 @@ import 'package:toastification/toastification.dart';
 
 class PageHelpers {
   static void showMessage(BuildContext context, String message, Color color) {
+    toastification.dismissAll(delayForAnimation: false);
     toastification.show(
       context: context,
       backgroundColor: color,
@@ -12,7 +13,7 @@ class PageHelpers {
       closeButton: ToastCloseButton(showType: CloseButtonShowType.none),
       dismissDirection: DismissDirection.down,
       alignment: Alignment.topCenter,
-      autoCloseDuration: const Duration(seconds: 5),
+      autoCloseDuration: const Duration(seconds: 2),
     );
   }
 }

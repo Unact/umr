@@ -100,8 +100,8 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => ScanView(
-          showScanner: true,
           barcodeMode: true,
+          initScanner: true,
           onRead: (String rawValue) {
             Navigator.pop(context);
             vm.startGroupScan(rawValue);
@@ -134,12 +134,6 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
             break;
           case SaleOrderStateStatus.inProgress:
             _progressDialog.open();
-            break;
-          case SaleOrderStateStatus.showScan:
-            await showScan();
-            break;
-          case SaleOrderStateStatus.showGroupScan:
-            await showGroupScanView();
             break;
           case SaleOrderStateStatus.failure:
             _progressDialog.close();
@@ -182,7 +176,7 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
       trailing: vm.state.finished ? null : IconButton(
         tooltip: 'Отсканировать код маркировки',
         icon: const Icon(Icons.qr_code_scanner),
-        onPressed: vm.tryShowScan
+        onPressed: showScan
       ),
       children: vm.state.saleOrder.lines.map((e) => _buildOrderLineTile(context, e)).toList()
     );
@@ -262,7 +256,7 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
 
     return [
       vm.state.currentGroupCode == null ?
-        TextButton(onPressed: vm.tryShowGroupScan, child: const Text('Добавить АК')) :
+        TextButton(onPressed: showGroupScanView, child: const Text('Добавить АК')) :
         TextButton(onPressed: vm.completeGroupScan, child: const Text('Завершить АК')),
       TextButton(
         onPressed: vm.state.fullyScanned ? vm.tryCompleteScan : null,

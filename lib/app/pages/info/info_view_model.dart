@@ -54,31 +54,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     }
   }
 
-  void tryShowSaleOrderScan(SaleOrderScanType type) async {
-    if (!await Permissions.hasCameraPermissions()) {
-      emit(state.copyWith(
-        message: 'Не разрешено использование камеры',
-        status: InfoStateStatus.showSaleOrderScanFailure
-      ));
-      return;
-    }
-
-    emit(state.copyWith(status: InfoStateStatus.showSaleOrderScan, type: type));
-  }
-
-  void tryShowInfoCodeScan(ApiMarkirovkaOrganization markirovkaOrganization) async {
-    if (!await Permissions.hasCameraPermissions()) {
-      emit(state.copyWith(
-        message: 'Не разрешено использование камеры',
-        status: InfoStateStatus.showInfoCodeScanFailure
-      ));
-      return;
-    }
-
-    emit(state.copyWith(status: InfoStateStatus.showInfoCodeScan, markirovkaOrganization: markirovkaOrganization));
-  }
-
-  Future<void> findSaleOrder(String rawValue) async {
+  Future<void> findSaleOrder(SaleOrderScanType type, String rawValue) async {
     final ndoc = Formatter.formatScanValue(rawValue);
 
     emit(state.copyWith(status: InfoStateStatus.findSaleOrderInProgress));
@@ -86,19 +62,19 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     try {
       final saleOrder = await saleOrdersRepository.findSaleOrder(ndoc);
 
-      emit(state.copyWith(status: InfoStateStatus.findSaleOrderSuccess, foundSaleOrder: saleOrder));
+      emit(state.copyWith(status: InfoStateStatus.findSaleOrderSuccess, foundSaleOrder: saleOrder, type: type));
     } on AppError catch(e) {
       emit(state.copyWith(status: InfoStateStatus.findSaleOrderFailure, message: e.message));
     }
   }
 
-  Future<void> infoScan(String rawValue) async {
+  Future<void> infoScan(ApiMarkirovkaOrganization markirovkaOrganization, String rawValue) async {
     final code = Formatter.formatScanValue(rawValue);
 
     emit(state.copyWith(status: InfoStateStatus.infoScanInProgress));
 
     try {
-      final infoScan = await saleOrdersRepository.infoScan(code, state.markirovkaOrganization!);
+      final infoScan = await saleOrdersRepository.infoScan(code, markirovkaOrganization);
 
       emit(state.copyWith(status: InfoStateStatus.infoScanSuccess, infoScan: infoScan));
     } on AppError catch(e) {
