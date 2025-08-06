@@ -101,6 +101,7 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
       MaterialPageRoute(
         builder: (BuildContext context) => ScanView(
           barcodeMode: true,
+          initScanner: true,
           onRead: (String rawValue) {
             Navigator.pop(context);
             vm.startGroupScan(rawValue);
