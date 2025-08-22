@@ -6,6 +6,9 @@ PODS:
   - fk_user_agent (2.0.0):
     - Flutter
   - Flutter (1.0.0)
+  - flutter_blue_plus_darwin (0.0.2):
+    - Flutter
+    - FlutterMacOS
   - flutter_image_compress_common (1.0.0):
     - Flutter
     - Mantle
@@ -87,6 +90,7 @@ DEPENDENCIES:
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - fk_user_agent (from `.symlinks/plugins/fk_user_agent/ios`)
   - Flutter (from `Flutter`)
+  - flutter_blue_plus_darwin (from `.symlinks/plugins/flutter_blue_plus_darwin/darwin`)
   - flutter_image_compress_common (from `.symlinks/plugins/flutter_image_compress_common/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - mobile_scanner (from `.symlinks/plugins/mobile_scanner/darwin`)
@@ -120,6 +124,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/fk_user_agent/ios"
   Flutter:
     :path: Flutter
+  flutter_blue_plus_darwin:
+    :path: ".symlinks/plugins/flutter_blue_plus_darwin/darwin"
   flutter_image_compress_common:
     :path: ".symlinks/plugins/flutter_image_compress_common/ios"
   flutter_secure_storage:
@@ -154,6 +160,7 @@ SPEC CHECKSUMS:
   device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   fk_user_agent: 137145b086229251761678fe034da53753f4ce59
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_blue_plus_darwin: 20a08bfeaa0f7804d524858d3d8744bcc1b6dbc3
   flutter_image_compress_common: 1697a328fd72bfb335507c6bca1a65fa5ad87df1
   flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8

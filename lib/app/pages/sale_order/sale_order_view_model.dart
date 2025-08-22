@@ -35,9 +35,7 @@ class SaleOrderViewModel extends PageViewModel<SaleOrderState, SaleOrderStateSta
     await saleOrdersRepository.clearSaleOrderLineCodes(groupCode: groupCode);
   }
 
-  Future<void> startGroupScan(String rawValue) async {
-    final code = Formatter.formatScanValue(rawValue);
-
+  Future<void> startGroupScan(String code) async {
     emit(state.copyWith(
       status: SaleOrderStateStatus.success,
       message: 'Начат режим агрегации кодов',

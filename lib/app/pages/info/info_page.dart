@@ -14,7 +14,6 @@ import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/sale_orders_repository.dart';
 import '/app/repositories/users_repository.dart';
-import '/app/utils/formatter.dart';
 import '/app/utils/page_helpers.dart';
 import '/app/widgets/widgets.dart';
 
@@ -61,8 +60,6 @@ class _InfoViewState extends State<_InfoView> {
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => ScanView(
-          barcodeMode: true,
-          initScanner: true,
           actions: [
             IconButton(
               color: Colors.white,
@@ -77,6 +74,9 @@ class _InfoViewState extends State<_InfoView> {
           onRead: (String rawValue) {
             Navigator.pop(context);
             vm.findSaleOrder(type, rawValue);
+          },
+          onError: (errorMessage) {
+            PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
           },
           child: Container()
         ),
@@ -134,8 +134,6 @@ class _InfoViewState extends State<_InfoView> {
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => ScanView(
-          barcodeMode: true,
-          initScanner: true,
           actions: [
             IconButton(
               color: Colors.white,
@@ -150,6 +148,9 @@ class _InfoViewState extends State<_InfoView> {
           onRead: (String rawValue) {
             Navigator.pop(context);
             vm.infoScan(markirovkaOrganization, rawValue);
+          },
+          onError: (errorMessage) {
+            PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
           },
           child: Container()
         ),
