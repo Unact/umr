@@ -40,6 +40,7 @@ void main() async {
     return true;
   };
 
+  await Initialization.initializeDataWedge(appName: Strings.appName);
   await Initialization.initializeSentry(
     dsn: const String.fromEnvironment('UMR_SENTRY_DSN'),
     isDebug: isDebug,

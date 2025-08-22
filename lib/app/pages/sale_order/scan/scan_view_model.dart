@@ -34,9 +34,7 @@ class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
     await saleOrderLineCodesSubscription?.cancel();
   }
 
-  Future<void> readCode(String rawValue) async {
-    final code = Formatter.formatScanValue(rawValue);
-
+  Future<void> readCode(String code) async {
     if (state.type == SaleOrderScanType.correction && state.saleOrder.lineCodes.any((e) => e.groupCode == code)) {
       state.saleOrder.lineCodes.where((e) => e.groupCode == code).forEach((e) async {
         if (state.lineCodes.any((lc) => lc.code == e.code)) return;

@@ -10,7 +10,6 @@ import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/sale_orders_repository.dart';
-import '/app/utils/formatter.dart';
 import '/app/utils/page_helpers.dart';
 import 'scan/scan_page.dart';
 
@@ -100,11 +99,12 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => ScanView(
-          barcodeMode: true,
-          initScanner: true,
           onRead: (String rawValue) {
             Navigator.pop(context);
             vm.startGroupScan(rawValue);
+          },
+          onError: (errorMessage) {
+            PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
           },
           child: Container()
         ),

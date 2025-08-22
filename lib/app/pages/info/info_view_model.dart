@@ -54,9 +54,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     }
   }
 
-  Future<void> findSaleOrder(SaleOrderScanType type, String rawValue) async {
-    final ndoc = Formatter.formatScanValue(rawValue);
-
+  Future<void> findSaleOrder(SaleOrderScanType type, String ndoc) async {
     emit(state.copyWith(status: InfoStateStatus.findSaleOrderInProgress));
 
     try {
@@ -68,9 +66,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     }
   }
 
-  Future<void> infoScan(ApiMarkirovkaOrganization markirovkaOrganization, String rawValue) async {
-    final code = Formatter.formatScanValue(rawValue);
-
+  Future<void> infoScan(ApiMarkirovkaOrganization markirovkaOrganization, String code) async {
     emit(state.copyWith(status: InfoStateStatus.infoScanInProgress));
 
     try {

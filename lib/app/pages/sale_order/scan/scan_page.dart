@@ -7,12 +7,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soundpool/soundpool.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
+import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/sale_orders_repository.dart';
-import '/app/utils/formatter.dart';
 import '/app/utils/page_helpers.dart';
 
 part 'scan_state.dart';
@@ -66,8 +66,9 @@ class _ScanViewState extends State<_ScanView> {
 
         return ScanView(
           onRead: vm.readCode,
-          barcodeMode: true,
-          initScanner: true,
+          onError: (errorMessage) {
+            PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
+          },
           child: Column(
             children: [
               Container(
