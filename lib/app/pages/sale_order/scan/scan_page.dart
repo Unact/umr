@@ -1,10 +1,9 @@
 import 'dart:async';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:soundpool/soundpool.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
@@ -50,13 +49,7 @@ class _ScanView extends StatefulWidget {
 }
 
 class _ScanViewState extends State<_ScanView> {
-  static final Soundpool _kPool = Soundpool.fromOptions(options: const SoundpoolOptions());
-  static final Future<int> _kErrorBeepId = rootBundle
-    .load('assets/beep_error.mp3')
-    .then((soundData) => _kPool.load(soundData));
-  static final Future<int> _kSuccessBeepId = rootBundle
-    .load('assets/beep_success.mp3')
-    .then((soundData) => _kPool.load(soundData));
+  final player = AudioPlayer();
 
   @override
   Widget build(BuildContext context) {
@@ -83,11 +76,11 @@ class _ScanViewState extends State<_ScanView> {
         switch (state.status) {
           case ScanStateStatus.failure:
             PageHelpers.showMessage(context, state.message, Colors.red[400]!);
-            await _kPool.play(await _kErrorBeepId);
+            await player.play(AssetSource('beep_error.mp3'));
             break;
           case ScanStateStatus.success:
             PageHelpers.showMessage(context, state.message, Colors.green[400]!);
-            await _kPool.play(await _kSuccessBeepId);
+            await player.play(AssetSource('beep_success.mp3'));
             break;
           default:
         }
