@@ -7,10 +7,7 @@ enum InfoStateStatus {
   findSaleOrderFailure,
   loadMarkirovkaOrganizationInProgress,
   loadMarkirovkaOrganizationSuccess,
-  loadMarkirovkaOrganizationFailure,
-  infoScanInProgress,
-  infoScanSuccess,
-  infoScanFailure
+  loadMarkirovkaOrganizationFailure
 }
 
 class InfoState {
@@ -18,7 +15,6 @@ class InfoState {
     this.status = InfoStateStatus.initial,
     this.foundSaleOrder,
     this.markirovkaOrganizations = const [],
-    this.infoScan,
     this.type,
     this.message = ''
   });
@@ -26,7 +22,6 @@ class InfoState {
   final InfoStateStatus status;
   final ApiSaleOrder? foundSaleOrder;
   final List<ApiMarkirovkaOrganization> markirovkaOrganizations;
-  final ApiInfoScan? infoScan;
   final SaleOrderScanType? type;
   final String message;
 
@@ -42,7 +37,6 @@ class InfoState {
       status: status ?? this.status,
       foundSaleOrder: foundSaleOrder ?? this.foundSaleOrder,
       markirovkaOrganizations: markirovkaOrganizations ?? this.markirovkaOrganizations,
-      infoScan: infoScan ?? this.infoScan,
       type: type ?? this.type,
       message: message ?? this.message
     );

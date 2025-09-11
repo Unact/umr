@@ -66,18 +66,6 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     }
   }
 
-  Future<void> infoScan(ApiMarkirovkaOrganization markirovkaOrganization, String code) async {
-    emit(state.copyWith(status: InfoStateStatus.infoScanInProgress));
-
-    try {
-      final infoScan = await saleOrdersRepository.infoScan(code, markirovkaOrganization);
-
-      emit(state.copyWith(status: InfoStateStatus.infoScanSuccess, infoScan: infoScan));
-    } on AppError catch(e) {
-      emit(state.copyWith(status: InfoStateStatus.infoScanFailure, message: e.message));
-    }
-  }
-
   Future<void> clearSaleOrderLineCodes() async {
     await saleOrdersRepository.clearSaleOrderLineCodes();
   }
