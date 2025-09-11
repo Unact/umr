@@ -202,8 +202,7 @@ class _InfoViewState extends State<_InfoView> {
             PageHelpers.showMessage(context, state.message, Colors.red[400]!);
             break;
           case InfoStateStatus.findSaleOrderSuccess:
-            _progressDialog.close();
-            Navigator.pop(context);
+            await _progressDialog.close();
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
