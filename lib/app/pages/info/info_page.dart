@@ -186,7 +186,7 @@ class _InfoViewState extends State<_InfoView> {
               Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: buildInfoCards(context)
+                children: buildCards(context)
               )
             ],
           )
@@ -279,10 +279,34 @@ class _InfoViewState extends State<_InfoView> {
     );
   }
 
-  List<Widget> buildInfoCards(BuildContext context) {
+  List<Widget> buildCards(BuildContext context) {
     return <Widget>[
-      buildScanCard(context)
+      buildScanCard(context),
+      buildInfoCard(context)
     ];
+  }
+
+  Widget buildInfoCard(BuildContext context) {
+    InfoViewModel vm = context.read<InfoViewModel>();
+
+    return FutureBuilder(
+      future: vm.state.user?.newVersionAvailable,
+      builder: (context, snapshot) {
+        if (!(snapshot.data ?? false)) return Container();
+
+        return const Card(
+          child: ListTile(
+            isThreeLine: true,
+            title: Text('Информация', style: TextStyle(fontSize: 20)),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            subtitle: Padding(
+              padding: EdgeInsetsGeometry.symmetric(vertical: 16),
+              child: Text('Доступна новая версия приложения')
+            )
+          )
+        );
+      }
+    );
   }
 
   Widget buildScanCard(BuildContext context) {
