@@ -2,6 +2,7 @@ part of 'info_page.dart';
 
 enum InfoStateStatus {
   initial,
+  dataLoaded,
   findSaleOrderInProgress,
   findSaleOrderSuccess,
   findSaleOrderFailure,
@@ -16,6 +17,7 @@ class InfoState {
     this.foundSaleOrder,
     this.markirovkaOrganizations = const [],
     this.type,
+    this.user,
     this.message = ''
   });
 
@@ -24,6 +26,7 @@ class InfoState {
   final List<ApiMarkirovkaOrganization> markirovkaOrganizations;
   final SaleOrderScanType? type;
   final String message;
+  final User? user;
 
   InfoState copyWith({
     InfoStateStatus? status,
@@ -31,6 +34,7 @@ class InfoState {
     List<ApiMarkirovkaOrganization>? markirovkaOrganizations,
     ApiInfoScan? infoScan,
     SaleOrderScanType? type,
+    User? user,
     String? message
   }) {
     return InfoState(
@@ -38,7 +42,8 @@ class InfoState {
       foundSaleOrder: foundSaleOrder ?? this.foundSaleOrder,
       markirovkaOrganizations: markirovkaOrganizations ?? this.markirovkaOrganizations,
       type: type ?? this.type,
-      message: message ?? this.message
+      message: message ?? this.message,
+      user: user ?? this.user
     );
   }
 }

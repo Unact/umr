@@ -4,6 +4,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   final AppRepository appRepository;
   final SaleOrdersRepository saleOrdersRepository;
   final UsersRepository usersRepository;
+  StreamSubscription<User>? userSubscription;
 
   Timer? syncTimer;
 
@@ -23,6 +24,10 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     await loadUserData();
 
     syncTimer = Timer.periodic(const Duration(minutes: 10), loadUserData);
+
+    userSubscription = usersRepository.watchUser().listen((event) {
+      emit(state.copyWith(status: InfoStateStatus.dataLoaded, user: event));
+    });
   }
 
   @override
@@ -30,6 +35,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     await super.close();
 
     syncTimer?.cancel();
+    await userSubscription?.cancel();
   }
 
   Future<void> loadUserData([Timer? _]) async {
