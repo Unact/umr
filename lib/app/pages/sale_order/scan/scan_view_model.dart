@@ -89,6 +89,17 @@ class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
         return;
       }
 
+      if (
+        (state.lineCodes.any((e) => e.isTracking && e.subid == availableLine.subid) && !codeInfo.isTracking) ||
+        (state.lineCodes.any((e) => !e.isTracking && e.subid == availableLine.subid) && codeInfo.isTracking)
+      ) {
+        emit(state.copyWith(
+          status: ScanStateStatus.failure,
+          message: 'Для одной позиции не могут присутствать коды ОСУ и поэкземплярного учета одновременно'
+        ));
+        return;
+      }
+
       await saleOrdersRepository.addSaleOrderLineCode(
         id: state.saleOrder.id,
         subid: availableLine.subid,
