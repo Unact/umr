@@ -57,6 +57,19 @@ class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
     try {
       final codeInfo = await saleOrdersRepository.scan(state.saleOrder, state.type, code);
 
+      if (codeInfo.vol == 0) {
+        emit(state.copyWith(status: ScanStateStatus.failure, message: 'Отсканирован товар без вложенности'));
+        return;
+      }
+
+      if (state.type != SaleOrderScanType.correction && state.groupCode == null && codeInfo.vol == 1) {
+        emit(state.copyWith(
+          status: ScanStateStatus.failure,
+          message: 'КМ штук можно сканировать только в рамках АК'
+        ));
+        return;
+      }
+
       final codeVols = state.lineCodes.fold({}, (prev, e) {
         prev[e.subid] = (prev[e.subid] ?? 0) + e.vol;
         return prev;
