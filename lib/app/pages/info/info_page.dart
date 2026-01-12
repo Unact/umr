@@ -243,7 +243,7 @@ class _InfoViewState extends State<_InfoView> {
                       isExpanded: true,
                       menuMaxHeight: 200,
                       decoration: const InputDecoration(labelText: 'Организация'),
-                      value: selectedMarkirovkaOrganization,
+                      initialValue: selectedMarkirovkaOrganization,
                       items: vm.state.markirovkaOrganizations.map((e) => DropdownMenuItem(
                         value: e,
                         child: Text(e.name)

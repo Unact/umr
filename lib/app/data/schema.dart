@@ -15,6 +15,7 @@ class SaleOrderLineCodes extends Table {
   TextColumn get groupCode => text().nullable()();
   RealColumn get vol => real()();
   BoolColumn get isTracking => boolean()();
+  DateTimeColumn get localTs => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id, subid, type, code};
