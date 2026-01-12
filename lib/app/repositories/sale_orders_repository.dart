@@ -49,7 +49,8 @@ class SaleOrdersRepository extends BaseRepository {
       'code': e.code,
       'groupCode': e.groupCode,
       'vol': e.vol,
-      'isTracking': e.isTracking
+      'isTracking': e.isTracking,
+      'localTs': e.localTs.toIso8601String()
     }).toList();
 
     try {
@@ -87,7 +88,8 @@ class SaleOrdersRepository extends BaseRepository {
         code: code,
         groupCode: Value(groupCode),
         vol: vol.toDouble(),
-        isTracking: isTracking
+        isTracking: isTracking,
+        localTs: DateTime.now()
       )
     );
   }
