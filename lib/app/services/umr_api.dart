@@ -16,13 +16,13 @@ extension UmrApi on RenewApi {
   }
 
   Future<ApiInfoScan> saleOrdersInfoScan({ required String code, required int markirovkaOrganizationId}) async {
-    final queryParameters = { 'code': code, 'markirovkaOrganizationId': markirovkaOrganizationId };
+    final query = { 'code': code, 'markirovkaOrganizationId': markirovkaOrganizationId };
 
-    return ApiInfoScan.fromJson(await get('v1/umr/sale_orders/info_scan', queryParameters: queryParameters));
+    return ApiInfoScan.fromJson(await get('v1/umr/sale_orders/info_scan', query: query));
   }
 
   Future<ApiSaleOrder> saleOrdersIndex({ required String ndoc }) async {
-    return ApiSaleOrder.fromJson(await get('v1/umr/sale_orders', queryParameters: { 'ndoc': ndoc }));
+    return ApiSaleOrder.fromJson(await get('v1/umr/sale_orders', query: { 'ndoc': ndoc }));
   }
 
   Future<void> saleOrdersCompleteScan({
@@ -32,7 +32,7 @@ extension UmrApi on RenewApi {
   }) async {
     await post(
       'v1/umr/sale_orders/complete_scan',
-      dataGenerator: () => { 'saleOrderId': saleOrderId, 'type': type, 'codes': codes }
+      data: { 'saleOrderId': saleOrderId, 'type': type, 'codes': codes }
     );
   }
 
@@ -42,7 +42,7 @@ extension UmrApi on RenewApi {
     required String code
   }) async {
     return ApiMarkirovkaCode.fromJson(
-      await get('v1/umr/sale_orders/scan', queryParameters: { 'saleOrderId': saleOrderId, 'type': type, 'code': code })
+      await get('v1/umr/sale_orders/scan', query: { 'saleOrderId': saleOrderId, 'type': type, 'code': code })
     );
   }
 }

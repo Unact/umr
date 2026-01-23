@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
-import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
@@ -39,7 +38,6 @@ class _LoginViewState extends State<_LoginView> {
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
   final TextEditingController loginController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController urlController = TextEditingController();
 
   @override
   void dispose() {
@@ -58,12 +56,6 @@ class _LoginViewState extends State<_LoginView> {
       resizeToAvoidBottomInset: false,
       body: BlocConsumer<LoginViewModel, LoginState>(
         builder: (context, state) {
-          if (state.status.isInitial || state.status.isUrlFieldActivated) {
-            loginController.text = state.login;
-            passwordController.text = state.password;
-            urlController.text = state.url;
-          }
-
           return Column(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.end,
@@ -101,17 +93,6 @@ class _LoginViewState extends State<_LoginView> {
   }
 
   Widget loginField(BuildContext context) {
-    final vm = context.read<LoginViewModel>();
-
-    if (vm.state.optsEnabled) {
-      return TextField(
-        controller: loginController,
-        keyboardType: TextInputType.url,
-        decoration: const InputDecoration(labelText: 'Телефон или e-mail или login'),
-        style: Styles.formStyle,
-      );
-    }
-
     return TextField(
       controller: loginController,
       keyboardType: TextInputType.number,
@@ -140,21 +121,6 @@ class _LoginViewState extends State<_LoginView> {
     );
   }
 
-  Widget urlField(BuildContext context) {
-    final vm = context.read<LoginViewModel>();
-
-    if (vm.state.optsEnabled) {
-      return TextField(
-        controller: urlController,
-        keyboardType: TextInputType.url,
-        style: Styles.formStyle,
-        decoration: const InputDecoration(labelText: 'Url')
-      );
-    }
-
-    return Container();
-  }
-
   Widget buildLoginForm(BuildContext context) {
     final vm = context.read<LoginViewModel>();
 
@@ -165,7 +131,6 @@ class _LoginViewState extends State<_LoginView> {
         children: <Widget>[
           loginField(context),
           passwordField(context),
-          urlField(context),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -180,7 +145,7 @@ class _LoginViewState extends State<_LoginView> {
                     ),
                     onPressed: () {
                       Misc.unfocus(context);
-                      vm.apiLogin(urlController.text, loginController.text, passwordController.text);
+                      vm.apiLogin(loginController.text, passwordController.text);
                     },
                     child: const Text('Войти'),
                   ),
@@ -197,7 +162,7 @@ class _LoginViewState extends State<_LoginView> {
                     ),
                     onPressed: () {
                       Misc.unfocus(context);
-                      vm.getNewPassword(urlController.text, loginController.text);
+                      vm.getNewPassword(loginController.text);
                     },
                     child: const Text('Получить пароль', textAlign: TextAlign.center),
                   ),

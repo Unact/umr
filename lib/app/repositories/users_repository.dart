@@ -35,9 +35,9 @@ class UsersRepository extends BaseRepository {
     }
   }
 
-  Future<void> login(String url, String login, String password) async {
+  Future<void> login(String login, String password) async {
     try {
-      await api.login(url: url, login: login, password: password);
+      await api.login(login: login, password: password);
       _loggedInController.add(api.isLoggedIn);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
@@ -61,21 +61,10 @@ class UsersRepository extends BaseRepository {
     }
   }
 
-  Future<void> resetPassword(String url, String login) async {
+  Future<void> resetPassword(String login) async {
     try {
-      await api.resetPassword(url: url, login: login);
+      await api.resetPassword(login: login);
       _loggedInController.add(api.isLoggedIn);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await Misc.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
-  }
-
-  Future<void> refresh() async {
-    try {
-      await api.refresh();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
