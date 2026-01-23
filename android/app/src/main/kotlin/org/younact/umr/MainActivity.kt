@@ -1,4 +1,4 @@
-package com.selvis.umr
+package org.younact.umr
 
 import io.flutter.embedding.android.FlutterActivity
 
