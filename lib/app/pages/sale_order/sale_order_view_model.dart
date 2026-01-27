@@ -71,11 +71,12 @@ class SaleOrderViewModel extends PageViewModel<SaleOrderState, SaleOrderStateSta
     emit(state.copyWith(status: SaleOrderStateStatus.inProgress));
 
     try {
-      await saleOrdersRepository.completeScan(state.saleOrder, state.type, state.lineCodes);
+      final saleOrder = await saleOrdersRepository.completeScan(state.saleOrder, state.type, state.lineCodes);
       await saleOrdersRepository.clearSaleOrderLineCodes(saleOrder: state.saleOrder);
 
       emit(state.copyWith(
         status: SaleOrderStateStatus.success,
+        saleOrder: saleOrder,
         message: 'Информация о доставке сохранена',
         finished: true
       ));

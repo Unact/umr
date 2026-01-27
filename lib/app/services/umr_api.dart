@@ -25,15 +25,17 @@ extension UmrApi on RenewApi {
     return ApiSaleOrder.fromJson(await get('v1/umr/sale_orders', query: { 'ndoc': ndoc }));
   }
 
-  Future<void> saleOrdersCompleteScan({
+  Future<ApiSaleOrder> saleOrdersCompleteScan({
     required int saleOrderId,
     required int type,
     required List<Map<String, dynamic>> codes
   }) async {
-    await post(
+    final result = await post(
       'v1/umr/sale_orders/complete_scan',
       data: { 'saleOrderId': saleOrderId, 'type': type, 'codes': codes }
     );
+
+    return ApiSaleOrder.fromJson(result);
   }
 
   Future<ApiMarkirovkaCode> scan({

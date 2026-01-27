@@ -35,20 +35,25 @@ class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
   }
 
   Future<void> readCode(String code) async {
-    if (state.type == SaleOrderScanType.correction && state.saleOrder.lineCodes.any((e) => e.groupCode == code)) {
-      state.saleOrder.lineCodes.where((e) => e.groupCode == code).forEach((e) async {
-        if (state.lineCodes.any((lc) => lc.code == e.code)) return;
+    if (
+      state.type == SaleOrderScanType.correction &&
+      state.saleOrder.allLineCodes.any((e) => e.groupCode == code && e.type == SaleOrderScanType.realization)
+    ) {
+      final realizationCodes = state.saleOrder.allLineCodes
+        .where((e) => e.groupCode == code && e.type == SaleOrderScanType.realization);
+      for (var realizationCode in realizationCodes) {
+        if (state.lineCodes.any((lc) => lc.code == realizationCode.code)) return;
 
         await saleOrdersRepository.addSaleOrderLineCode(
           id: state.saleOrder.id,
-          subid: e.subid,
+          subid: realizationCode.subid,
           type: state.type,
-          code: e.code,
-          groupCode: e.groupCode,
-          vol: e.vol,
-          isTracking: e.isTracking
+          code: realizationCode.code,
+          groupCode: realizationCode.groupCode,
+          vol: realizationCode.vol,
+          isTracking: realizationCode.isTracking
         );
-      });
+      }
 
       emit(state.copyWith(status: ScanStateStatus.success, message: 'АК успешно отсканирован'));
       return;

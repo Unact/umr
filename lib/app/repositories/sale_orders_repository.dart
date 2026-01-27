@@ -43,7 +43,11 @@ class SaleOrdersRepository extends BaseRepository {
     }
   }
 
-  Future<void> completeScan(ApiSaleOrder saleOrder, SaleOrderScanType type, List<SaleOrderLineCode> lineCodes) async {
+  Future<ApiSaleOrder> completeScan(
+    ApiSaleOrder saleOrder,
+    SaleOrderScanType type,
+    List<SaleOrderLineCode> lineCodes
+  ) async {
     final codes = lineCodes.map((e) => {
       'subid': e.subid,
       'code': e.code,
@@ -54,7 +58,7 @@ class SaleOrdersRepository extends BaseRepository {
     }).toList();
 
     try {
-      await api.saleOrdersCompleteScan(
+      return await api.saleOrdersCompleteScan(
         saleOrderId: saleOrder.id,
         type: type.index,
         codes: codes
