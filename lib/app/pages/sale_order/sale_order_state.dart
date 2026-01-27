@@ -33,6 +33,9 @@ class SaleOrderState {
   bool get fullyScanned => lineCodes.fold(0.0, (prev, e) => prev + e.vol) ==
     saleOrder.lines.fold(0.0, (prev, e) => prev + e.vol);
 
+  List<ApiSaleOrderLineCode> get allTypeLineCodes => saleOrder.allLineCodes.where((e) => e.type == type).toList();
+  bool get allowEdit => !finished && allTypeLineCodes.isEmpty;
+
   SaleOrderState copyWith({
     SaleOrderStateStatus? status,
     ApiSaleOrder? saleOrder,

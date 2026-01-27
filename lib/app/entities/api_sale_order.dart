@@ -5,14 +5,14 @@ class ApiSaleOrder extends Equatable {
   final String ndoc;
   final String buyerName;
   final List<ApiSaleOrderLine> lines;
-  final List<ApiSaleOrderLineCode> lineCodes;
+  final List<ApiSaleOrderLineCode> allLineCodes;
 
   const ApiSaleOrder({
     required this.id,
     required this.ndoc,
     required this.buyerName,
     required this.lines,
-    required this.lineCodes
+    required this.allLineCodes
   });
 
   factory ApiSaleOrder.fromJson(Map<String, dynamic> json) {
@@ -21,7 +21,7 @@ class ApiSaleOrder extends Equatable {
       ndoc: json['ndoc'],
       buyerName: json['buyerName'],
       lines: json['lines'].map<ApiSaleOrderLine>((e) => ApiSaleOrderLine.fromJson(e)).toList(),
-      lineCodes: json['lineCodes'].map<ApiSaleOrderLineCode>((e) => ApiSaleOrderLineCode.fromJson(e)).toList(),
+      allLineCodes: json['allLineCodes'].map<ApiSaleOrderLineCode>((e) => ApiSaleOrderLineCode.fromJson(e)).toList(),
     );
   }
 
@@ -31,6 +31,6 @@ class ApiSaleOrder extends Equatable {
     ndoc,
     buyerName,
     lines,
-    lineCodes
+    allLineCodes
   ];
 }

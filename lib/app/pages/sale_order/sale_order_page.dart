@@ -158,7 +158,11 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
           padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 16.0),
           child: Column(children: [
             InfoRow(title: const Text('Номер'), trailing: Text(vm.state.saleOrder.ndoc)),
-            InfoRow(title: const Text('Покупатель'), trailing: ExpandingText(vm.state.saleOrder.buyerName))
+            InfoRow(title: const Text('Покупатель'), trailing: ExpandingText(vm.state.saleOrder.buyerName)),
+            InfoRow(
+              title: const Text('Статус'),
+              trailing: Text(vm.state.allTypeLineCodes.isEmpty ? 'Не отсканирован' : 'Отсканирован')
+            )
           ])
         ),
         _buildOrderLinesTile(context),
@@ -173,7 +177,7 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
     return ExpansionTile(
       title: const Text('Позиции', style: TextStyle(fontSize: 14)),
       initiallyExpanded: true,
-      trailing: vm.state.finished ? null : IconButton(
+      trailing: !vm.state.allowEdit ? null : IconButton(
         tooltip: 'Отсканировать код маркировки',
         icon: const Icon(Icons.qr_code_scanner),
         onPressed: showScan
@@ -195,7 +199,7 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
         return ExpansionTile(
           title: Text(e!, style: TextStyle(fontSize: 14)),
           initiallyExpanded: true,
-          trailing: vm.state.finished ? null : IconButton(
+          trailing: !vm.state.allowEdit ? null : IconButton(
             tooltip: 'Расформировать код агрегации',
             icon: const Icon(Icons.delete),
             onPressed: () => vm.clearGroupCodes(e)
@@ -221,32 +225,43 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
 
   Widget _buildOrderLineTile(BuildContext context, ApiSaleOrderLine line) {
     SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
-    final amount = vm.state.lineCodes.where((e) => e.subid == line.subid).fold(0.0, (v, el) => v + el.vol);
 
-    return ListTile(
-      dense: true,
-      leading: amount == line.vol ?
-        Icon(Icons.check, color: Colors.green) :
-        Icon(Icons.hourglass_empty, color: Colors.yellow),
-      title: Text(line.goodsName),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          vm.state.finished ? Text('${line.vol.toInt()}') : Text('${amount.toInt()} из ${line.vol.toInt()}'),
-          !vm.state.finished ? IconButton(
-            onPressed: () => vm.clearOrderLineCodes(line),
-            icon: Icon(Icons.delete),
-            tooltip: 'Удалить КМ',
-          ) : null
-        ].whereType<Widget>().toList()
-      )
-    );
+    if (vm.state.allTypeLineCodes.isNotEmpty) {
+      final amount = vm.state.allTypeLineCodes.where((e) => e.subid == line.subid).fold(0.0, (v, el) => v + el.vol);
+
+      return ListTile(
+        dense: true,
+        title: Text(line.goodsName),
+        trailing: Text('${amount.toInt()} из ${line.vol.toInt()}')
+      );
+    } else {
+      final amount = vm.state.lineCodes.where((e) => e.subid == line.subid).fold(0.0, (v, el) => v + el.vol);
+
+      return ListTile(
+        dense: true,
+        leading: amount == line.vol ?
+          Icon(Icons.check, color: Colors.green) :
+          Icon(Icons.hourglass_empty, color: Colors.yellow),
+        title: Text(line.goodsName),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('${amount.toInt()} из ${line.vol.toInt()}'),
+            vm.state.allowEdit ? IconButton(
+              onPressed: () => vm.clearOrderLineCodes(line),
+              icon: Icon(Icons.delete),
+              tooltip: 'Удалить КМ',
+            ) : null
+          ].whereType<Widget>().toList()
+        )
+      );
+    }
   }
 
   List<Widget> _buildFooterButtons(BuildContext context) {
     SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
 
-    if (vm.state.finished) return [];
+    if (!vm.state.allowEdit) return [];
 
     if (vm.state.type == SaleOrderScanType.correction) {
       return [

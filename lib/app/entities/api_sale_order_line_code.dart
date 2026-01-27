@@ -5,6 +5,7 @@ class ApiSaleOrderLineCode extends Equatable {
   final String code;
   final int vol;
   final bool isTracking;
+  final SaleOrderScanType type;
   final String? groupCode;
 
   const ApiSaleOrderLineCode({
@@ -13,6 +14,7 @@ class ApiSaleOrderLineCode extends Equatable {
     required this.vol,
     required this.isTracking,
     required this.groupCode,
+    required this.type
   });
 
   factory ApiSaleOrderLineCode.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class ApiSaleOrderLineCode extends Equatable {
       vol: json['vol'],
       isTracking: json['isTracking'],
       groupCode: json['groupCode'],
+      type: SaleOrderScanType.values[json['type']]
     );
   }
 
@@ -31,6 +34,7 @@ class ApiSaleOrderLineCode extends Equatable {
     code,
     vol,
     isTracking,
-    groupCode
+    groupCode,
+    type
   ];
 }
