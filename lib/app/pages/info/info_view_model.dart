@@ -60,13 +60,13 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     }
   }
 
-  Future<void> findSaleOrder(SaleOrderScanType type, String ndoc) async {
+  Future<void> findSaleOrder(String ndoc) async {
     emit(state.copyWith(status: InfoStateStatus.findSaleOrderInProgress));
 
     try {
       final saleOrder = await saleOrdersRepository.findSaleOrder(ndoc);
 
-      emit(state.copyWith(status: InfoStateStatus.findSaleOrderSuccess, foundSaleOrder: saleOrder, type: type));
+      emit(state.copyWith(status: InfoStateStatus.findSaleOrderSuccess, foundSaleOrder: saleOrder));
     } on AppError catch(e) {
       emit(state.copyWith(status: InfoStateStatus.findSaleOrderFailure, message: e.message));
     }

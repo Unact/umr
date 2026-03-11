@@ -1,6 +1,6 @@
-part of 'sale_order_page.dart';
+part of 'documents_page.dart';
 
-enum SaleOrderStateStatus {
+enum DocumentsStateStatus {
   initial,
   dataLoaded,
   inProgress,
@@ -8,23 +8,23 @@ enum SaleOrderStateStatus {
   failure
 }
 
-class SaleOrderState {
-  SaleOrderState({
-    this.status = SaleOrderStateStatus.initial,
+class DocumentsState {
+  DocumentsState({
+    this.status = DocumentsStateStatus.initial,
     required this.saleOrder,
     this.message = ''
   });
 
-  final SaleOrderStateStatus status;
+  final DocumentsStateStatus status;
   final ApiSaleOrder saleOrder;
   final String message;
 
-  SaleOrderState copyWith({
-    SaleOrderStateStatus? status,
+  DocumentsState copyWith({
+    DocumentsStateStatus? status,
     ApiSaleOrder? saleOrder,
     String? message,
   }) {
-    return SaleOrderState(
+    return DocumentsState(
       status: status ?? this.status,
       saleOrder: saleOrder ?? this.saleOrder,
       message: message ?? this.message,

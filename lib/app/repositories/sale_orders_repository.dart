@@ -71,6 +71,20 @@ class SaleOrdersRepository extends BaseRepository {
     }
   }
 
+  Future<void> printDocuments(
+    ApiSaleOrder saleOrder,
+    int printerId
+  ) async {
+    try {
+      await api.saleOrdersPrintDocuments(saleOrderId: saleOrder.id, printerId: printerId);
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await Misc.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
   Stream<List<SaleOrderLineCode>> watchSaleOrderLineCodes(int id) {
     return dataStore.saleOrdersDao.watchSaleOrderLineCodes(id);
   }
