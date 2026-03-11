@@ -2,32 +2,25 @@ part of 'sale_order_page.dart';
 
 enum SaleOrderStateStatus {
   initial,
-  dataLoaded,
-  inProgress,
-  success,
-  failure
+  dataLoaded
 }
 
 class SaleOrderState {
   SaleOrderState({
     this.status = SaleOrderStateStatus.initial,
-    required this.saleOrder,
-    this.message = ''
+    required this.saleOrder
   });
 
   final SaleOrderStateStatus status;
   final ApiSaleOrder saleOrder;
-  final String message;
 
   SaleOrderState copyWith({
     SaleOrderStateStatus? status,
-    ApiSaleOrder? saleOrder,
-    String? message,
+    ApiSaleOrder? saleOrder
   }) {
     return SaleOrderState(
       status: status ?? this.status,
-      saleOrder: saleOrder ?? this.saleOrder,
-      message: message ?? this.message,
+      saleOrder: saleOrder ?? this.saleOrder
     );
   }
 }

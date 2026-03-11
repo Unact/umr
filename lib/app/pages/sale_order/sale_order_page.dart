@@ -6,7 +6,6 @@ import 'package:umr/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/sale_orders_repository.dart';
-import '/app/utils/page_helpers.dart';
 import 'codes/codes_page.dart';
 import 'documents/documents_page.dart';
 
@@ -53,7 +52,7 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<SaleOrderViewModel, SaleOrderState>(
+    return BlocBuilder<SaleOrderViewModel, SaleOrderState>(
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
@@ -61,17 +60,6 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
           ),
           body: _buildBody(context)
         );
-      },
-      listener: (context, state) async {
-        switch (state.status) {
-          case SaleOrderStateStatus.failure:
-            PageHelpers.showMessage(context, state.message, Colors.red[400]!);
-            break;
-          case SaleOrderStateStatus.success:
-            PageHelpers.showMessage(context, state.message, Colors.green[400]!);
-            break;
-          default:
-        }
       }
     );
   }
