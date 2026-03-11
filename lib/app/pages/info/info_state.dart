@@ -16,7 +16,6 @@ class InfoState {
     this.status = InfoStateStatus.initial,
     this.foundSaleOrder,
     this.markirovkaOrganizations = const [],
-    this.type,
     this.user,
     this.message = ''
   });
@@ -24,7 +23,6 @@ class InfoState {
   final InfoStateStatus status;
   final ApiSaleOrder? foundSaleOrder;
   final List<ApiMarkirovkaOrganization> markirovkaOrganizations;
-  final SaleOrderScanType? type;
   final String message;
   final User? user;
 
@@ -33,7 +31,6 @@ class InfoState {
     ApiSaleOrder? foundSaleOrder,
     List<ApiMarkirovkaOrganization>? markirovkaOrganizations,
     ApiInfoScan? infoScan,
-    SaleOrderScanType? type,
     User? user,
     String? message
   }) {
@@ -41,7 +38,6 @@ class InfoState {
       status: status ?? this.status,
       foundSaleOrder: foundSaleOrder ?? this.foundSaleOrder,
       markirovkaOrganizations: markirovkaOrganizations ?? this.markirovkaOrganizations,
-      type: type ?? this.type,
       message: message ?? this.message,
       user: user ?? this.user
     );

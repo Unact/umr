@@ -1,28 +1,22 @@
-import 'dart:async';
-
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
+import 'package:umr/app/data/database.dart';
 
-import '/app/constants/strings.dart';
-import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/sale_orders_repository.dart';
-import '/app/utils/page_helpers.dart';
-import 'scan/scan_page.dart';
+import 'codes/codes_page.dart';
+import 'documents/documents_page.dart';
 
 part 'sale_order_state.dart';
 part 'sale_order_view_model.dart';
 
 class SaleOrderPage extends StatelessWidget {
   final ApiSaleOrder saleOrder;
-  final SaleOrderScanType type;
 
   SaleOrderPage({
     required this.saleOrder,
-    required this.type,
     super.key
   });
 
@@ -31,8 +25,7 @@ class SaleOrderPage extends StatelessWidget {
     return BlocProvider<SaleOrderViewModel>(
       create: (context) => SaleOrderViewModel(
         RepositoryProvider.of<SaleOrdersRepository>(context),
-        saleOrder: saleOrder,
-        type: type
+        saleOrder: saleOrder
       ),
       child: _SaleOrderView(),
     );
@@ -57,94 +50,16 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
     super.dispose();
   }
 
-  Future<void> showConfirmationDialog(String message) async {
-    SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
-
-    bool result = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('Подтверждение'),
-        content: SingleChildScrollView(child: ListBody(children: <Widget>[Text(message)])),
-        actions: <Widget>[
-          TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(false)),
-          TextButton(child: const Text('Подтверждаю'), onPressed: () => Navigator.of(context).pop(true))
-        ],
-      )
-    ) ?? false;
-
-    vm.state.confirmationCallback(result);
-  }
-
-  Future<void> showScan() async {
-    SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
-
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) => ScanPage(
-          saleOrder: vm.state.saleOrder,
-          type: vm.state.type,
-          groupCode: vm.state.currentGroupCode
-        ),
-        fullscreenDialog: true
-      )
-    );
-  }
-
-  Future<void> showGroupScanView() async {
-    SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
-
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) => ScanView(
-          onRead: (String rawValue) {
-            Navigator.pop(context);
-            vm.startGroupScan(rawValue);
-          },
-          onError: (errorMessage) {
-            PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
-          },
-          child: Container()
-        ),
-        fullscreenDialog: true
-      )
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<SaleOrderViewModel, SaleOrderState>(
+    return BlocBuilder<SaleOrderViewModel, SaleOrderState>(
       builder: (context, state) {
         return Scaffold(
-          persistentFooterButtons: _buildFooterButtons(context),
           appBar: AppBar(
-            title: Text(state.type == SaleOrderScanType.realization ? 'Заказ' : 'Возврат'),
+            title: Text('Заказ'),
           ),
           body: _buildBody(context)
         );
-      },
-      listener: (context, state) async {
-        switch (state.status) {
-          case SaleOrderStateStatus.needUserConfirmation:
-            WidgetsBinding.instance.addPostFrameCallback((_) async {
-              await showConfirmationDialog(state.message);
-            });
-            break;
-          case SaleOrderStateStatus.inProgress:
-            _progressDialog.open();
-            break;
-          case SaleOrderStateStatus.failure:
-            _progressDialog.close();
-            PageHelpers.showMessage(context, state.message, Colors.red[400]!);
-            break;
-          case SaleOrderStateStatus.success:
-            _progressDialog.close();
-            PageHelpers.showMessage(context, state.message, Colors.green[400]!);
-            break;
-          default:
-        }
       }
     );
   }
@@ -159,14 +74,10 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
           child: Column(children: [
             InfoRow(title: const Text('Номер'), trailing: Text(vm.state.saleOrder.ndoc)),
             InfoRow(title: const Text('Покупатель'), trailing: ExpandingText(vm.state.saleOrder.buyerName)),
-            InfoRow(
-              title: const Text('Статус'),
-              trailing: Text(vm.state.allTypeLineCodes.isEmpty ? 'Не отсканирован' : 'Отсканирован')
-            )
           ])
         ),
         _buildOrderLinesTile(context),
-        _buildGroupCodesTile(context)
+        _buildOrderActions(context)
       ],
     );
   }
@@ -177,106 +88,70 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
     return ExpansionTile(
       title: const Text('Позиции', style: TextStyle(fontSize: 14)),
       initiallyExpanded: true,
-      trailing: !vm.state.allowEdit ? null : IconButton(
-        tooltip: 'Отсканировать код маркировки',
-        icon: const Icon(Icons.qr_code_scanner),
-        onPressed: showScan
-      ),
       children: vm.state.saleOrder.lines.map((e) => _buildOrderLineTile(context, e)).toList()
     );
   }
 
-  Widget _buildGroupCodesTile(BuildContext context) {
-    SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
-
-    if (vm.state.lineCodes.none((e) => e.groupCode != null)) return Container();
-
-    return ExpansionTile(
-      initiallyExpanded: true,
-      title: Text('Агрегационные коды', style: TextStyle(fontSize: 14)),
-      showTrailingIcon: false,
-      children: vm.state.lineCodes.where((e) => e.groupCode != null).map((e) => e.groupCode).toSet().map((e) {
-        return ExpansionTile(
-          title: Text(e!, style: TextStyle(fontSize: 14)),
-          initiallyExpanded: true,
-          trailing: !vm.state.allowEdit ? null : IconButton(
-            tooltip: 'Расформировать код агрегации',
-            icon: const Icon(Icons.delete),
-            onPressed: () => vm.clearGroupCodes(e)
-          ),
-          children: vm.state.lineCodes.where((lc) => lc.groupCode == e).map(
-            (lc) => _buildGroupCodeLineTile(context, lc)
-          ).toList()
-        );
-      }).toList()
-    );
-  }
-
-  Widget _buildGroupCodeLineTile(BuildContext context, SaleOrderLineCode line) {
-    SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
-    final saleOrderLine = vm.state.saleOrder.lines.firstWhere((e) => e.subid == line.subid);
-
+  Widget _buildOrderLineTile(BuildContext context, ApiSaleOrderLine line) {
     return ListTile(
       dense: true,
-      title: Text(saleOrderLine.goodsName),
-      trailing: Text(line.vol.toInt().toString())
+      title: Text(line.goodsName),
+      trailing: Text(line.vol.toInt().toString()),
     );
   }
 
-  Widget _buildOrderLineTile(BuildContext context, ApiSaleOrderLine line) {
+  Widget _buildOrderActions(BuildContext context) {
     SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
 
-    if (vm.state.allTypeLineCodes.isNotEmpty) {
-      final amount = vm.state.allTypeLineCodes.where((e) => e.subid == line.subid).fold(0.0, (v, el) => v + el.vol);
-
-      return ListTile(
-        dense: true,
-        title: Text(line.goodsName),
-        trailing: Text('${amount.toInt()} из ${line.vol.toInt()}')
-      );
-    } else {
-      final amount = vm.state.lineCodes.where((e) => e.subid == line.subid).fold(0.0, (v, el) => v + el.vol);
-
-      return ListTile(
-        dense: true,
-        leading: amount == line.vol ?
-          Icon(Icons.check, color: Colors.green) :
-          Icon(Icons.hourglass_empty, color: Colors.yellow),
-        title: Text(line.goodsName),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('${amount.toInt()} из ${line.vol.toInt()}'),
-            vm.state.allowEdit ? IconButton(
-              onPressed: () => vm.clearOrderLineCodes(line),
-              icon: Icon(Icons.delete),
-              tooltip: 'Удалить КМ',
-            ) : null
-          ].whereType<Widget>().toList()
+    return ExpansionTile(
+      title: const Text('Действия', style: TextStyle(fontSize: 14)),
+      initiallyExpanded: true,
+      childrenPadding: EdgeInsets.symmetric(horizontal: 24),
+      expandedCrossAxisAlignment: CrossAxisAlignment.start,
+      expandedAlignment: Alignment.centerLeft,
+      children: [
+        TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => CodesPage(
+                  saleOrder: vm.state.saleOrder,
+                  type: SaleOrderScanType.realization
+                )
+              )
+            );
+          },
+          child: const Text('Сканирование заказа')
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => CodesPage(
+                  saleOrder: vm.state.saleOrder,
+                  type: SaleOrderScanType.correction
+                )
+              )
+            );
+          },
+          child: const Text('Сканирование возврата')
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => DocumentsPage(
+                  saleOrder: vm.state.saleOrder
+                )
+              )
+            );
+          },
+          child: const Text('Печать маркировки')
         )
-      );
-    }
-  }
-
-  List<Widget> _buildFooterButtons(BuildContext context) {
-    SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
-
-    if (!vm.state.allowEdit) return [];
-
-    if (vm.state.type == SaleOrderScanType.correction) {
-      return [
-        TextButton(onPressed: vm.tryCompleteScan, child: const Text('Завершить'))
-      ];
-    }
-
-    return [
-      vm.state.currentGroupCode == null ?
-        TextButton(onPressed: showGroupScanView, child: const Text('Добавить АК')) :
-        TextButton(onPressed: vm.completeGroupScan, child: const Text('Завершить АК')),
-      TextButton(
-        onPressed: vm.state.fullyScanned ? vm.tryCompleteScan : null,
-        child: const Text('Завершить')
-      )
-    ];
+      ]
+    );
   }
 }

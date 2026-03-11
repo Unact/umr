@@ -47,4 +47,14 @@ extension UmrApi on RenewApi {
       await get('v1/umr/sale_orders/scan', query: { 'saleOrderId': saleOrderId, 'type': type, 'code': code })
     );
   }
+
+  Future<void> saleOrdersPrintDocuments({
+    required int saleOrderId,
+    required int printerId
+  }) async {
+    await post(
+      'v1/umr/sale_orders/print_documents',
+      data: { 'saleOrderId': saleOrderId, 'printerId': printerId }
+    );
+  }
 }

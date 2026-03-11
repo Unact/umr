@@ -53,7 +53,7 @@ class _InfoViewState extends State<_InfoView> {
     super.dispose();
   }
 
-  Future<void> showSaleOrderScanView(SaleOrderScanType type) async {
+  Future<void> showSaleOrderScanView() async {
     InfoViewModel vm = context.read<InfoViewModel>();
 
     await Navigator.push(
@@ -66,12 +66,12 @@ class _InfoViewState extends State<_InfoView> {
               icon: const Icon(Icons.text_fields),
               tooltip: 'Ручной поиск',
               onPressed: () {
-                showSaleOrderManualInput(type);
+                showSaleOrderManualInput();
               }
             ),
           ],
           onRead: (String rawValue) {
-            vm.findSaleOrder(type, rawValue);
+            vm.findSaleOrder(rawValue);
           },
           onError: (errorMessage) {
             PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
@@ -83,7 +83,7 @@ class _InfoViewState extends State<_InfoView> {
     );
   }
 
-  Future<void> showSaleOrderManualInput(SaleOrderScanType type) async {
+  Future<void> showSaleOrderManualInput() async {
     InfoViewModel vm = context.read<InfoViewModel>();
     TextEditingController ndocController = TextEditingController();
 
@@ -122,7 +122,7 @@ class _InfoViewState extends State<_InfoView> {
 
     if (!result) return;
 
-    await vm.findSaleOrder(type, ndocController.text);
+    await vm.findSaleOrder(ndocController.text);
   }
 
   Future<void> showClearSaleOrderLineCodesDialog() async {
@@ -165,6 +165,11 @@ class _InfoViewState extends State<_InfoView> {
             title: const Text(Strings.ruAppName),
             actions: <Widget>[
               IconButton(
+                onPressed: showClearSaleOrderLineCodesDialog,
+                icon: Icon(Icons.delete),
+                tooltip: 'Удалить данные',
+              ),
+              IconButton(
                 color: Colors.white,
                 icon: const Icon(Icons.person),
                 tooltip: 'Пользователь',
@@ -206,7 +211,7 @@ class _InfoViewState extends State<_InfoView> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (BuildContext context) => SaleOrderPage(saleOrder: state.foundSaleOrder!, type: state.type!),
+                builder: (BuildContext context) => SaleOrderPage(saleOrder: state.foundSaleOrder!),
                 fullscreenDialog: false
               )
             );
@@ -281,7 +286,7 @@ class _InfoViewState extends State<_InfoView> {
 
   List<Widget> buildCards(BuildContext context) {
     return <Widget>[
-      buildScanCard(context),
+      buildOrderCard(context),
       buildInfoCard(context)
     ];
   }
@@ -309,46 +314,30 @@ class _InfoViewState extends State<_InfoView> {
     );
   }
 
-  Widget buildScanCard(BuildContext context) {
+  Widget buildOrderCard(BuildContext context) {
     InfoViewModel vm = context.read<InfoViewModel>();
 
     return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          ListTile(
-            title: Text('Сканирование', style: TextStyle(fontSize: 20)),
-            trailing: IconButton(
-              onPressed: showClearSaleOrderLineCodesDialog,
-              icon: Icon(Icons.delete),
-              tooltip: 'Удалить данные',
-            )
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+      child: ListTile(
+        isThreeLine: true,
+        title: Text('Действия', style: TextStyle(fontSize: 20)),
+        subtitle: Padding(
+          padding: EdgeInsets.only(top: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               TextButton(
-                child: const Text('Заказ'),
-                onPressed: () => showSaleOrderScanView(SaleOrderScanType.realization)
+                child: const Text('Работа с заказом'),
+                onPressed: () => showSaleOrderScanView()
               ),
-              const SizedBox(width: 8),
-              TextButton(
-                child: const Text('Возврат'),
-                onPressed: () => showSaleOrderScanView(SaleOrderScanType.correction)
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
               TextButton(
                 onPressed: () => vm.loadMarkirovkaOrganizations(),
-                child: const Text('Инфо')
+                child: const Text('Получить информацию о КМ')
               )
             ],
-          ),
-        ],
-      ),
+          )
+        )
+      )
     );
   }
 }
