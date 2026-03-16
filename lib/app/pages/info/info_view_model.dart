@@ -3,6 +3,7 @@ part of 'info_page.dart';
 class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   final AppRepository appRepository;
   final SaleOrdersRepository saleOrdersRepository;
+  final SuppliesRepository suppliesRepository;
   final UsersRepository usersRepository;
   StreamSubscription<User>? userSubscription;
 
@@ -11,6 +12,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   InfoViewModel(
     this.appRepository,
     this.saleOrdersRepository,
+    this.suppliesRepository,
     this.usersRepository,
   ) : super(InfoState());
 
@@ -72,7 +74,30 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     }
   }
 
-  Future<void> clearSaleOrderLineCodes() async {
+  Future<void> clearLineCodes() async {
     await saleOrdersRepository.clearSaleOrderLineCodes();
+    await suppliesRepository.clearSupplyLineCodes();
+  }
+
+  Future<void> findSupply(String idStr) async {
+    final id = int.tryParse(idStr);
+
+    if (id == null) {
+      emit(state.copyWith(
+        status: InfoStateStatus.findSupplyFailure,
+        message: 'Не удается распознать идентификатор'
+      ));
+      return;
+    }
+
+    emit(state.copyWith(status: InfoStateStatus.findSupplyInProgress));
+
+    try {
+      final supply = await suppliesRepository.findSupply(id);
+
+      emit(state.copyWith(status: InfoStateStatus.findSupplySuccess, foundSupply: supply));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: InfoStateStatus.findSupplyFailure, message: e.message));
+    }
   }
 }

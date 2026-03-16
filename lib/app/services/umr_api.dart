@@ -38,7 +38,7 @@ extension UmrApi on RenewApi {
     return ApiSaleOrder.fromJson(result);
   }
 
-  Future<ApiMarkirovkaCode> scan({
+  Future<ApiMarkirovkaCode> saleOrdersScan({
     required int saleOrderId,
     required int type,
     required String code
@@ -55,6 +55,31 @@ extension UmrApi on RenewApi {
     await post(
       'v1/umr/sale_orders/print_documents',
       data: { 'saleOrderId': saleOrderId, 'printerId': printerId }
+    );
+  }
+
+  Future<ApiSupply> suppliesIndex({ required int id }) async {
+    return ApiSupply.fromJson(await get('v1/umr/supplies', query: { 'supplyId': id }));
+  }
+
+  Future<ApiSupply> suppliesCompleteScan({
+    required int supplyId,
+    required List<Map<String, dynamic>> codes
+  }) async {
+    final result = await post(
+      'v1/umr/supplies/complete_scan',
+      data: { 'supplyId': supplyId, 'codes': codes }
+    );
+
+    return ApiSupply.fromJson(result);
+  }
+
+  Future<ApiSupplyMarkirovkaCode> suppliesScan({
+    required int supplyId,
+    required String code
+  }) async {
+    return ApiSupplyMarkirovkaCode.fromJson(
+      await get('v1/umr/supplies/scan', query: { 'supplyId': supplyId, 'code': code })
     );
   }
 }

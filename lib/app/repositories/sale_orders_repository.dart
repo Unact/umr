@@ -34,7 +34,7 @@ class SaleOrdersRepository extends BaseRepository {
 
   Future<ApiMarkirovkaCode> scan(ApiSaleOrder saleOrder, SaleOrderScanType type, String code) async {
     try {
-      return await api.scan(code: code, type: type.index, saleOrderId: saleOrder.id);
+      return await api.saleOrdersScan(code: code, type: type.index, saleOrderId: saleOrder.id);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {

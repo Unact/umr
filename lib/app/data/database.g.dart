@@ -810,14 +810,373 @@ class SaleOrderLineCodesCompanion extends UpdateCompanion<SaleOrderLineCode> {
   }
 }
 
+class $SupplyLineCodesTable extends SupplyLineCodes
+    with TableInfo<$SupplyLineCodesTable, SupplyLineCode> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SupplyLineCodesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _subidMeta = const VerificationMeta('subid');
+  @override
+  late final GeneratedColumn<int> subid = GeneratedColumn<int>(
+    'subid',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _codeMeta = const VerificationMeta('code');
+  @override
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+    'code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _volMeta = const VerificationMeta('vol');
+  @override
+  late final GeneratedColumn<double> vol = GeneratedColumn<double>(
+    'vol',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _localTsMeta = const VerificationMeta(
+    'localTs',
+  );
+  @override
+  late final GeneratedColumn<DateTime> localTs = GeneratedColumn<DateTime>(
+    'local_ts',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, subid, code, vol, localTs];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'supply_line_codes';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SupplyLineCode> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('subid')) {
+      context.handle(
+        _subidMeta,
+        subid.isAcceptableOrUnknown(data['subid']!, _subidMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_subidMeta);
+    }
+    if (data.containsKey('code')) {
+      context.handle(
+        _codeMeta,
+        code.isAcceptableOrUnknown(data['code']!, _codeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_codeMeta);
+    }
+    if (data.containsKey('vol')) {
+      context.handle(
+        _volMeta,
+        vol.isAcceptableOrUnknown(data['vol']!, _volMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_volMeta);
+    }
+    if (data.containsKey('local_ts')) {
+      context.handle(
+        _localTsMeta,
+        localTs.isAcceptableOrUnknown(data['local_ts']!, _localTsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_localTsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id, subid, code};
+  @override
+  SupplyLineCode map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SupplyLineCode(
+      id:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}id'],
+          )!,
+      subid:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}subid'],
+          )!,
+      code:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}code'],
+          )!,
+      vol:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.double,
+            data['${effectivePrefix}vol'],
+          )!,
+      localTs:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.dateTime,
+            data['${effectivePrefix}local_ts'],
+          )!,
+    );
+  }
+
+  @override
+  $SupplyLineCodesTable createAlias(String alias) {
+    return $SupplyLineCodesTable(attachedDatabase, alias);
+  }
+}
+
+class SupplyLineCode extends DataClass implements Insertable<SupplyLineCode> {
+  final int id;
+  final int subid;
+  final String code;
+  final double vol;
+  final DateTime localTs;
+  const SupplyLineCode({
+    required this.id,
+    required this.subid,
+    required this.code,
+    required this.vol,
+    required this.localTs,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['subid'] = Variable<int>(subid);
+    map['code'] = Variable<String>(code);
+    map['vol'] = Variable<double>(vol);
+    map['local_ts'] = Variable<DateTime>(localTs);
+    return map;
+  }
+
+  SupplyLineCodesCompanion toCompanion(bool nullToAbsent) {
+    return SupplyLineCodesCompanion(
+      id: Value(id),
+      subid: Value(subid),
+      code: Value(code),
+      vol: Value(vol),
+      localTs: Value(localTs),
+    );
+  }
+
+  factory SupplyLineCode.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SupplyLineCode(
+      id: serializer.fromJson<int>(json['id']),
+      subid: serializer.fromJson<int>(json['subid']),
+      code: serializer.fromJson<String>(json['code']),
+      vol: serializer.fromJson<double>(json['vol']),
+      localTs: serializer.fromJson<DateTime>(json['localTs']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'subid': serializer.toJson<int>(subid),
+      'code': serializer.toJson<String>(code),
+      'vol': serializer.toJson<double>(vol),
+      'localTs': serializer.toJson<DateTime>(localTs),
+    };
+  }
+
+  SupplyLineCode copyWith({
+    int? id,
+    int? subid,
+    String? code,
+    double? vol,
+    DateTime? localTs,
+  }) => SupplyLineCode(
+    id: id ?? this.id,
+    subid: subid ?? this.subid,
+    code: code ?? this.code,
+    vol: vol ?? this.vol,
+    localTs: localTs ?? this.localTs,
+  );
+  SupplyLineCode copyWithCompanion(SupplyLineCodesCompanion data) {
+    return SupplyLineCode(
+      id: data.id.present ? data.id.value : this.id,
+      subid: data.subid.present ? data.subid.value : this.subid,
+      code: data.code.present ? data.code.value : this.code,
+      vol: data.vol.present ? data.vol.value : this.vol,
+      localTs: data.localTs.present ? data.localTs.value : this.localTs,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SupplyLineCode(')
+          ..write('id: $id, ')
+          ..write('subid: $subid, ')
+          ..write('code: $code, ')
+          ..write('vol: $vol, ')
+          ..write('localTs: $localTs')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, subid, code, vol, localTs);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SupplyLineCode &&
+          other.id == this.id &&
+          other.subid == this.subid &&
+          other.code == this.code &&
+          other.vol == this.vol &&
+          other.localTs == this.localTs);
+}
+
+class SupplyLineCodesCompanion extends UpdateCompanion<SupplyLineCode> {
+  final Value<int> id;
+  final Value<int> subid;
+  final Value<String> code;
+  final Value<double> vol;
+  final Value<DateTime> localTs;
+  final Value<int> rowid;
+  const SupplyLineCodesCompanion({
+    this.id = const Value.absent(),
+    this.subid = const Value.absent(),
+    this.code = const Value.absent(),
+    this.vol = const Value.absent(),
+    this.localTs = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SupplyLineCodesCompanion.insert({
+    required int id,
+    required int subid,
+    required String code,
+    required double vol,
+    required DateTime localTs,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       subid = Value(subid),
+       code = Value(code),
+       vol = Value(vol),
+       localTs = Value(localTs);
+  static Insertable<SupplyLineCode> custom({
+    Expression<int>? id,
+    Expression<int>? subid,
+    Expression<String>? code,
+    Expression<double>? vol,
+    Expression<DateTime>? localTs,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (subid != null) 'subid': subid,
+      if (code != null) 'code': code,
+      if (vol != null) 'vol': vol,
+      if (localTs != null) 'local_ts': localTs,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SupplyLineCodesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? subid,
+    Value<String>? code,
+    Value<double>? vol,
+    Value<DateTime>? localTs,
+    Value<int>? rowid,
+  }) {
+    return SupplyLineCodesCompanion(
+      id: id ?? this.id,
+      subid: subid ?? this.subid,
+      code: code ?? this.code,
+      vol: vol ?? this.vol,
+      localTs: localTs ?? this.localTs,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (subid.present) {
+      map['subid'] = Variable<int>(subid.value);
+    }
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (vol.present) {
+      map['vol'] = Variable<double>(vol.value);
+    }
+    if (localTs.present) {
+      map['local_ts'] = Variable<DateTime>(localTs.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SupplyLineCodesCompanion(')
+          ..write('id: $id, ')
+          ..write('subid: $subid, ')
+          ..write('code: $code, ')
+          ..write('vol: $vol, ')
+          ..write('localTs: $localTs, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDataStore extends GeneratedDatabase {
   _$AppDataStore(QueryExecutor e) : super(e);
   $AppDataStoreManager get managers => $AppDataStoreManager(this);
   late final $UsersTable users = $UsersTable(this);
   late final $SaleOrderLineCodesTable saleOrderLineCodes =
       $SaleOrderLineCodesTable(this);
+  late final $SupplyLineCodesTable supplyLineCodes = $SupplyLineCodesTable(
+    this,
+  );
   late final UsersDao usersDao = UsersDao(this as AppDataStore);
   late final SaleOrdersDao saleOrdersDao = SaleOrdersDao(this as AppDataStore);
+  late final SuppliesDao suppliesDao = SuppliesDao(this as AppDataStore);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -825,6 +1184,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     users,
     saleOrderLineCodes,
+    supplyLineCodes,
   ];
 }
 
@@ -1288,6 +1648,226 @@ typedef $$SaleOrderLineCodesTableProcessedTableManager =
       SaleOrderLineCode,
       PrefetchHooks Function()
     >;
+typedef $$SupplyLineCodesTableCreateCompanionBuilder =
+    SupplyLineCodesCompanion Function({
+      required int id,
+      required int subid,
+      required String code,
+      required double vol,
+      required DateTime localTs,
+      Value<int> rowid,
+    });
+typedef $$SupplyLineCodesTableUpdateCompanionBuilder =
+    SupplyLineCodesCompanion Function({
+      Value<int> id,
+      Value<int> subid,
+      Value<String> code,
+      Value<double> vol,
+      Value<DateTime> localTs,
+      Value<int> rowid,
+    });
+
+class $$SupplyLineCodesTableFilterComposer
+    extends Composer<_$AppDataStore, $SupplyLineCodesTable> {
+  $$SupplyLineCodesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get subid => $composableBuilder(
+    column: $table.subid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get vol => $composableBuilder(
+    column: $table.vol,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get localTs => $composableBuilder(
+    column: $table.localTs,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SupplyLineCodesTableOrderingComposer
+    extends Composer<_$AppDataStore, $SupplyLineCodesTable> {
+  $$SupplyLineCodesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get subid => $composableBuilder(
+    column: $table.subid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get vol => $composableBuilder(
+    column: $table.vol,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get localTs => $composableBuilder(
+    column: $table.localTs,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SupplyLineCodesTableAnnotationComposer
+    extends Composer<_$AppDataStore, $SupplyLineCodesTable> {
+  $$SupplyLineCodesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get subid =>
+      $composableBuilder(column: $table.subid, builder: (column) => column);
+
+  GeneratedColumn<String> get code =>
+      $composableBuilder(column: $table.code, builder: (column) => column);
+
+  GeneratedColumn<double> get vol =>
+      $composableBuilder(column: $table.vol, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get localTs =>
+      $composableBuilder(column: $table.localTs, builder: (column) => column);
+}
+
+class $$SupplyLineCodesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDataStore,
+          $SupplyLineCodesTable,
+          SupplyLineCode,
+          $$SupplyLineCodesTableFilterComposer,
+          $$SupplyLineCodesTableOrderingComposer,
+          $$SupplyLineCodesTableAnnotationComposer,
+          $$SupplyLineCodesTableCreateCompanionBuilder,
+          $$SupplyLineCodesTableUpdateCompanionBuilder,
+          (
+            SupplyLineCode,
+            BaseReferences<
+              _$AppDataStore,
+              $SupplyLineCodesTable,
+              SupplyLineCode
+            >,
+          ),
+          SupplyLineCode,
+          PrefetchHooks Function()
+        > {
+  $$SupplyLineCodesTableTableManager(
+    _$AppDataStore db,
+    $SupplyLineCodesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () =>
+                  $$SupplyLineCodesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer:
+              () => $$SupplyLineCodesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$SupplyLineCodesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> subid = const Value.absent(),
+                Value<String> code = const Value.absent(),
+                Value<double> vol = const Value.absent(),
+                Value<DateTime> localTs = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SupplyLineCodesCompanion(
+                id: id,
+                subid: subid,
+                code: code,
+                vol: vol,
+                localTs: localTs,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required int id,
+                required int subid,
+                required String code,
+                required double vol,
+                required DateTime localTs,
+                Value<int> rowid = const Value.absent(),
+              }) => SupplyLineCodesCompanion.insert(
+                id: id,
+                subid: subid,
+                code: code,
+                vol: vol,
+                localTs: localTs,
+                rowid: rowid,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          BaseReferences(db, table, e),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SupplyLineCodesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDataStore,
+      $SupplyLineCodesTable,
+      SupplyLineCode,
+      $$SupplyLineCodesTableFilterComposer,
+      $$SupplyLineCodesTableOrderingComposer,
+      $$SupplyLineCodesTableAnnotationComposer,
+      $$SupplyLineCodesTableCreateCompanionBuilder,
+      $$SupplyLineCodesTableUpdateCompanionBuilder,
+      (
+        SupplyLineCode,
+        BaseReferences<_$AppDataStore, $SupplyLineCodesTable, SupplyLineCode>,
+      ),
+      SupplyLineCode,
+      PrefetchHooks Function()
+    >;
 
 class $AppDataStoreManager {
   final _$AppDataStore _db;
@@ -1296,6 +1876,8 @@ class $AppDataStoreManager {
       $$UsersTableTableManager(_db, _db.users);
   $$SaleOrderLineCodesTableTableManager get saleOrderLineCodes =>
       $$SaleOrderLineCodesTableTableManager(_db, _db.saleOrderLineCodes);
+  $$SupplyLineCodesTableTableManager get supplyLineCodes =>
+      $$SupplyLineCodesTableTableManager(_db, _db.supplyLineCodes);
 }
 
 mixin _$UsersDaoMixin on DatabaseAccessor<AppDataStore> {
@@ -1304,4 +1886,7 @@ mixin _$UsersDaoMixin on DatabaseAccessor<AppDataStore> {
 mixin _$SaleOrdersDaoMixin on DatabaseAccessor<AppDataStore> {
   $SaleOrderLineCodesTable get saleOrderLineCodes =>
       attachedDatabase.saleOrderLineCodes;
+}
+mixin _$SuppliesDaoMixin on DatabaseAccessor<AppDataStore> {
+  $SupplyLineCodesTable get supplyLineCodes => attachedDatabase.supplyLineCodes;
 }

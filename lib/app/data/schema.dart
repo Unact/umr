@@ -20,3 +20,14 @@ class SaleOrderLineCodes extends Table {
   @override
   Set<Column> get primaryKey => {id, subid, type, code};
 }
+
+class SupplyLineCodes extends Table {
+  IntColumn get id => integer()();
+  IntColumn get subid => integer()();
+  TextColumn get code => text()();
+  RealColumn get vol => real()();
+  DateTimeColumn get localTs => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id, subid, code};
+}

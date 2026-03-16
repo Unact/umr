@@ -14,6 +14,7 @@ import 'app/data/database.dart';
 import 'app/pages/landing/landing_page.dart';
 import 'app/repositories/app_repository.dart';
 import 'app/repositories/sale_orders_repository.dart';
+import 'app/repositories/supplies_repository.dart';
 import 'app/repositories/users_repository.dart';
 
 void main() async {
@@ -31,6 +32,7 @@ void main() async {
   AppRepository appRepository = AppRepository(dataStore, api);
 
   SaleOrdersRepository saleOrdersRepository = SaleOrdersRepository(dataStore, api);
+  SuppliesRepository suppliesRepository = SuppliesRepository(dataStore, api);
   UsersRepository usersRepository = UsersRepository(dataStore, api);
 
   GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -59,6 +61,7 @@ void main() async {
           Provider.value(value: scaffoldMessengerKey),
           RepositoryProvider.value(value: appRepository),
           RepositoryProvider.value(value: saleOrdersRepository),
+          RepositoryProvider.value(value: suppliesRepository),
           RepositoryProvider.value(value: usersRepository)
         ],
         child: MaterialApp(

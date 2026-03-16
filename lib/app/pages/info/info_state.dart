@@ -8,13 +8,17 @@ enum InfoStateStatus {
   findSaleOrderFailure,
   loadMarkirovkaOrganizationInProgress,
   loadMarkirovkaOrganizationSuccess,
-  loadMarkirovkaOrganizationFailure
+  loadMarkirovkaOrganizationFailure,
+  findSupplyInProgress,
+  findSupplyFailure,
+  findSupplySuccess
 }
 
 class InfoState {
   InfoState({
     this.status = InfoStateStatus.initial,
     this.foundSaleOrder,
+    this.foundSupply,
     this.markirovkaOrganizations = const [],
     this.user,
     this.message = ''
@@ -22,6 +26,7 @@ class InfoState {
 
   final InfoStateStatus status;
   final ApiSaleOrder? foundSaleOrder;
+  final ApiSupply? foundSupply;
   final List<ApiMarkirovkaOrganization> markirovkaOrganizations;
   final String message;
   final User? user;
@@ -29,6 +34,7 @@ class InfoState {
   InfoState copyWith({
     InfoStateStatus? status,
     ApiSaleOrder? foundSaleOrder,
+    ApiSupply? foundSupply,
     List<ApiMarkirovkaOrganization>? markirovkaOrganizations,
     ApiInfoScan? infoScan,
     User? user,
@@ -37,6 +43,7 @@ class InfoState {
     return InfoState(
       status: status ?? this.status,
       foundSaleOrder: foundSaleOrder ?? this.foundSaleOrder,
+      foundSupply: foundSupply ?? this.foundSupply,
       markirovkaOrganizations: markirovkaOrganizations ?? this.markirovkaOrganizations,
       message: message ?? this.message,
       user: user ?? this.user
