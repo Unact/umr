@@ -1,0 +1,83 @@
+import 'dart:async';
+
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:u_app_utils/u_app_utils.dart';
+
+import '/app/constants/strings.dart';
+import '/app/constants/styles.dart';
+import '/app/data/database.dart';
+import '/app/entities/entities.dart';
+import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/supplies_repository.dart';
+import '/app/utils/page_helpers.dart';
+
+part 'scan_state.dart';
+part 'scan_view_model.dart';
+
+class ScanPage extends StatelessWidget {
+  final ApiSupply supply;
+
+  ScanPage({
+    required this.supply,
+    super.key
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<ScanViewModel>(
+      create: (context) => ScanViewModel(
+        RepositoryProvider.of<SuppliesRepository>(context),
+        supply: supply,
+      ),
+      child: _ScanView(),
+    );
+  }
+}
+
+class _ScanView extends StatefulWidget {
+  @override
+  _ScanViewState createState() => _ScanViewState();
+}
+
+class _ScanViewState extends State<_ScanView> {
+  final player = AudioPlayer();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<ScanViewModel, ScanState>(
+      builder: (context, state) {
+        final vm = context.read<ScanViewModel>();
+
+        return ScanView(
+          onRead: vm.readCode,
+          onError: (errorMessage) {
+            PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
+          },
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: const Text('Отсканируйте код', style: Styles.scanTitleText)
+              )
+            ]
+          )
+        );
+      },
+      listener: (context, state) async {
+        switch (state.status) {
+          case ScanStateStatus.failure:
+            PageHelpers.showMessage(context, state.message, Colors.red[400]!);
+            await player.play(AssetSource('beep_error.mp3'));
+            break;
+          case ScanStateStatus.success:
+            PageHelpers.showMessage(context, state.message, Colors.green[400]!);
+            await player.play(AssetSource('beep_success.mp3'));
+            break;
+          default:
+        }
+      }
+    );
+  }
+}

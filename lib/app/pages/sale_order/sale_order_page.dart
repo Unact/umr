@@ -72,7 +72,10 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
         Padding(
           padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 16.0),
           child: Column(children: [
-            InfoRow(title: const Text('Номер'), trailing: Text(vm.state.saleOrder.ndoc)),
+            InfoRow(
+              title: const Text('Номер'),
+              trailing: Text(vm.state.saleOrder.ndoc, style: TextStyle(fontSize: 13))
+            ),
             InfoRow(title: const Text('Покупатель'), trailing: ExpandingText(vm.state.saleOrder.buyerName)),
           ])
         ),
