@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
-import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
@@ -53,25 +52,6 @@ class _CodesViewState extends State<_CodesView> {
     super.dispose();
   }
 
-  Future<void> showConfirmationDialog(String message) async {
-    CodesViewModel vm = context.read<CodesViewModel>();
-
-    bool result = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('Подтверждение'),
-        content: SingleChildScrollView(child: ListBody(children: <Widget>[Text(message)])),
-        actions: <Widget>[
-          TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(false)),
-          TextButton(child: const Text('Подтверждаю'), onPressed: () => Navigator.of(context).pop(true))
-        ],
-      )
-    ) ?? false;
-
-    vm.state.confirmationCallback(result);
-  }
-
   Future<void> showScan() async {
     CodesViewModel vm = context.read<CodesViewModel>();
 
@@ -85,7 +65,6 @@ class _CodesViewState extends State<_CodesView> {
       )
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -101,11 +80,6 @@ class _CodesViewState extends State<_CodesView> {
       },
       listener: (context, state) async {
         switch (state.status) {
-          case CodesStateStatus.needUserConfirmation:
-            WidgetsBinding.instance.addPostFrameCallback((_) async {
-              await showConfirmationDialog(state.message);
-            });
-            break;
           case CodesStateStatus.inProgress:
             _progressDialog.open();
             break;

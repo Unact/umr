@@ -5,8 +5,7 @@ enum CodesStateStatus {
   dataLoaded,
   inProgress,
   success,
-  failure,
-  needUserConfirmation
+  failure
 }
 
 class CodesState {
