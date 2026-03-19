@@ -8,6 +8,7 @@ import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/info_scan/info_scan_page.dart';
+import '/app/pages/page_messages/page_messages_page.dart';
 import '/app/pages/person/person_page.dart';
 import '/app/pages/sale_order/sale_order_page.dart';
 import '/app/pages/supply/supply_page.dart';
@@ -244,6 +245,20 @@ class _InfoViewState extends State<_InfoView> {
                 onPressed: showClearLineCodesDialog,
                 icon: Icon(Icons.delete),
                 tooltip: 'Удалить данные',
+              ),
+              IconButton(
+                color: Colors.white,
+                icon: const Icon(Icons.notifications),
+                tooltip: 'Уведомления',
+                onPressed: () async {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => PageMessagesPage(),
+                      fullscreenDialog: true
+                    )
+                  );
+                }
               ),
               IconButton(
                 color: Colors.white,

@@ -18,3 +18,4 @@ part 'api_supply_markirovka_code.dart';
 part 'api_supply.dart';
 part 'api_user_data.dart';
 part 'app_error.dart';
+part 'page_messages_info.dart';
