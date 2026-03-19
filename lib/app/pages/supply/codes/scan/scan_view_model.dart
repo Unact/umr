@@ -41,12 +41,14 @@ class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
         return;
       }
 
-      await suppliesRepository.addSupplyLineCode(
-        id: state.supply.id,
-        subid: codeInfo.subid,
-        code: codeInfo.code,
-        vol: codeInfo.vol
-      );
+      for (var supgoods in codeInfo.supgoods) {
+        await suppliesRepository.addSupplyLineCode(
+          id: state.supply.id,
+          subid: supgoods.subid,
+          code: codeInfo.code,
+          vol: supgoods.vol
+        );
+      }
 
       emit(state.copyWith(status: ScanStateStatus.success, message: 'КМ успешно отсканирован'));
     } on AppError catch(e) {
