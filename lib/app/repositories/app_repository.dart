@@ -6,7 +6,24 @@ import '/app/entities/entities.dart';
 import '/app/repositories/base_repository.dart';
 import '/app/services/umr_api.dart';
 class AppRepository extends BaseRepository {
+  static const int _kMaxPageAppErrors = 100;
+  final List<PageMessagesInfo> _pageMessages = [];
+
   AppRepository(super.dataStore, super.api);
+
+  void addPageMessagesInfo({ required String message, required DateTime date }) {
+    _pageMessages.add(PageMessagesInfo(message, date));
+
+    if (_pageMessages.length > _kMaxPageAppErrors) _pageMessages.removeAt(0);
+  }
+
+  void clearPageMessagesInfo() {
+    _pageMessages.clear();
+  }
+
+  List<PageMessagesInfo> getPageMessagesInfo() {
+    return _pageMessages;
+  }
 
   Future<void> clearData() async {
     await dataStore.clearData();
