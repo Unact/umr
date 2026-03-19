@@ -1,7 +1,7 @@
 name: umr
 description: Приложение для работы сотрудников склада
 publish_to: 'none'
-version: 1.2.2+32
+version: 1.2.3+33
 
 environment:
   sdk: '>=3.7.0 <4.0.0'
