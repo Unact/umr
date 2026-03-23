@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
@@ -59,6 +60,10 @@ class SuppliesRepository extends BaseRepository {
     return dataStore.suppliesDao.watchSupplyLineCodes(id);
   }
 
+  Stream<List<SupplyLineCodeDetail>> watchSupplyLineCodeDetails(int id) {
+    return dataStore.suppliesDao.watchSupplyLineCodeDetails(id);
+  }
+
   Future<void> addSupplyLineCode({
     required int id,
     required int subid,
@@ -88,5 +93,36 @@ class SuppliesRepository extends BaseRepository {
     }
 
     await dataStore.suppliesDao.clearSupplyLineCodes(id: supply.id);
+  }
+  Future<void> addSupplyLineCodeDetail({
+    required int id,
+    required int subid,
+    required String cis,
+    required String? parent,
+    required String initiator,
+  }) {
+    return dataStore.suppliesDao.addSupplyLineCodeDetail(
+      SupplyLineCodeDetailsCompanion.insert(
+        id: id,
+        subid: subid,
+        cis: cis,
+        parent: Value(parent),
+        initiator: initiator
+      )
+    );
+  }
+
+  Future<void> clearSupplyLineCodeDetails({ApiSupply? supply, ApiSupplyLine? line}) async {
+    if (supply == null) {
+      await dataStore.suppliesDao.clearSupplyLineCodeDetails();
+      return;
+    }
+
+    if (line != null) {
+      await dataStore.suppliesDao.clearSupplyLineCodeDetails(id: supply.id, subid: line.subid);
+      return;
+    }
+
+    await dataStore.suppliesDao.clearSupplyLineCodeDetails(id: supply.id);
   }
 }

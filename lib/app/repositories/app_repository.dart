@@ -39,4 +39,8 @@ class AppRepository extends BaseRepository {
       throw AppError(Strings.genericErrorMsg);
     }
   }
+
+  Future<T> transaction<T>(Future<T> Function() operation) {
+    return dataStore.transaction(operation);
+  }
 }

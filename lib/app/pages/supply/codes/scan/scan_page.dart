@@ -10,6 +10,7 @@ import '/app/constants/styles.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/app_repository.dart';
 import '/app/repositories/supplies_repository.dart';
 import '/app/utils/page_helpers.dart';
 
@@ -28,6 +29,7 @@ class ScanPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<ScanViewModel>(
       create: (context) => ScanViewModel(
+        RepositoryProvider.of<AppRepository>(context),
         RepositoryProvider.of<SuppliesRepository>(context),
         supply: supply,
       ),

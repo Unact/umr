@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
+import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/app_repository.dart';
 import '/app/repositories/supplies_repository.dart';
 import '/app/utils/page_helpers.dart';
 import 'scan/scan_page.dart';
@@ -26,6 +28,7 @@ class CodesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<CodesViewModel>(
       create: (context) => CodesViewModel(
+        RepositoryProvider.of<AppRepository>(context),
         RepositoryProvider.of<SuppliesRepository>(context),
         supply: supply
       ),
@@ -50,6 +53,25 @@ class _CodesViewState extends State<_CodesView> {
   void dispose() {
     _progressDialog.close();
     super.dispose();
+  }
+
+  Future<void> showConfirmationDialog(String message) async {
+    CodesViewModel vm = context.read<CodesViewModel>();
+
+    bool result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Подтверждение'),
+        content: SingleChildScrollView(child: ListBody(children: <Widget>[Text(message)])),
+        actions: <Widget>[
+          TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(false)),
+          TextButton(child: const Text('Подтверждаю'), onPressed: () => Navigator.of(context).pop(true))
+        ],
+      )
+    ) ?? false;
+
+    vm.state.confirmationCallback(result);
   }
 
   Future<void> showScan() async {
@@ -80,6 +102,11 @@ class _CodesViewState extends State<_CodesView> {
       },
       listener: (context, state) async {
         switch (state.status) {
+          case CodesStateStatus.needUserConfirmation:
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              await showConfirmationDialog(state.message);
+            });
+            break;
           case CodesStateStatus.inProgress:
             _progressDialog.open();
             break;
@@ -178,7 +205,7 @@ class _CodesViewState extends State<_CodesView> {
     if (!vm.state.allowEdit) return [];
 
     return [
-      TextButton(onPressed: vm.completeScan, child: const Text('Завершить'))
+      TextButton(onPressed: vm.tryCompleteScan, child: const Text('Завершить'))
     ];
   }
 }

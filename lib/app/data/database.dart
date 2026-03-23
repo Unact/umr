@@ -19,7 +19,8 @@ part 'users_dao.dart';
   tables: [
     Users,
     SaleOrderLineCodes,
-    SupplyLineCodes
+    SupplyLineCodes,
+    SupplyLineCodeDetails
   ],
   daos: [
     UsersDao,
@@ -59,7 +60,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

@@ -1,11 +1,16 @@
 part of 'codes_page.dart';
 
 class CodesViewModel extends PageViewModel<CodesState, CodesStateStatus> {
+  final AppRepository appRepository;
   final SaleOrdersRepository saleOrdersRepository;
 
   StreamSubscription<List<SaleOrderLineCode>>? saleOrderLineCodesSubscription;
 
-  CodesViewModel(this.saleOrdersRepository, { required ApiSaleOrder saleOrder, required SaleOrderScanType type}) :
+  CodesViewModel(
+    this.appRepository,
+    this.saleOrdersRepository,
+    {required ApiSaleOrder saleOrder, required SaleOrderScanType type}
+  ) :
     super(CodesState(saleOrder: saleOrder, type: type, confirmationCallback: () {}));
 
   @override
@@ -71,8 +76,12 @@ class CodesViewModel extends PageViewModel<CodesState, CodesStateStatus> {
     emit(state.copyWith(status: CodesStateStatus.inProgress));
 
     try {
-      final saleOrder = await saleOrdersRepository.completeScan(state.saleOrder, state.type, state.lineCodes);
-      await saleOrdersRepository.clearSaleOrderLineCodes(saleOrder: state.saleOrder);
+      final saleOrder = await appRepository.transaction(() async {
+        final res = await saleOrdersRepository.completeScan(state.saleOrder, state.type, state.lineCodes);
+        await saleOrdersRepository.clearSaleOrderLineCodes(saleOrder: state.saleOrder);
+
+        return res;
+      });
 
       emit(state.copyWith(
         status: CodesStateStatus.success,
