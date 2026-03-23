@@ -1165,6 +1165,362 @@ class SupplyLineCodesCompanion extends UpdateCompanion<SupplyLineCode> {
   }
 }
 
+class $SupplyLineCodeDetailsTable extends SupplyLineCodeDetails
+    with TableInfo<$SupplyLineCodeDetailsTable, SupplyLineCodeDetail> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SupplyLineCodeDetailsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _subidMeta = const VerificationMeta('subid');
+  @override
+  late final GeneratedColumn<int> subid = GeneratedColumn<int>(
+    'subid',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _cisMeta = const VerificationMeta('cis');
+  @override
+  late final GeneratedColumn<String> cis = GeneratedColumn<String>(
+    'cis',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _parentMeta = const VerificationMeta('parent');
+  @override
+  late final GeneratedColumn<String> parent = GeneratedColumn<String>(
+    'parent',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _initiatorMeta = const VerificationMeta(
+    'initiator',
+  );
+  @override
+  late final GeneratedColumn<String> initiator = GeneratedColumn<String>(
+    'initiator',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, subid, cis, parent, initiator];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'supply_line_code_details';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SupplyLineCodeDetail> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('subid')) {
+      context.handle(
+        _subidMeta,
+        subid.isAcceptableOrUnknown(data['subid']!, _subidMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_subidMeta);
+    }
+    if (data.containsKey('cis')) {
+      context.handle(
+        _cisMeta,
+        cis.isAcceptableOrUnknown(data['cis']!, _cisMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cisMeta);
+    }
+    if (data.containsKey('parent')) {
+      context.handle(
+        _parentMeta,
+        parent.isAcceptableOrUnknown(data['parent']!, _parentMeta),
+      );
+    }
+    if (data.containsKey('initiator')) {
+      context.handle(
+        _initiatorMeta,
+        initiator.isAcceptableOrUnknown(data['initiator']!, _initiatorMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_initiatorMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id, subid, cis};
+  @override
+  SupplyLineCodeDetail map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SupplyLineCodeDetail(
+      id:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}id'],
+          )!,
+      subid:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}subid'],
+          )!,
+      cis:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}cis'],
+          )!,
+      parent: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}parent'],
+      ),
+      initiator:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}initiator'],
+          )!,
+    );
+  }
+
+  @override
+  $SupplyLineCodeDetailsTable createAlias(String alias) {
+    return $SupplyLineCodeDetailsTable(attachedDatabase, alias);
+  }
+}
+
+class SupplyLineCodeDetail extends DataClass
+    implements Insertable<SupplyLineCodeDetail> {
+  final int id;
+  final int subid;
+  final String cis;
+  final String? parent;
+  final String initiator;
+  const SupplyLineCodeDetail({
+    required this.id,
+    required this.subid,
+    required this.cis,
+    this.parent,
+    required this.initiator,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['subid'] = Variable<int>(subid);
+    map['cis'] = Variable<String>(cis);
+    if (!nullToAbsent || parent != null) {
+      map['parent'] = Variable<String>(parent);
+    }
+    map['initiator'] = Variable<String>(initiator);
+    return map;
+  }
+
+  SupplyLineCodeDetailsCompanion toCompanion(bool nullToAbsent) {
+    return SupplyLineCodeDetailsCompanion(
+      id: Value(id),
+      subid: Value(subid),
+      cis: Value(cis),
+      parent:
+          parent == null && nullToAbsent ? const Value.absent() : Value(parent),
+      initiator: Value(initiator),
+    );
+  }
+
+  factory SupplyLineCodeDetail.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SupplyLineCodeDetail(
+      id: serializer.fromJson<int>(json['id']),
+      subid: serializer.fromJson<int>(json['subid']),
+      cis: serializer.fromJson<String>(json['cis']),
+      parent: serializer.fromJson<String?>(json['parent']),
+      initiator: serializer.fromJson<String>(json['initiator']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'subid': serializer.toJson<int>(subid),
+      'cis': serializer.toJson<String>(cis),
+      'parent': serializer.toJson<String?>(parent),
+      'initiator': serializer.toJson<String>(initiator),
+    };
+  }
+
+  SupplyLineCodeDetail copyWith({
+    int? id,
+    int? subid,
+    String? cis,
+    Value<String?> parent = const Value.absent(),
+    String? initiator,
+  }) => SupplyLineCodeDetail(
+    id: id ?? this.id,
+    subid: subid ?? this.subid,
+    cis: cis ?? this.cis,
+    parent: parent.present ? parent.value : this.parent,
+    initiator: initiator ?? this.initiator,
+  );
+  SupplyLineCodeDetail copyWithCompanion(SupplyLineCodeDetailsCompanion data) {
+    return SupplyLineCodeDetail(
+      id: data.id.present ? data.id.value : this.id,
+      subid: data.subid.present ? data.subid.value : this.subid,
+      cis: data.cis.present ? data.cis.value : this.cis,
+      parent: data.parent.present ? data.parent.value : this.parent,
+      initiator: data.initiator.present ? data.initiator.value : this.initiator,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SupplyLineCodeDetail(')
+          ..write('id: $id, ')
+          ..write('subid: $subid, ')
+          ..write('cis: $cis, ')
+          ..write('parent: $parent, ')
+          ..write('initiator: $initiator')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, subid, cis, parent, initiator);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SupplyLineCodeDetail &&
+          other.id == this.id &&
+          other.subid == this.subid &&
+          other.cis == this.cis &&
+          other.parent == this.parent &&
+          other.initiator == this.initiator);
+}
+
+class SupplyLineCodeDetailsCompanion
+    extends UpdateCompanion<SupplyLineCodeDetail> {
+  final Value<int> id;
+  final Value<int> subid;
+  final Value<String> cis;
+  final Value<String?> parent;
+  final Value<String> initiator;
+  final Value<int> rowid;
+  const SupplyLineCodeDetailsCompanion({
+    this.id = const Value.absent(),
+    this.subid = const Value.absent(),
+    this.cis = const Value.absent(),
+    this.parent = const Value.absent(),
+    this.initiator = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SupplyLineCodeDetailsCompanion.insert({
+    required int id,
+    required int subid,
+    required String cis,
+    this.parent = const Value.absent(),
+    required String initiator,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       subid = Value(subid),
+       cis = Value(cis),
+       initiator = Value(initiator);
+  static Insertable<SupplyLineCodeDetail> custom({
+    Expression<int>? id,
+    Expression<int>? subid,
+    Expression<String>? cis,
+    Expression<String>? parent,
+    Expression<String>? initiator,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (subid != null) 'subid': subid,
+      if (cis != null) 'cis': cis,
+      if (parent != null) 'parent': parent,
+      if (initiator != null) 'initiator': initiator,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SupplyLineCodeDetailsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? subid,
+    Value<String>? cis,
+    Value<String?>? parent,
+    Value<String>? initiator,
+    Value<int>? rowid,
+  }) {
+    return SupplyLineCodeDetailsCompanion(
+      id: id ?? this.id,
+      subid: subid ?? this.subid,
+      cis: cis ?? this.cis,
+      parent: parent ?? this.parent,
+      initiator: initiator ?? this.initiator,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (subid.present) {
+      map['subid'] = Variable<int>(subid.value);
+    }
+    if (cis.present) {
+      map['cis'] = Variable<String>(cis.value);
+    }
+    if (parent.present) {
+      map['parent'] = Variable<String>(parent.value);
+    }
+    if (initiator.present) {
+      map['initiator'] = Variable<String>(initiator.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SupplyLineCodeDetailsCompanion(')
+          ..write('id: $id, ')
+          ..write('subid: $subid, ')
+          ..write('cis: $cis, ')
+          ..write('parent: $parent, ')
+          ..write('initiator: $initiator, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDataStore extends GeneratedDatabase {
   _$AppDataStore(QueryExecutor e) : super(e);
   $AppDataStoreManager get managers => $AppDataStoreManager(this);
@@ -1174,6 +1530,8 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final $SupplyLineCodesTable supplyLineCodes = $SupplyLineCodesTable(
     this,
   );
+  late final $SupplyLineCodeDetailsTable supplyLineCodeDetails =
+      $SupplyLineCodeDetailsTable(this);
   late final UsersDao usersDao = UsersDao(this as AppDataStore);
   late final SaleOrdersDao saleOrdersDao = SaleOrdersDao(this as AppDataStore);
   late final SuppliesDao suppliesDao = SuppliesDao(this as AppDataStore);
@@ -1185,6 +1543,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
     users,
     saleOrderLineCodes,
     supplyLineCodes,
+    supplyLineCodeDetails,
   ];
 }
 
@@ -1868,6 +2227,232 @@ typedef $$SupplyLineCodesTableProcessedTableManager =
       SupplyLineCode,
       PrefetchHooks Function()
     >;
+typedef $$SupplyLineCodeDetailsTableCreateCompanionBuilder =
+    SupplyLineCodeDetailsCompanion Function({
+      required int id,
+      required int subid,
+      required String cis,
+      Value<String?> parent,
+      required String initiator,
+      Value<int> rowid,
+    });
+typedef $$SupplyLineCodeDetailsTableUpdateCompanionBuilder =
+    SupplyLineCodeDetailsCompanion Function({
+      Value<int> id,
+      Value<int> subid,
+      Value<String> cis,
+      Value<String?> parent,
+      Value<String> initiator,
+      Value<int> rowid,
+    });
+
+class $$SupplyLineCodeDetailsTableFilterComposer
+    extends Composer<_$AppDataStore, $SupplyLineCodeDetailsTable> {
+  $$SupplyLineCodeDetailsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get subid => $composableBuilder(
+    column: $table.subid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get cis => $composableBuilder(
+    column: $table.cis,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get parent => $composableBuilder(
+    column: $table.parent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get initiator => $composableBuilder(
+    column: $table.initiator,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SupplyLineCodeDetailsTableOrderingComposer
+    extends Composer<_$AppDataStore, $SupplyLineCodeDetailsTable> {
+  $$SupplyLineCodeDetailsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get subid => $composableBuilder(
+    column: $table.subid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cis => $composableBuilder(
+    column: $table.cis,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get parent => $composableBuilder(
+    column: $table.parent,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get initiator => $composableBuilder(
+    column: $table.initiator,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SupplyLineCodeDetailsTableAnnotationComposer
+    extends Composer<_$AppDataStore, $SupplyLineCodeDetailsTable> {
+  $$SupplyLineCodeDetailsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get subid =>
+      $composableBuilder(column: $table.subid, builder: (column) => column);
+
+  GeneratedColumn<String> get cis =>
+      $composableBuilder(column: $table.cis, builder: (column) => column);
+
+  GeneratedColumn<String> get parent =>
+      $composableBuilder(column: $table.parent, builder: (column) => column);
+
+  GeneratedColumn<String> get initiator =>
+      $composableBuilder(column: $table.initiator, builder: (column) => column);
+}
+
+class $$SupplyLineCodeDetailsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDataStore,
+          $SupplyLineCodeDetailsTable,
+          SupplyLineCodeDetail,
+          $$SupplyLineCodeDetailsTableFilterComposer,
+          $$SupplyLineCodeDetailsTableOrderingComposer,
+          $$SupplyLineCodeDetailsTableAnnotationComposer,
+          $$SupplyLineCodeDetailsTableCreateCompanionBuilder,
+          $$SupplyLineCodeDetailsTableUpdateCompanionBuilder,
+          (
+            SupplyLineCodeDetail,
+            BaseReferences<
+              _$AppDataStore,
+              $SupplyLineCodeDetailsTable,
+              SupplyLineCodeDetail
+            >,
+          ),
+          SupplyLineCodeDetail,
+          PrefetchHooks Function()
+        > {
+  $$SupplyLineCodeDetailsTableTableManager(
+    _$AppDataStore db,
+    $SupplyLineCodeDetailsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$SupplyLineCodeDetailsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer:
+              () => $$SupplyLineCodeDetailsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$SupplyLineCodeDetailsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> subid = const Value.absent(),
+                Value<String> cis = const Value.absent(),
+                Value<String?> parent = const Value.absent(),
+                Value<String> initiator = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SupplyLineCodeDetailsCompanion(
+                id: id,
+                subid: subid,
+                cis: cis,
+                parent: parent,
+                initiator: initiator,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required int id,
+                required int subid,
+                required String cis,
+                Value<String?> parent = const Value.absent(),
+                required String initiator,
+                Value<int> rowid = const Value.absent(),
+              }) => SupplyLineCodeDetailsCompanion.insert(
+                id: id,
+                subid: subid,
+                cis: cis,
+                parent: parent,
+                initiator: initiator,
+                rowid: rowid,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          BaseReferences(db, table, e),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SupplyLineCodeDetailsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDataStore,
+      $SupplyLineCodeDetailsTable,
+      SupplyLineCodeDetail,
+      $$SupplyLineCodeDetailsTableFilterComposer,
+      $$SupplyLineCodeDetailsTableOrderingComposer,
+      $$SupplyLineCodeDetailsTableAnnotationComposer,
+      $$SupplyLineCodeDetailsTableCreateCompanionBuilder,
+      $$SupplyLineCodeDetailsTableUpdateCompanionBuilder,
+      (
+        SupplyLineCodeDetail,
+        BaseReferences<
+          _$AppDataStore,
+          $SupplyLineCodeDetailsTable,
+          SupplyLineCodeDetail
+        >,
+      ),
+      SupplyLineCodeDetail,
+      PrefetchHooks Function()
+    >;
 
 class $AppDataStoreManager {
   final _$AppDataStore _db;
@@ -1878,6 +2463,8 @@ class $AppDataStoreManager {
       $$SaleOrderLineCodesTableTableManager(_db, _db.saleOrderLineCodes);
   $$SupplyLineCodesTableTableManager get supplyLineCodes =>
       $$SupplyLineCodesTableTableManager(_db, _db.supplyLineCodes);
+  $$SupplyLineCodeDetailsTableTableManager get supplyLineCodeDetails =>
+      $$SupplyLineCodeDetailsTableTableManager(_db, _db.supplyLineCodeDetails);
 }
 
 mixin _$UsersDaoMixin on DatabaseAccessor<AppDataStore> {
@@ -1889,4 +2476,6 @@ mixin _$SaleOrdersDaoMixin on DatabaseAccessor<AppDataStore> {
 }
 mixin _$SuppliesDaoMixin on DatabaseAccessor<AppDataStore> {
   $SupplyLineCodesTable get supplyLineCodes => attachedDatabase.supplyLineCodes;
+  $SupplyLineCodeDetailsTable get supplyLineCodeDetails =>
+      attachedDatabase.supplyLineCodeDetails;
 }

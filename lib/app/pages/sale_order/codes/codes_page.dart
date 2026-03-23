@@ -9,6 +9,7 @@ import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/app_repository.dart';
 import '/app/repositories/sale_orders_repository.dart';
 import '/app/utils/page_helpers.dart';
 import 'scan/scan_page.dart';
@@ -30,6 +31,7 @@ class CodesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<CodesViewModel>(
       create: (context) => CodesViewModel(
+        RepositoryProvider.of<AppRepository>(context),
         RepositoryProvider.of<SaleOrdersRepository>(context),
         saleOrder: saleOrder,
         type: type

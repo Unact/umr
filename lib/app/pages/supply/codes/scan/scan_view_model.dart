@@ -1,11 +1,14 @@
 part of 'scan_page.dart';
 
 class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
+  final AppRepository appRepository;
   final SuppliesRepository suppliesRepository;
 
   StreamSubscription<List<SupplyLineCode>>? supplyLineCodesSubscription;
+  StreamSubscription<List<SupplyLineCodeDetail>>? supplyLineCodeDetailsSubscription;
 
   ScanViewModel(
+    this.appRepository,
     this.suppliesRepository,
     {
       required ApiSupply supply
@@ -23,6 +26,9 @@ class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
     supplyLineCodesSubscription = suppliesRepository.watchSupplyLineCodes(state.supply.id).listen((event) {
       emit(state.copyWith(status: ScanStateStatus.dataLoaded, lineCodes: event));
     });
+    supplyLineCodeDetailsSubscription = suppliesRepository.watchSupplyLineCodeDetails(state.supply.id).listen((event) {
+      emit(state.copyWith(status: ScanStateStatus.dataLoaded, lineCodeDetails: event));
+    });
   }
 
   @override
@@ -30,25 +36,42 @@ class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
     await super.close();
 
     await supplyLineCodesSubscription?.cancel();
+    await supplyLineCodeDetailsSubscription?.cancel();
   }
 
   Future<void> readCode(String code) async {
     try {
-      final codeInfo = await suppliesRepository.scan(state.supply, code);
-
-      if (state.lineCodes.any((e) => e.code == codeInfo.code)) {
+      if (state.lineCodes.any((e) => e.code == code)) {
         emit(state.copyWith(status: ScanStateStatus.failure, message: 'Товар уже отсканирован'));
         return;
       }
 
-      for (var supgoods in codeInfo.supgoods) {
-        await suppliesRepository.addSupplyLineCode(
-          id: state.supply.id,
-          subid: supgoods.subid,
-          code: codeInfo.code,
-          vol: supgoods.vol
-        );
+      final codeInfo = await suppliesRepository.scan(state.supply, code);
+
+      if (codeInfo.details.any((e) => state.lineCodeDetails.any((d) => d.cis == e.cis))) {
+        emit(state.copyWith(status: ScanStateStatus.failure, message: 'Один из связанных кодов уже отсканирован'));
+        return;
       }
+
+      await appRepository.transaction(() async {
+        for (var supgoods in codeInfo.supgoods) {
+          await suppliesRepository.addSupplyLineCode(
+            id: state.supply.id,
+            subid: supgoods.subid,
+            code: codeInfo.code,
+            vol: supgoods.vol
+          );
+          for (var detail in codeInfo.details) {
+            await suppliesRepository.addSupplyLineCodeDetail(
+              id: state.supply.id,
+              subid: supgoods.subid,
+              cis: detail.cis,
+              parent: detail.parent,
+              initiator: codeInfo.code
+            );
+          }
+        }
+      });
 
       emit(state.copyWith(status: ScanStateStatus.success, message: 'КМ успешно отсканирован'));
     } on AppError catch(e) {

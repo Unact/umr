@@ -5,7 +5,8 @@ enum CodesStateStatus {
   dataLoaded,
   inProgress,
   success,
-  failure
+  failure,
+  needUserConfirmation
 }
 
 class CodesState {
@@ -24,6 +25,9 @@ class CodesState {
   final List<SupplyLineCode> lineCodes;
   final String message;
   final bool finished;
+
+  bool get fullyScanned => lineCodes.fold(0.0, (prev, e) => prev + e.vol) ==
+    supply.lines.fold(0.0, (prev, e) => prev + e.vol);
 
   bool get allowEdit => !finished && supply.allLineCodes.isEmpty;
 

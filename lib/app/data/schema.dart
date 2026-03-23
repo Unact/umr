@@ -31,3 +31,14 @@ class SupplyLineCodes extends Table {
   @override
   Set<Column> get primaryKey => {id, subid, code};
 }
+
+class SupplyLineCodeDetails extends Table {
+  IntColumn get id => integer()();
+  IntColumn get subid => integer()();
+  TextColumn get cis => text()();
+  TextColumn get parent => text().nullable()();
+  TextColumn get initiator => text()();
+
+  @override
+  Set<Column> get primaryKey => {id, subid, cis};
+}
