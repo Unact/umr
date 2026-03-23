@@ -58,6 +58,7 @@ class CodesViewModel extends PageViewModel<CodesState, CodesStateStatus> {
       final supply = await appRepository.transaction(() async {
         final res = await suppliesRepository.completeScan(state.supply, state.lineCodes);
         await suppliesRepository.clearSupplyLineCodes(supply: state.supply);
+        await suppliesRepository.clearSupplyLineCodeDetails(supply: state.supply);
 
         return res;
       });

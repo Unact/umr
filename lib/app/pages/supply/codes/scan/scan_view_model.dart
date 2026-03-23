@@ -49,7 +49,9 @@ class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
       final codeInfo = await suppliesRepository.scan(state.supply, code);
 
       if (codeInfo.details.any((e) => state.lineCodeDetails.any((d) => d.cis == e.cis))) {
-        emit(state.copyWith(status: ScanStateStatus.failure, message: 'Один из связанных кодов уже отсканирован'));
+        emit(
+          state.copyWith(status: ScanStateStatus.failure, message: 'Один из выше/ниже стоящих кодов уже отсканирован')
+        );
         return;
       }
 
