@@ -48,6 +48,19 @@ extension UmrApi on RenewApi {
     );
   }
 
+  Future<ApiMarkirovkaCode> saleOrdersFindCodeParent({
+    required String code
+  }) async {
+    return ApiMarkirovkaCode.fromJson(await get('v1/umr/sale_orders/find_code_parent', query: { 'code': code }));
+  }
+
+  Future<void> printCodeLabel({
+    required String code,
+    required int printerId
+  }) async {
+    await post('v1/umr/print_code_label', data: { 'code': code, 'printerId': printerId });
+  }
+
   Future<void> saleOrdersPrintDocuments({
     required int saleOrderId,
     required int printerId

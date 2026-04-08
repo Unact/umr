@@ -57,9 +57,28 @@ class _InfoViewState extends State<_InfoView> {
     super.dispose();
   }
 
-  Future<void> showSaleOrderScanView() async {
+  Future<void> showPrinterScanView() async {
     InfoViewModel vm = context.read<InfoViewModel>();
 
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => ScanView(
+          onRead: (String rawValue) {
+            Navigator.pop(context);
+            vm.printCodeLabel(rawValue);
+          },
+          onError: (errorMessage) {
+            PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
+          },
+          child: Text('Отсканируйте принтер', style: const TextStyle(color: Colors.white, fontSize: 20))
+        ),
+        fullscreenDialog: true
+      )
+    );
+  }
+
+  Future<void> showScanView(Function(String) onRead) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -69,13 +88,12 @@ class _InfoViewState extends State<_InfoView> {
               color: Colors.white,
               icon: const Icon(Icons.text_fields),
               tooltip: 'Ручной поиск',
-              onPressed: () {
-                showSaleOrderManualInput();
-              }
+              onPressed: () => showManualInput(onRead)
             ),
           ],
-          onRead: (String rawValue) {
-            vm.findSaleOrder(rawValue);
+          onRead: (String code) {
+            Navigator.of(context).pop();
+            onRead.call(code);
           },
           onError: (errorMessage) {
             PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
@@ -87,83 +105,10 @@ class _InfoViewState extends State<_InfoView> {
     );
   }
 
-  Future<void> showSaleOrderManualInput() async {
-    InfoViewModel vm = context.read<InfoViewModel>();
-    TextEditingController ndocController = TextEditingController();
-
-    bool result = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return SimpleAlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                autofocus: true,
-                enableInteractiveSelection: false,
-                controller: ndocController,
-                decoration: const InputDecoration(labelText: 'Номер'),
-              )
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text(Strings.cancel)
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop(true);
-              },
-              child: const Text('Подтвердить')
-            )
-          ]
-        );
-      }
-    ) ?? false;
-
-    if (!result) return;
-
-    await vm.findSaleOrder(ndocController.text);
-  }
-
-
-  Future<void> showSupplyScanView() async {
-    InfoViewModel vm = context.read<InfoViewModel>();
-
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) => ScanView(
-          actions: [
-            IconButton(
-              color: Colors.white,
-              icon: const Icon(Icons.text_fields),
-              tooltip: 'Ручной поиск',
-              onPressed: () {
-                showSupplyManualInput();
-              }
-            ),
-          ],
-          onRead: (String rawValue) {
-            vm.findSupply(rawValue);
-          },
-          onError: (errorMessage) {
-            PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
-          },
-          child: Container()
-        ),
-        fullscreenDialog: true
-      )
-    );
-  }
-
-  Future<void> showSupplyManualInput() async {
-    InfoViewModel vm = context.read<InfoViewModel>();
+  Future<void> showManualInput(Function(String) onRead) async {
     TextEditingController idController = TextEditingController();
 
+    Navigator.of(context).pop();
     bool result = await showDialog<bool>(
       context: context,
       builder: (context) {
@@ -174,8 +119,7 @@ class _InfoViewState extends State<_InfoView> {
               TextField(
                 autofocus: true,
                 enableInteractiveSelection: false,
-                controller: idController,
-                decoration: const InputDecoration(labelText: 'ID'),
+                controller: idController
               )
             ],
           ),
@@ -199,7 +143,7 @@ class _InfoViewState extends State<_InfoView> {
 
     if (!result) return;
 
-    await vm.findSupply(idController.text);
+    onRead.call(idController.text);
   }
 
   Future<void> showClearLineCodesDialog() async {
@@ -290,10 +234,14 @@ class _InfoViewState extends State<_InfoView> {
       },
       listener: (context, state) async {
         switch (state.status) {
+          case InfoStateStatus.printCodeLabelInProgress:
+          case InfoStateStatus.findCodeParentInProgress:
           case InfoStateStatus.findSupplyInProgress:
           case InfoStateStatus.findSaleOrderInProgress:
             await _progressDialog.open();
             break;
+          case InfoStateStatus.printCodeLabelFailure:
+          case InfoStateStatus.findCodeParentFailure:
           case InfoStateStatus.findSupplyFailure:
           case InfoStateStatus.findSaleOrderFailure:
             _progressDialog.close();
@@ -301,7 +249,7 @@ class _InfoViewState extends State<_InfoView> {
             break;
           case InfoStateStatus.findSaleOrderSuccess:
             await _progressDialog.close();
-            Navigator.pushReplacement(
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (BuildContext context) => SaleOrderPage(saleOrder: state.foundSaleOrder!),
@@ -311,13 +259,21 @@ class _InfoViewState extends State<_InfoView> {
             break;
           case InfoStateStatus.findSupplySuccess:
             await _progressDialog.close();
-            Navigator.pushReplacement(
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (BuildContext context) => SupplyPage(supply: state.foundSupply!),
                 fullscreenDialog: false
               )
             );
+            break;
+          case InfoStateStatus.findCodeParentSuccess:
+            await _progressDialog.close();
+            await showPrinterScanView();
+            break;
+          case InfoStateStatus.printCodeLabelSuccess:
+            await _progressDialog.close();
+            PageHelpers.showMessage(context, state.message, Colors.green[400]!);
             break;
           case InfoStateStatus.loadMarkirovkaOrganizationFailure:
             PageHelpers.showMessage(context, state.message, Colors.red[400]!);
@@ -431,15 +387,19 @@ class _InfoViewState extends State<_InfoView> {
             children: <Widget>[
               TextButton(
                 child: const Text('Работа с заказом'),
-                onPressed: () => showSaleOrderScanView()
+                onPressed: () => showScanView(vm.findSaleOrder)
               ),
               TextButton(
                 child: const Text('Работа с поставкой'),
-                onPressed: () => showSupplyScanView()
+                onPressed: () => showScanView(vm.findSupply)
               ),
               TextButton(
                 onPressed: () => vm.loadMarkirovkaOrganizations(),
                 child: const Text('Получить информацию о КМ')
+              ),
+              TextButton(
+                onPressed: () => showScanView(vm.findCodeParent),
+                child: const Text('Восстановить КМ')
               )
             ],
           )
