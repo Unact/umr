@@ -103,4 +103,38 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       emit(state.copyWith(status: InfoStateStatus.findSupplyFailure, message: e.message));
     }
   }
+
+  Future<void> findCodeParent(String code) async {
+    emit(state.copyWith(status: InfoStateStatus.findCodeParentInProgress));
+
+    try {
+      final codeParent = (await saleOrdersRepository.findCodeParent(code)).code;
+
+      emit(state.copyWith(status: InfoStateStatus.findCodeParentSuccess, foundCodeParent: codeParent));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: InfoStateStatus.findCodeParentFailure, message: e.message));
+    }
+  }
+
+  Future<void> printCodeLabel(String printerIdStr) async {
+    int? printerId = int.tryParse(printerIdStr.split(' ').elementAtOrNull(1) ?? '');
+
+    if (printerId == null) {
+      emit(state.copyWith(status: InfoStateStatus.printCodeLabelFailure, message: 'Не удалось определить принтер'));
+      return;
+    }
+
+    emit(state.copyWith(status: InfoStateStatus.printCodeLabelInProgress));
+
+    try {
+      await appRepository.printCodeLabel(state.foundCodeParent!, printerId);
+
+      emit(state.copyWith(
+        status: InfoStateStatus.printCodeLabelSuccess,
+        message: 'Создано задание на печать'
+      ));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: InfoStateStatus.printCodeLabelFailure, message: e.message));
+    }
+  }
 }

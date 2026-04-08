@@ -63,9 +63,6 @@ class _DocumentsViewState extends State<_DocumentsView> {
       },
       listener: (context, state) async {
         switch (state.status) {
-          case DocumentsStateStatus.inProgress:
-            PageHelpers.showMessage(context, state.message, Colors.lightGreen[400]!);
-            break;
           case DocumentsStateStatus.failure:
             PageHelpers.showMessage(context, state.message, Colors.red[400]!);
             break;

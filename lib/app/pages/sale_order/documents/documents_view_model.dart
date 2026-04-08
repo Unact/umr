@@ -17,14 +17,14 @@ class DocumentsViewModel extends PageViewModel<DocumentsState, DocumentsStateSta
       return;
     }
 
-    emit(state.copyWith(status: DocumentsStateStatus.inProgress, message: 'Создано задание на печать'));
+    emit(state.copyWith(status: DocumentsStateStatus.inProgress));
 
     try {
       await saleOrdersRepository.printDocuments(state.saleOrder, printerId);
 
       emit(state.copyWith(
         status: DocumentsStateStatus.success,
-        message: 'Документ успешно распечатан'
+        message: 'Создано задание на печать'
       ));
     } on AppError catch(e) {
       emit(state.copyWith(status: DocumentsStateStatus.failure, message: e.message));

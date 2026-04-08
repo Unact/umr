@@ -29,6 +29,17 @@ class AppRepository extends BaseRepository {
     await dataStore.clearData();
   }
 
+  Future<void> printCodeLabel(String code, int printerId) async {
+    try {
+      return await api.printCodeLabel(code: code, printerId: printerId);
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await Misc.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
   Future<List<ApiMarkirovkaOrganization>> loadMarkirovkaOrganizations() async {
     try {
       return await api.markirovkaOrganizations();
