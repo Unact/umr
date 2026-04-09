@@ -60,7 +60,7 @@ class _InfoViewState extends State<_InfoView> {
   Future<void> showPrinterScanView() async {
     InfoViewModel vm = context.read<InfoViewModel>();
 
-    await Navigator.push(
+    await Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => ScanView(
@@ -91,10 +91,7 @@ class _InfoViewState extends State<_InfoView> {
               onPressed: () => showManualInput(onRead)
             ),
           ],
-          onRead: (String code) {
-            Navigator.of(context).pop();
-            onRead.call(code);
-          },
+          onRead: onRead,
           onError: (errorMessage) {
             PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
           },
@@ -108,7 +105,6 @@ class _InfoViewState extends State<_InfoView> {
   Future<void> showManualInput(Function(String) onRead) async {
     TextEditingController idController = TextEditingController();
 
-    Navigator.of(context).pop();
     bool result = await showDialog<bool>(
       context: context,
       builder: (context) {
@@ -249,7 +245,7 @@ class _InfoViewState extends State<_InfoView> {
             break;
           case InfoStateStatus.findSaleOrderSuccess:
             await _progressDialog.close();
-            await Navigator.push(
+            await Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (BuildContext context) => SaleOrderPage(saleOrder: state.foundSaleOrder!),
@@ -259,7 +255,7 @@ class _InfoViewState extends State<_InfoView> {
             break;
           case InfoStateStatus.findSupplySuccess:
             await _progressDialog.close();
-            await Navigator.push(
+            await Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (BuildContext context) => SupplyPage(supply: state.foundSupply!),
