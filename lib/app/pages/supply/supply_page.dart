@@ -36,10 +36,6 @@ class _SupplyView extends StatefulWidget {
 }
 
 class _SupplyViewState extends State<_SupplyView> {
-  final TextStyle firstColumnTextStyle = const TextStyle(color: Colors.blue);
-  final EdgeInsets firstColumnPadding = const EdgeInsets.only(top: 8.0, bottom: 4.0, right: 8.0);
-  final EdgeInsets baseColumnPadding = const EdgeInsets.only(top: 8.0, bottom: 4.0);
-  final TextStyle defaultTextStyle = const TextStyle(fontSize: 14.0, color: Colors.black);
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
 
   @override

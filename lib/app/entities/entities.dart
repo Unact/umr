@@ -3,6 +3,8 @@ import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/data/database.dart';
 
+part 'api_delivery_storage_load_sale_order.dart';
+part 'api_delivery_storage_load.dart';
 part 'api_info_scan_sale_order.dart';
 part 'api_info_scan.dart';
 part 'api_markirovka_code.dart';
