@@ -3,21 +3,14 @@ part of 'info_page.dart';
 enum InfoStateStatus {
   initial,
   dataLoaded,
-  findSaleOrderInProgress,
+  inProgress,
+  failure,
   findSaleOrderSuccess,
-  findSaleOrderFailure,
-  loadMarkirovkaOrganizationInProgress,
   loadMarkirovkaOrganizationSuccess,
-  loadMarkirovkaOrganizationFailure,
-  findSupplyInProgress,
-  findSupplyFailure,
   findSupplySuccess,
-  findCodeParentInProgress,
-  findCodeParentFailure,
   findCodeParentSuccess,
-  printCodeLabelInProgress,
   printCodeLabelSuccess,
-  printCodeLabelFailure
+  findDeliveryStorageLoadSuccess
 }
 
 class InfoState {
@@ -26,6 +19,7 @@ class InfoState {
     this.foundSaleOrder,
     this.foundSupply,
     this.foundCodeParent,
+    this.foundDeliveryStorageLoad,
     this.markirovkaOrganizations = const [],
     this.user,
     this.message = ''
@@ -35,6 +29,7 @@ class InfoState {
   final ApiSaleOrder? foundSaleOrder;
   final ApiSupply? foundSupply;
   final String? foundCodeParent;
+  final ApiDeliveryStorageLoad? foundDeliveryStorageLoad;
   final List<ApiMarkirovkaOrganization> markirovkaOrganizations;
   final String message;
   final User? user;
@@ -44,6 +39,7 @@ class InfoState {
     ApiSaleOrder? foundSaleOrder,
     ApiSupply? foundSupply,
     String? foundCodeParent,
+    ApiDeliveryStorageLoad? foundDeliveryStorageLoad,
     List<ApiMarkirovkaOrganization>? markirovkaOrganizations,
     ApiInfoScan? infoScan,
     User? user,
@@ -54,6 +50,7 @@ class InfoState {
       foundSaleOrder: foundSaleOrder ?? this.foundSaleOrder,
       foundSupply: foundSupply ?? this.foundSupply,
       foundCodeParent: foundCodeParent ?? this.foundCodeParent,
+      foundDeliveryStorageLoad: foundDeliveryStorageLoad ?? this.foundDeliveryStorageLoad,
       markirovkaOrganizations: markirovkaOrganizations ?? this.markirovkaOrganizations,
       message: message ?? this.message,
       user: user ?? this.user

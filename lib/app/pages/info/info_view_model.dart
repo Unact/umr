@@ -2,6 +2,7 @@ part of 'info_page.dart';
 
 class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   final AppRepository appRepository;
+  final DeliveryStorageLoadsRepository deliveryStorageLoadsRepository;
   final SaleOrdersRepository saleOrdersRepository;
   final SuppliesRepository suppliesRepository;
   final UsersRepository usersRepository;
@@ -11,6 +12,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
 
   InfoViewModel(
     this.appRepository,
+    this.deliveryStorageLoadsRepository,
     this.saleOrdersRepository,
     this.suppliesRepository,
     this.usersRepository,
@@ -47,7 +49,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   }
 
   Future<void> loadMarkirovkaOrganizations() async {
-    emit(state.copyWith(status: InfoStateStatus.loadMarkirovkaOrganizationInProgress));
+    emit(state.copyWith(status: InfoStateStatus.inProgress));
 
     try {
       final markirovkaOrganizations = await appRepository.loadMarkirovkaOrganizations();
@@ -58,19 +60,19 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       ));
 
     } on AppError catch(e) {
-      emit(state.copyWith(status: InfoStateStatus.loadMarkirovkaOrganizationFailure, message: e.message));
+      emit(state.copyWith(status: InfoStateStatus.failure, message: e.message));
     }
   }
 
   Future<void> findSaleOrder(String ndoc) async {
-    emit(state.copyWith(status: InfoStateStatus.findSaleOrderInProgress));
+    emit(state.copyWith(status: InfoStateStatus.inProgress));
 
     try {
       final saleOrder = await saleOrdersRepository.findSaleOrder(ndoc);
 
       emit(state.copyWith(status: InfoStateStatus.findSaleOrderSuccess, foundSaleOrder: saleOrder));
     } on AppError catch(e) {
-      emit(state.copyWith(status: InfoStateStatus.findSaleOrderFailure, message: e.message));
+      emit(state.copyWith(status: InfoStateStatus.failure, message: e.message));
     }
   }
 
@@ -87,32 +89,47 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
 
     if (id == null) {
       emit(state.copyWith(
-        status: InfoStateStatus.findSupplyFailure,
+        status: InfoStateStatus.failure,
         message: 'Не удается распознать идентификатор'
       ));
       return;
     }
 
-    emit(state.copyWith(status: InfoStateStatus.findSupplyInProgress));
+    emit(state.copyWith(status: InfoStateStatus.inProgress));
 
     try {
       final supply = await suppliesRepository.findSupply(id);
 
       emit(state.copyWith(status: InfoStateStatus.findSupplySuccess, foundSupply: supply));
     } on AppError catch(e) {
-      emit(state.copyWith(status: InfoStateStatus.findSupplyFailure, message: e.message));
+      emit(state.copyWith(status: InfoStateStatus.failure, message: e.message));
     }
   }
 
   Future<void> findCodeParent(String code) async {
-    emit(state.copyWith(status: InfoStateStatus.findCodeParentInProgress));
+    emit(state.copyWith(status: InfoStateStatus.inProgress));
 
     try {
       final codeParent = (await saleOrdersRepository.findCodeParent(code)).code;
 
       emit(state.copyWith(status: InfoStateStatus.findCodeParentSuccess, foundCodeParent: codeParent));
     } on AppError catch(e) {
-      emit(state.copyWith(status: InfoStateStatus.findCodeParentFailure, message: e.message));
+      emit(state.copyWith(status: InfoStateStatus.failure, message: e.message));
+    }
+  }
+
+  Future<void> findDeliveryStorageLoad(String code) async {
+    emit(state.copyWith(status: InfoStateStatus.inProgress));
+
+    try {
+      final deliveryStorageLoad = (await deliveryStorageLoadsRepository.findDeliveryStorageLoad(code));
+
+      emit(state.copyWith(
+        status: InfoStateStatus.findDeliveryStorageLoadSuccess,
+        foundDeliveryStorageLoad: deliveryStorageLoad
+      ));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: InfoStateStatus.failure, message: e.message));
     }
   }
 
@@ -120,11 +137,11 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     int? printerId = int.tryParse(printerIdStr.split(' ').elementAtOrNull(1) ?? '');
 
     if (printerId == null) {
-      emit(state.copyWith(status: InfoStateStatus.printCodeLabelFailure, message: 'Не удалось определить принтер'));
+      emit(state.copyWith(status: InfoStateStatus.inProgress, message: 'Не удалось определить принтер'));
       return;
     }
 
-    emit(state.copyWith(status: InfoStateStatus.printCodeLabelInProgress));
+    emit(state.copyWith(status: InfoStateStatus.failure));
 
     try {
       await appRepository.printCodeLabel(state.foundCodeParent!, printerId);
@@ -134,7 +151,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
         message: 'Создано задание на печать'
       ));
     } on AppError catch(e) {
-      emit(state.copyWith(status: InfoStateStatus.printCodeLabelFailure, message: e.message));
+      emit(state.copyWith(status: InfoStateStatus.failure, message: e.message));
     }
   }
 }

@@ -95,4 +95,30 @@ extension UmrApi on RenewApi {
       await get('v1/umr/supplies/scan', query: { 'supplyId': supplyId, 'code': code })
     );
   }
+
+  Future<ApiDeliveryStorageLoad> deliveryStorageLoadsIndex({ required String ndoc }) async {
+    return ApiDeliveryStorageLoad.fromJson(await get('v1/umr/delivery_storage_loads', query: { 'ndoc': ndoc }));
+  }
+
+  Future<ApiDeliveryStorageLoad> deliveryStorageLoadsStartLoadOrder({
+    required int deliveryStorageLoadSaleOrderId
+  }) async {
+    return ApiDeliveryStorageLoad.fromJson(
+      await post(
+        'v1/umr/delivery_storage_loads/start_load_order',
+        data: { 'deliveryStorageLoadSaleOrderId': deliveryStorageLoadSaleOrderId }
+      )
+    );
+  }
+
+  Future<ApiDeliveryStorageLoad> deliveryStorageLoadsCompleteDeliveryLoad({
+    required int deliveryStorageLoadId
+  }) async {
+    return ApiDeliveryStorageLoad.fromJson(
+      await post(
+        'v1/umr/delivery_storage_loads/complete_delivery_load',
+        data: { 'deliveryStorageLoadId': deliveryStorageLoadId }
+      )
+    );
+  }
 }

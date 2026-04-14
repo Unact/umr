@@ -7,6 +7,7 @@ import 'package:u_app_utils/u_app_utils.dart';
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
+import '/app/pages/delivery_storage_load/delivery_storage_load_page.dart';
 import '/app/pages/info_scan/info_scan_page.dart';
 import '/app/pages/page_messages/page_messages_page.dart';
 import '/app/pages/person/person_page.dart';
@@ -14,6 +15,7 @@ import '/app/pages/sale_order/sale_order_page.dart';
 import '/app/pages/supply/supply_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
+import '/app/repositories/delivery_storage_loads_repository.dart';
 import '/app/repositories/sale_orders_repository.dart';
 import '/app/repositories/supplies_repository.dart';
 import '/app/repositories/users_repository.dart';
@@ -33,6 +35,7 @@ class InfoPage extends StatelessWidget {
     return BlocProvider<InfoViewModel>(
       create: (context) => InfoViewModel(
         RepositoryProvider.of<AppRepository>(context),
+        RepositoryProvider.of<DeliveryStorageLoadsRepository>(context),
         RepositoryProvider.of<SaleOrdersRepository>(context),
         RepositoryProvider.of<SuppliesRepository>(context),
         RepositoryProvider.of<UsersRepository>(context)
@@ -78,7 +81,7 @@ class _InfoViewState extends State<_InfoView> {
     );
   }
 
-  Future<void> showScanView(Function(String) onRead) async {
+  Future<void> showScanView(String scanText, Function(String) onRead) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -95,7 +98,7 @@ class _InfoViewState extends State<_InfoView> {
           onError: (errorMessage) {
             PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
           },
-          child: Container()
+          child: Text(scanText, style: const TextStyle(color: Colors.white, fontSize: 20))
         ),
         fullscreenDialog: true
       )
@@ -230,16 +233,10 @@ class _InfoViewState extends State<_InfoView> {
       },
       listener: (context, state) async {
         switch (state.status) {
-          case InfoStateStatus.printCodeLabelInProgress:
-          case InfoStateStatus.findCodeParentInProgress:
-          case InfoStateStatus.findSupplyInProgress:
-          case InfoStateStatus.findSaleOrderInProgress:
+          case InfoStateStatus.inProgress:
             await _progressDialog.open();
             break;
-          case InfoStateStatus.printCodeLabelFailure:
-          case InfoStateStatus.findCodeParentFailure:
-          case InfoStateStatus.findSupplyFailure:
-          case InfoStateStatus.findSaleOrderFailure:
+          case InfoStateStatus.failure:
             _progressDialog.close();
             PageHelpers.showMessage(context, state.message, Colors.red[400]!);
             break;
@@ -263,6 +260,19 @@ class _InfoViewState extends State<_InfoView> {
               )
             );
             break;
+
+          case InfoStateStatus.findDeliveryStorageLoadSuccess:
+            await _progressDialog.close();
+            await Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => DeliveryStorageLoadPage(
+                  deliveryStorageLoad: state.foundDeliveryStorageLoad!
+                ),
+                fullscreenDialog: false
+              )
+            );
+            break;
           case InfoStateStatus.findCodeParentSuccess:
             await _progressDialog.close();
             await showPrinterScanView();
@@ -271,10 +281,8 @@ class _InfoViewState extends State<_InfoView> {
             await _progressDialog.close();
             PageHelpers.showMessage(context, state.message, Colors.green[400]!);
             break;
-          case InfoStateStatus.loadMarkirovkaOrganizationFailure:
-            PageHelpers.showMessage(context, state.message, Colors.red[400]!);
-            break;
           case InfoStateStatus.loadMarkirovkaOrganizationSuccess:
+            await _progressDialog.close();
             await showMarkirovkaOrganizationDialog();
             break;
           default:
@@ -375,26 +383,30 @@ class _InfoViewState extends State<_InfoView> {
     return Card(
       child: ListTile(
         isThreeLine: true,
-        title: Text('Действия', style: TextStyle(fontSize: 20)),
+        title: Text('Процессы', style: TextStyle(fontSize: 20)),
         subtitle: Padding(
           padding: EdgeInsets.only(top: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               TextButton(
-                child: const Text('Работа с заказом'),
-                onPressed: () => showScanView(vm.findSaleOrder)
+                onPressed: () => showScanView('Отсканируйте заказ', vm.findSaleOrder),
+                child: const Text('Приемка')
               ),
               TextButton(
-                child: const Text('Работа с поставкой'),
-                onPressed: () => showScanView(vm.findSupply)
+                onPressed: () => showScanView('Отсканируйте поставку', vm.findSupply),
+                child: const Text('Отбор'),
+              ),
+              TextButton(
+                onPressed: () => showScanView('Отсканируйте доставку', vm.findDeliveryStorageLoad),
+                child: const Text('Погрузка')
               ),
               TextButton(
                 onPressed: () => vm.loadMarkirovkaOrganizations(),
-                child: const Text('Получить информацию о КМ')
+                child: const Text('Информация о КМ')
               ),
               TextButton(
-                onPressed: () => showScanView(vm.findCodeParent),
+                onPressed: () => showScanView('Отсканируйте КМ', vm.findCodeParent),
                 child: const Text('Восстановить КМ')
               )
             ],

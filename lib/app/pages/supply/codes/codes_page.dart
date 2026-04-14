@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
-import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
@@ -43,35 +42,12 @@ class _CodesView extends StatefulWidget {
 }
 
 class _CodesViewState extends State<_CodesView> {
-  final TextStyle firstColumnTextStyle = const TextStyle(color: Colors.blue);
-  final EdgeInsets firstColumnPadding = const EdgeInsets.only(top: 8.0, bottom: 4.0, right: 8.0);
-  final EdgeInsets baseColumnPadding = const EdgeInsets.only(top: 8.0, bottom: 4.0);
-  final TextStyle defaultTextStyle = const TextStyle(fontSize: 14.0, color: Colors.black);
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
 
   @override
   void dispose() {
     _progressDialog.close();
     super.dispose();
-  }
-
-  Future<void> showConfirmationDialog(String message) async {
-    CodesViewModel vm = context.read<CodesViewModel>();
-
-    bool result = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('Подтверждение'),
-        content: SingleChildScrollView(child: ListBody(children: <Widget>[Text(message)])),
-        actions: <Widget>[
-          TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(false)),
-          TextButton(child: const Text('Подтверждаю'), onPressed: () => Navigator.of(context).pop(true))
-        ],
-      )
-    ) ?? false;
-
-    vm.state.confirmationCallback(result);
   }
 
   Future<void> showScan() async {
@@ -101,11 +77,11 @@ class _CodesViewState extends State<_CodesView> {
         );
       },
       listener: (context, state) async {
+        CodesViewModel vm = context.read<CodesViewModel>();
+
         switch (state.status) {
           case CodesStateStatus.needUserConfirmation:
-            WidgetsBinding.instance.addPostFrameCallback((_) async {
-              await showConfirmationDialog(state.message);
-            });
+            await PageHelpers.showConfirmationDialog(context, vm.completeScan, state.message);
             break;
           case CodesStateStatus.inProgress:
             _progressDialog.open();
@@ -156,7 +132,7 @@ class _CodesViewState extends State<_CodesView> {
       initiallyExpanded: true,
       trailing: !vm.state.allowEdit ? null : IconButton(
         tooltip: 'Отсканировать код маркировки',
-        icon: const Icon(Icons.qr_code_scanner),
+        icon: const Icon(Icons.barcode_reader),
         onPressed: showScan
       ),
       children: vm.state.supply.lines.map((e) => _buildOrderLineTile(context, e)).toList()

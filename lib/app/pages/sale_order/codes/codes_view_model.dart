@@ -11,7 +11,7 @@ class CodesViewModel extends PageViewModel<CodesState, CodesStateStatus> {
     this.saleOrdersRepository,
     {required ApiSaleOrder saleOrder, required SaleOrderScanType type}
   ) :
-    super(CodesState(saleOrder: saleOrder, type: type, confirmationCallback: () {}));
+    super(CodesState(saleOrder: saleOrder, type: type));
 
   @override
   CodesStateStatus get status => state.status;
@@ -60,8 +60,7 @@ class CodesViewModel extends PageViewModel<CodesState, CodesStateStatus> {
     if (state.type == SaleOrderScanType.correction) {
       emit(state.copyWith(
         status: CodesStateStatus.needUserConfirmation,
-        message: 'Вы точно хотите завершить?',
-        confirmationCallback: completeScan
+        message: 'Вы точно хотите завершить?'
       ));
 
       return;

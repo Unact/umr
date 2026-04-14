@@ -7,7 +7,7 @@ class CodesViewModel extends PageViewModel<CodesState, CodesStateStatus> {
   StreamSubscription<List<SupplyLineCode>>? supplyLineCodesSubscription;
 
   CodesViewModel(this.appRepository, this.suppliesRepository, { required ApiSupply supply }) :
-    super(CodesState(supply: supply, confirmationCallback: () {}));
+    super(CodesState(supply: supply));
 
   @override
   CodesStateStatus get status => state.status;
@@ -39,8 +39,7 @@ class CodesViewModel extends PageViewModel<CodesState, CodesStateStatus> {
     if (!state.fullyScanned) {
       emit(state.copyWith(
         status: CodesStateStatus.needUserConfirmation,
-        message: 'Отсканированы не все КМ из документа. Вы точно хотите завершить?',
-        confirmationCallback: completeScan
+        message: 'Отсканированы не все КМ из документа. Вы точно хотите завершить?'
       ));
 
       return;
