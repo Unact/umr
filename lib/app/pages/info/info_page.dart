@@ -391,11 +391,11 @@ class _InfoViewState extends State<_InfoView> {
             children: <Widget>[
               TextButton(
                 onPressed: () => showScanView('Отсканируйте заказ', vm.findSaleOrder),
-                child: const Text('Приемка')
+                child: const Text('Отбор')
               ),
               TextButton(
                 onPressed: () => showScanView('Отсканируйте поставку', vm.findSupply),
-                child: const Text('Отбор'),
+                child: const Text('Приемка'),
               ),
               TextButton(
                 onPressed: () => showScanView('Отсканируйте доставку', vm.findDeliveryStorageLoad),
