@@ -40,7 +40,6 @@ class _LoginViewState extends State<_LoginView> {
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
   final TextEditingController loginController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  int tapCnt = 0;
 
   @override
   void dispose() {
@@ -50,8 +49,6 @@ class _LoginViewState extends State<_LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.read<LoginViewModel>();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Войти в приложение'),
