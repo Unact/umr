@@ -35,9 +35,23 @@ class UsersRepository extends BaseRepository {
     }
   }
 
-  Future<void> login(String login, String password) async {
+  Future<void> loginWithCredentials(String login, String password) async {
     try {
-      await api.login(login: login, password: password);
+      await api.loginWithCredentials(login: login, password: password);
+      _loggedInController.add(api.isLoggedIn);
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await Misc.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+
+    await loadUserData();
+  }
+
+  Future<void> loginWithUserToken(String userToken) async {
+    try {
+      await api.loginWithUserToken(userToken: userToken);
       _loggedInController.add(api.isLoggedIn);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);

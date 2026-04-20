@@ -11,27 +11,24 @@ enum LoginStateStatus {
 class LoginState {
   LoginState({
     this.status = LoginStateStatus.initial,
-    this.login = '',
-    this.password = '',
-    this.message = ''
+    this.message = '',
+    this.showCredentialsForm = false
   });
 
-  final String login;
-  final String password;
   final LoginStateStatus status;
   final String message;
+  final bool showCredentialsForm;
 
   LoginState copyWith({
     LoginStateStatus? status,
-    String? login,
-    String? password,
-    String? message
+    String? message,
+    int? versionTapCnt,
+    bool? showCredentialsForm
   }) {
     return LoginState(
       status: status ?? this.status,
-      login: login ?? this.login,
-      password: password ?? this.password,
-      message: message ?? this.message
+      message: message ?? this.message,
+      showCredentialsForm: showCredentialsForm ?? this.showCredentialsForm
     );
   }
 }

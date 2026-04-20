@@ -5,10 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
+import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/users_repository.dart';
+import '/app/utils/page_helpers.dart';
 
 part 'login_state.dart';
 part 'login_view_model.dart';
@@ -35,9 +37,12 @@ class _LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<_LoginView> {
+  final kCredentialsFormTapCnt = 7;
+
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
   final TextEditingController loginController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  int tapCnt = 0;
 
   @override
   void dispose() {
@@ -47,6 +52,8 @@ class _LoginViewState extends State<_LoginView> {
 
   @override
   Widget build(BuildContext context) {
+    final vm = context.read<LoginViewModel>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Войти в приложение'),
@@ -58,16 +65,23 @@ class _LoginViewState extends State<_LoginView> {
         builder: (context, state) {
           return Column(
             mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              buildLoginForm(context),
+              state.showCredentialsForm ? Container() : buildUserTokenLoginForm(context),
+              state.showCredentialsForm ? buildCredentialsLoginForm(context) : Container(),
               Expanded(child: Container()),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-                child: FutureBuilder(
-                  future: Misc.fullVersion,
-                  builder: (context, snapshot) => Text('Версия ${snapshot.data ?? ''}', style: Styles.formStyle),
-                )
+              GestureDetector(
+                onTap: () {
+                  setState(() => tapCnt++);
+                  vm.processVersionTap(tapCnt);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+                  child: FutureBuilder(
+                    future: Misc.fullVersion,
+                    builder: (context, snapshot) => Text('Версия ${snapshot.data ?? ''}', style: Styles.formStyle),
+                  )
+                ),
               )
             ]
           );
@@ -121,7 +135,49 @@ class _LoginViewState extends State<_LoginView> {
     );
   }
 
-  Widget buildLoginForm(BuildContext context) {
+  Widget buildUserTokenLoginForm(BuildContext context) {
+    return SizedBox(
+      height: 320,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: userTokenButton(context)
+        )
+      )
+    );
+  }
+
+  Widget userTokenButton(BuildContext context) {
+    final vm = context.read<LoginViewModel>();
+
+    return ElevatedButton.icon(
+      onPressed: () async {
+        final result = await Navigator.push<String?>(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => ScanView(
+              onRead: (String rawValue) {
+                Navigator.pop(context, rawValue);
+              },
+              onError: (errorMessage) {
+                PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
+              },
+              child: Text('Отсканируйте QR', style: const TextStyle(color: Colors.white, fontSize: 20))
+            ),
+            fullscreenDialog: true
+          )
+        );
+
+        if (result == null) return;
+
+        vm.apiUserTokenLogin(result);
+      },
+      label: Text('Войти через QR'),
+      icon: Icon(Icons.qr_code)
+    );
+  }
+
+  Widget buildCredentialsLoginForm(BuildContext context) {
     final vm = context.read<LoginViewModel>();
 
     return SizedBox(
@@ -145,7 +201,7 @@ class _LoginViewState extends State<_LoginView> {
                     ),
                     onPressed: () {
                       Misc.unfocus(context);
-                      vm.apiLogin(loginController.text, passwordController.text);
+                      vm.apiCredentialsLogin(loginController.text, passwordController.text);
                     },
                     child: const Text('Войти'),
                   ),
@@ -170,6 +226,12 @@ class _LoginViewState extends State<_LoginView> {
               ),
             ],
           ),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: userTokenButton(context)
+            )
+          )
         ],
       )
     );
