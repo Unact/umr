@@ -23,6 +23,8 @@ class DeliveryStorageLoadState {
   final String message;
   final bool showWarning;
 
+  bool get allStarted => deliveryStorageLoad.deliveryStorageLoadSaleOrders.every((e) => e.started != null);
+
   DeliveryStorageLoadState copyWith({
     DeliveryStorageLoadStateStatus? status,
     ApiDeliveryStorageLoad? deliveryStorageLoad,
