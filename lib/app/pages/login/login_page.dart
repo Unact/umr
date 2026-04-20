@@ -37,8 +37,6 @@ class _LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<_LoginView> {
-  final kCredentialsFormTapCnt = 7;
-
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
   final TextEditingController loginController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -67,22 +65,15 @@ class _LoginViewState extends State<_LoginView> {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              state.showCredentialsForm ? Container() : buildUserTokenLoginForm(context),
-              state.showCredentialsForm ? buildCredentialsLoginForm(context) : Container(),
+              buildCredentialsLoginForm(context),
               Expanded(child: Container()),
-              GestureDetector(
-                onTap: () {
-                  setState(() => tapCnt++);
-                  vm.processVersionTap(tapCnt);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-                  child: FutureBuilder(
-                    future: Misc.fullVersion,
-                    builder: (context, snapshot) => Text('Версия ${snapshot.data ?? ''}', style: Styles.formStyle),
-                  )
-                ),
-              )
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+                child: FutureBuilder(
+                  future: Misc.fullVersion,
+                  builder: (context, snapshot) => Text('Версия ${snapshot.data ?? ''}', style: Styles.formStyle),
+                )
+              ),
             ]
           );
         },
@@ -132,18 +123,6 @@ class _LoginViewState extends State<_LoginView> {
       obscureText: true,
       style: Styles.formStyle,
       decoration: const InputDecoration(labelText: 'Пароль')
-    );
-  }
-
-  Widget buildUserTokenLoginForm(BuildContext context) {
-    return SizedBox(
-      height: 320,
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: userTokenButton(context)
-        )
-      )
     );
   }
 
