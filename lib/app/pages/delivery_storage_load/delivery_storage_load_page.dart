@@ -54,7 +54,6 @@ class _DeliveryStorageLoadViewState extends State<_DeliveryStorageLoadView> {
       MaterialPageRoute(
         builder: (BuildContext context) => ScanView(
           onRead: (String rawValue) {
-            Navigator.pop(context);
             vm.startLoadOrder(rawValue);
           },
           onError: (errorMessage) {
@@ -177,7 +176,7 @@ class _DeliveryStorageLoadViewState extends State<_DeliveryStorageLoadView> {
 
     return [
       TextButton(
-        onPressed: vm.tryCompleteDeliveryLoad,
+        onPressed: vm.state.allStarted ? vm.tryCompleteDeliveryLoad : null,
         child: const Text('Завершить')
       )
     ];
