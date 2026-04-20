@@ -1,19 +1,12 @@
 part of 'login_page.dart';
 
 class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
-  static final int kCredentialsFormTapCnt = 7;
   final UsersRepository usersRepository;
 
   LoginViewModel(this.usersRepository) : super(LoginState());
 
   @override
   LoginStateStatus get status => state.status;
-
-  void processVersionTap(int tapCnt) {
-    emit(state.copyWith(
-      showCredentialsForm: tapCnt >= kCredentialsFormTapCnt
-    ));
-  }
 
   Future<void> apiUserTokenLogin(String userToken) async {
     if (userToken == '') {
