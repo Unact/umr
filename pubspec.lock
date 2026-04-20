@@ -1415,8 +1415,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "2481580"
-      resolved-ref: "2481580c9a499a62fd7fc2bb348db95c656337d2"
+      ref: "2571417"
+      resolved-ref: "25714175f8a46cd4f7340e00ef142e876193c656"
       url: "git@github.com:Unact/u_app_utils.git"
     source: git
     version: "0.0.1"
