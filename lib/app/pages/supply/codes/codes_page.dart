@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
+import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/supplies_repository.dart';
 import '/app/utils/page_helpers.dart';
+import '/app/widgets/widgets.dart';
 import 'scan/scan_page.dart';
 
 part 'codes_state.dart';
@@ -53,11 +55,62 @@ class _CodesViewState extends State<_CodesView> {
   Future<void> showScan() async {
     CodesViewModel vm = context.read<CodesViewModel>();
 
+    final result = await showDialog<bool?>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        bool? pieceScan = false;
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return SimpleAlertDialog(
+              title: const Text('Укажите тип'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    DropdownButtonFormField(
+                      isExpanded: true,
+                      menuMaxHeight: 200,
+                      decoration: const InputDecoration(labelText: 'Тип'),
+                      initialValue: pieceScan,
+                      items: [
+                        DropdownMenuItem(
+                          value: true,
+                          child: Text('Штука')
+                        ),
+                        DropdownMenuItem(
+                          value: false,
+                          child: Text('Упаковка')
+                        ),
+                      ],
+                      onChanged: (newVal) => setState(() => pieceScan = newVal)
+                    )
+                  ]
+                )
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: pieceScan == null ?
+                    null :
+                    () => Navigator.of(context).pop(pieceScan),
+                  child: const Text(Strings.ok)
+                ),
+                TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(null))
+              ],
+            );
+          }
+        );
+      }
+    );
+
+    if (result == null) return;
+
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => ScanPage(
           supply: vm.state.supply,
+          pieceScan: result,
         ),
         fullscreenDialog: true
       )

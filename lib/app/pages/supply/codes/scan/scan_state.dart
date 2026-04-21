@@ -12,6 +12,7 @@ class ScanState {
     this.status = ScanStateStatus.initial,
     this.message = '',
     required this.supply,
+    this.pieceScan = false,
     this.lineCodes = const [],
     this.lineCodeDetails = const [],
   });
@@ -19,6 +20,7 @@ class ScanState {
   final ScanStateStatus status;
   final String message;
   final ApiSupply supply;
+  final bool pieceScan;
   final List<SupplyLineCode> lineCodes;
   final List<SupplyLineCodeDetail> lineCodeDetails;
 
@@ -26,6 +28,7 @@ class ScanState {
     ScanStateStatus? status,
     String? message,
     ApiSupply? supply,
+    bool? pieceScan,
     List<SupplyLineCode>? lineCodes,
     List<SupplyLineCodeDetail>? lineCodeDetails,
   }) {
@@ -33,6 +36,7 @@ class ScanState {
       status: status ?? this.status,
       message: message ?? this.message,
       supply: supply ?? this.supply,
+      pieceScan: pieceScan ?? this.pieceScan,
       lineCodes: lineCodes ?? this.lineCodes,
       lineCodeDetails: lineCodeDetails ?? this.lineCodeDetails,
     );

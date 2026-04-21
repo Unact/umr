@@ -19,9 +19,11 @@ part 'scan_view_model.dart';
 
 class ScanPage extends StatelessWidget {
   final ApiSupply supply;
+  final bool pieceScan;
 
   ScanPage({
     required this.supply,
+    required this.pieceScan,
     super.key
   });
 
@@ -32,6 +34,7 @@ class ScanPage extends StatelessWidget {
         RepositoryProvider.of<AppRepository>(context),
         RepositoryProvider.of<SuppliesRepository>(context),
         supply: supply,
+        pieceScan: pieceScan
       ),
       child: _ScanView(),
     );
