@@ -11,10 +11,11 @@ class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
     this.appRepository,
     this.suppliesRepository,
     {
-      required ApiSupply supply
+      required ApiSupply supply,
+      required bool pieceScan
     }
   ) :
-    super(ScanState(supply: supply));
+    super(ScanState(supply: supply, pieceScan: pieceScan));
 
   @override
   ScanStateStatus get status => state.status;
@@ -47,6 +48,14 @@ class ScanViewModel extends PageViewModel<ScanState, ScanStateStatus> {
       }
 
       final codeInfo = await suppliesRepository.scan(state.supply, code);
+
+      if ((state.pieceScan && codeInfo.details.length != 1) || (!state.pieceScan && codeInfo.details.length == 1)) {
+        emit(state.copyWith(
+          status: ScanStateStatus.failure,
+          message: 'Тип упаковки КМ не соответствует выбранному типу сканирования'
+        ));
+        return;
+      }
 
       if (codeInfo.details.any((e) => state.lineCodeDetails.any((d) => d.cis == e.cis))) {
         emit(
