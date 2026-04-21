@@ -27,14 +27,11 @@ class DeliveryStorageLoadViewModel extends PageViewModel<DeliveryStorageLoadStat
 
      try {
       final deliveryStorageLoad = await deliveryStorageLoadsRepository.startLoadOrder(storageLoadSaleOrder);
-      final updatedStorageLoadSaleOrder = deliveryStorageLoad.deliveryStorageLoadSaleOrders
-      .firstWhereOrNull((e) => e.ndoc == ndoc);
 
       emit(state.copyWith(
         status: DeliveryStorageLoadStateStatus.startLoadOrderSuccess,
         deliveryStorageLoad: deliveryStorageLoad,
-        message: updatedStorageLoadSaleOrder!.warningMessage ?? 'Погрузка заказа успешно начата',
-        showWarning: updatedStorageLoadSaleOrder.warningMessage != null
+        message: 'Погрузка заказа успешно начата',
       ));
     } on AppError catch(e) {
       emit(state.copyWith(status: DeliveryStorageLoadStateStatus.failure, message: e.message));
@@ -46,14 +43,6 @@ class DeliveryStorageLoadViewModel extends PageViewModel<DeliveryStorageLoadStat
       emit(state.copyWith(
         status: DeliveryStorageLoadStateStatus.failure,
         message: 'Не все заказы загружены'
-      ));
-      return;
-    }
-
-    if (state.deliveryStorageLoad.deliveryStorageLoadSaleOrders.any((e) => e.warningMessage != null)) {
-      emit(state.copyWith(
-        status: DeliveryStorageLoadStateStatus.needUserConfirmation,
-        message: 'Присутствуют заказы с ошибками. Вы точно хотите завершить погрузку?'
       ));
       return;
     }
@@ -72,8 +61,7 @@ class DeliveryStorageLoadViewModel extends PageViewModel<DeliveryStorageLoadStat
       emit(state.copyWith(
         status: DeliveryStorageLoadStateStatus.completeDeliveryLoadSuccess,
         deliveryStorageLoad: deliveryStorageLoad,
-        message: 'Погрузка успешно завершена',
-        showWarning: false
+        message: 'Погрузка успешно завершена'
       ));
     } on AppError catch(e) {
       emit(state.copyWith(status: DeliveryStorageLoadStateStatus.failure, message: e.message));
