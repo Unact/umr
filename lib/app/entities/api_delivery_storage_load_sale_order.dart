@@ -4,21 +4,18 @@ class ApiDeliveryStorageLoadSaleOrder extends Equatable {
   final int id;
   final String ndoc;
   final DateTime? started;
-  final String? warningMessage;
 
   const ApiDeliveryStorageLoadSaleOrder({
     required this.id,
     required this.ndoc,
-    required this.started,
-    required this.warningMessage
+    required this.started
   });
 
   factory ApiDeliveryStorageLoadSaleOrder.fromJson(Map<String, dynamic> json) {
     return ApiDeliveryStorageLoadSaleOrder(
       id: json['id'],
       ndoc: json['ndoc'],
-      started: Parsing.parseDate(json['started']),
-      warningMessage: json['warningMessage']
+      started: Parsing.parseDate(json['started'])
     );
   }
 
@@ -26,7 +23,6 @@ class ApiDeliveryStorageLoadSaleOrder extends Equatable {
   List<Object?> get props => [
     id,
     ndoc,
-    started,
-    warningMessage
+    started
   ];
 }

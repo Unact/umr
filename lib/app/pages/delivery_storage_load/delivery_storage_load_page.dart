@@ -95,11 +95,7 @@ class _DeliveryStorageLoadViewState extends State<_DeliveryStorageLoadView> {
           case DeliveryStorageLoadStateStatus.completeDeliveryLoadSuccess:
           case DeliveryStorageLoadStateStatus.startLoadOrderSuccess:
             await _progressDialog.close();
-            PageHelpers.showMessage(
-              context,
-              state.message,
-              state.showWarning ? Colors.red[400]! : Colors.green[400]!
-            );
+            PageHelpers.showMessage(context, state.message, Colors.green[400]!);
             break;
           default:
         }
@@ -156,13 +152,12 @@ class _DeliveryStorageLoadViewState extends State<_DeliveryStorageLoadView> {
     BuildContext context,
     ApiDeliveryStorageLoadSaleOrder storageLoadSaleOrder
   ) {
-    final startedIcon = storageLoadSaleOrder.warningMessage != null ?
-      Icon(Icons.warning, color: Colors.red) :
-      Icon(Icons.check, color: Colors.green);
     final scannedStr = storageLoadSaleOrder.started != null ? Format.dateTimeStr(storageLoadSaleOrder.started) : '';
 
     return ListTile(
-      leading: storageLoadSaleOrder.started != null ? startedIcon : Icon(Icons.hourglass_empty, color: Colors.yellow),
+      leading: storageLoadSaleOrder.started != null ?
+        Icon(Icons.check, color: Colors.green) :
+        Icon(Icons.hourglass_empty, color: Colors.yellow),
       subtitle: Text('Начало погрузки: $scannedStr'),
       dense: true,
       title: Text(storageLoadSaleOrder.ndoc),
