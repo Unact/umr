@@ -3,11 +3,13 @@ part of 'entities.dart';
 class ApiDeliveryStorageLoadSaleOrder extends Equatable {
   final int id;
   final String ndoc;
+  final bool status4;
   final DateTime? started;
 
   const ApiDeliveryStorageLoadSaleOrder({
     required this.id,
     required this.ndoc,
+    required this.status4,
     required this.started
   });
 
@@ -15,6 +17,7 @@ class ApiDeliveryStorageLoadSaleOrder extends Equatable {
     return ApiDeliveryStorageLoadSaleOrder(
       id: json['id'],
       ndoc: json['ndoc'],
+      status4: json['status4'],
       started: Parsing.parseDate(json['started'])
     );
   }
@@ -23,6 +26,7 @@ class ApiDeliveryStorageLoadSaleOrder extends Equatable {
   List<Object?> get props => [
     id,
     ndoc,
+    status4,
     started
   ];
 }
