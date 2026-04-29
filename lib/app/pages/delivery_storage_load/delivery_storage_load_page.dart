@@ -158,7 +158,20 @@ class _DeliveryStorageLoadViewState extends State<_DeliveryStorageLoadView> {
       leading: storageLoadSaleOrder.started != null ?
         Icon(Icons.check, color: Colors.green) :
         Icon(Icons.hourglass_empty, color: Colors.yellow),
-      subtitle: Text('Начало погрузки: $scannedStr'),
+      subtitle: RichText(
+        text: TextSpan(
+          children: <TextSpan>[
+            TextSpan(
+              text: "Комплектация ${storageLoadSaleOrder.status4 ? 'завершена' : 'не завершена'}\n",
+              style: const TextStyle(color: Colors.grey, fontSize: 12.0)
+            ),
+            TextSpan(
+              text: 'Начало погрузки: $scannedStr',
+              style: const TextStyle(color: Colors.grey, fontSize: 12.0)
+            ),
+          ]
+        )
+      ),
       dense: true,
       title: Text(storageLoadSaleOrder.ndoc),
     );
