@@ -11,23 +11,24 @@ enum DocumentsStateStatus {
 class DocumentsState {
   DocumentsState({
     this.status = DocumentsStateStatus.initial,
-    required this.saleOrder,
-    this.message = ''
+    this.message = '',
+    this.documents = const []
   });
 
   final DocumentsStateStatus status;
-  final ApiSaleOrder saleOrder;
   final String message;
+  final List<ApiSaleOrderDocument> documents;
 
   DocumentsState copyWith({
     DocumentsStateStatus? status,
     ApiSaleOrder? saleOrder,
     String? message,
+    List<ApiSaleOrderDocument>? documents
   }) {
     return DocumentsState(
       status: status ?? this.status,
-      saleOrder: saleOrder ?? this.saleOrder,
       message: message ?? this.message,
+      documents: documents ?? this.documents,
     );
   }
 }

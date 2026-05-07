@@ -18,40 +18,114 @@ extension UmrApi on RenewApi {
   Future<ApiInfoScan> saleOrdersInfoScan({ required String code, required int markirovkaOrganizationId}) async {
     final query = { 'code': code, 'markirovkaOrganizationId': markirovkaOrganizationId };
 
-    return ApiInfoScan.fromJson(await get('v1/umr/sale_orders/info_scan', query: query));
+    return ApiInfoScan.fromJson(await get('v2/umr/sale_orders/info_scan', query: query));
   }
 
   Future<ApiSaleOrder> saleOrdersIndex({ required String ndoc }) async {
-    return ApiSaleOrder.fromJson(await get('v1/umr/sale_orders', query: { 'ndoc': ndoc }));
+    return ApiSaleOrder.fromJson(await get('v2/umr/sale_orders', query: { 'ndoc': ndoc }));
   }
 
-  Future<ApiSaleOrder> saleOrdersCompleteScan({
+  Future<ApiSaleOrderStorageLineCodes> saleOrderStorageCodesIndex({ required int saleOrderId }) async {
+    return ApiSaleOrderStorageLineCodes.fromJson(
+      await get('v2/umr/sale_orders/storage_codes', query: { 'saleOrderId': saleOrderId })
+    );
+  }
+
+  Future<ApiSaleOrderStorageLineCodes> saleOrderStorageCodesScan({
     required int saleOrderId,
-    required int type,
-    required List<Map<String, dynamic>> codes
+    required String code,
+    required String? groupCode
   }) async {
+    return ApiSaleOrderStorageLineCodes.fromJson(
+      await post(
+        'v2/umr/sale_orders/storage_codes/scan',
+        data: { 'saleOrderId': saleOrderId, 'code': code, 'groupCode': groupCode }
+      )
+    );
+  }
+
+  Future<ApiSaleOrderStorageLineCodes> saleOrderStorageCodesDeleteScan({
+    required int saleOrderId,
+    required int saleOrderSubid
+  }) async {
+    return ApiSaleOrderStorageLineCodes.fromJson(
+      await delete(
+        'v2/umr/sale_orders/storage_codes/delete_scan',
+        query: { 'saleOrderId': saleOrderId, 'saleOrderSubid': saleOrderSubid }
+      )
+    );
+  }
+
+  Future<ApiSaleOrder> saleOrdersStorageCodesCompleteScan({required int saleOrderId}) async {
     final result = await post(
-      'v1/umr/sale_orders/complete_scan',
-      data: { 'saleOrderId': saleOrderId, 'type': type, 'codes': codes }
+      'v2/umr/sale_orders/storage_codes/complete_scan',
+      data: { 'saleOrderId': saleOrderId }
     );
 
     return ApiSaleOrder.fromJson(result);
   }
 
-  Future<ApiMarkirovkaCode> saleOrdersScan({
+  Future<ApiSaleOrderReturnStorageLineCodes> saleOrderReturnStorageCodesIndex({ required int saleOrderId }) async {
+    return ApiSaleOrderReturnStorageLineCodes.fromJson(
+      await get('v2/umr/sale_orders/return_storage_codes', query: { 'saleOrderId': saleOrderId })
+    );
+  }
+
+  Future<ApiSaleOrderReturnStorageLineCodes> saleOrderReturnStorageCodesScan({
     required int saleOrderId,
-    required int type,
     required String code
   }) async {
-    return ApiMarkirovkaCode.fromJson(
-      await get('v1/umr/sale_orders/scan', query: { 'saleOrderId': saleOrderId, 'type': type, 'code': code })
+    return ApiSaleOrderReturnStorageLineCodes.fromJson(
+      await post(
+        'v2/umr/sale_orders/return_storage_codes/scan',
+        data: { 'saleOrderId': saleOrderId, 'code': code }
+      )
+    );
+  }
+
+  Future<ApiSaleOrderReturnStorageLineCodes> saleOrderReturnStorageCodesDeleteScan({
+    required int saleOrderId,
+    required int saleOrderSubid
+  }) async {
+    return ApiSaleOrderReturnStorageLineCodes.fromJson(
+      await delete(
+        'v2/umr/sale_orders/return_storage_codes/delete_scan',
+        query: { 'saleOrderId': saleOrderId, 'saleOrderSubid': saleOrderSubid }
+      )
+    );
+  }
+
+  Future<ApiSaleOrder> saleOrdersReturnStorageCodesCompleteScan({required int saleOrderId}) async {
+    final result = await post(
+      'v2/umr/sale_orders/return_storage_codes/complete_scan',
+      data: { 'saleOrderId': saleOrderId }
+    );
+
+    return ApiSaleOrder.fromJson(result);
+  }
+
+  Future<ApiSaleOrderDocuments> saleOrderDocumentsIndex({
+    required int saleOrderId
+  }) async {
+    return ApiSaleOrderDocuments.fromJson(
+      await get('v2/umr/sale_orders/documents', query: { 'saleOrderId': saleOrderId })
+    );
+  }
+
+  Future<void> saleOrdersDocumentsPrintAll({
+    required int saleOrderId,
+    required int printerId
+  }) async {
+    await post(
+      'v2/umr/sale_orders/documents/print_all',
+      data: { 'saleOrderId': saleOrderId, 'printerId': printerId }
     );
   }
 
   Future<ApiMarkirovkaCode> saleOrdersFindCodeParent({
     required String code
   }) async {
-    return ApiMarkirovkaCode.fromJson(await get('v1/umr/sale_orders/find_code_parent', query: { 'code': code }));
+    return ApiMarkirovkaCode.fromJson(await get('v2/umr/sale_orders/find_code_parent', query: { 'code': code }));
   }
 
   Future<void> printCodeLabel({
@@ -59,16 +133,6 @@ extension UmrApi on RenewApi {
     required int printerId
   }) async {
     await post('v1/umr/print_code_label', data: { 'code': code, 'printerId': printerId });
-  }
-
-  Future<void> saleOrdersPrintDocuments({
-    required int saleOrderId,
-    required int printerId
-  }) async {
-    await post(
-      'v1/umr/sale_orders/print_documents',
-      data: { 'saleOrderId': saleOrderId, 'printerId': printerId }
-    );
   }
 
   Future<ApiSupply> suppliesIndex({ required int id }) async {

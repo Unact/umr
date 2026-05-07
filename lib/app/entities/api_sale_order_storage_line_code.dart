@@ -1,40 +1,40 @@
 part of 'entities.dart';
 
-class ApiSaleOrderLineCode extends Equatable {
+class ApiSaleOrderStorageLineCode extends Equatable {
+  final int id;
   final int subid;
   final String code;
   final int vol;
   final bool isTracking;
-  final SaleOrderScanType type;
   final String? groupCode;
 
-  const ApiSaleOrderLineCode({
+  const ApiSaleOrderStorageLineCode({
+    required this.id,
     required this.subid,
     required this.code,
     required this.vol,
     required this.isTracking,
-    required this.groupCode,
-    required this.type
+    required this.groupCode
   });
 
-  factory ApiSaleOrderLineCode.fromJson(Map<String, dynamic> json) {
-    return ApiSaleOrderLineCode(
+  factory ApiSaleOrderStorageLineCode.fromJson(Map<String, dynamic> json) {
+    return ApiSaleOrderStorageLineCode(
+      id: json['id'],
       subid: json['subid'],
       code: json['code'],
       vol: json['vol'],
       isTracking: json['isTracking'],
-      groupCode: json['groupCode'],
-      type: SaleOrderScanType.values[json['type']]
+      groupCode: json['groupCode']
     );
   }
 
   @override
   List<Object?> get props => [
+    id,
     subid,
     code,
     vol,
     isTracking,
-    groupCode,
-    type
+    groupCode
   ];
 }

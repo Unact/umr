@@ -7,20 +7,6 @@ class Users extends Table {
   TextColumn get version => text()();
 }
 
-class SaleOrderLineCodes extends Table {
-  IntColumn get id => integer()();
-  IntColumn get subid => integer()();
-  IntColumn get type => integer()();
-  TextColumn get code => text()();
-  TextColumn get groupCode => text().nullable()();
-  RealColumn get vol => real()();
-  BoolColumn get isTracking => boolean()();
-  DateTimeColumn get localTs => dateTime()();
-
-  @override
-  Set<Column> get primaryKey => {id, subid, type, code};
-}
-
 class SupplyLineCodes extends Table {
   IntColumn get id => integer()();
   IntColumn get subid => integer()();
