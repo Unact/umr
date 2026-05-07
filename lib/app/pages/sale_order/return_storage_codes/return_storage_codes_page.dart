@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
-
 import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/entities/entities.dart';

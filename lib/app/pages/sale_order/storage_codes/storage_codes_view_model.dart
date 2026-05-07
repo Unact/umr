@@ -25,12 +25,12 @@ class StorageCodesViewModel extends PageViewModel<StorageCodesState, StorageCode
       final storageCodes = await saleOrdersRepository.deleteScan(saleOrderVm.state.saleOrder, line);
 
       emit(state.copyWith(
-        status: StorageCodesStateStatus.scanSuccess,
+        status: StorageCodesStateStatus.scanDeleteSuccess,
         storageCodes: storageCodes,
         message: 'КМ успешно удалены'
       ));
     } on AppError catch(e) {
-      emit(state.copyWith(status: StorageCodesStateStatus.scanFailure, message: e.message));
+      emit(state.copyWith(status: StorageCodesStateStatus.scanDeleteFailure, message: e.message));
     }
   }
 
