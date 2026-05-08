@@ -7,6 +7,7 @@ class ApiInfoScan extends Equatable {
   final bool isTracking;
   final String ownerInn;
   final List<ApiInfoScanSaleOrder> saleOrders;
+  final List<ApiInfoScanSaleOrder> saleOrderReturns;
   final String? codeErrorMessage;
 
   const ApiInfoScan({
@@ -16,6 +17,7 @@ class ApiInfoScan extends Equatable {
     required this.isTracking,
     required this.ownerInn,
     required this.saleOrders,
+    required this.saleOrderReturns,
     this.codeErrorMessage,
   });
 
@@ -27,6 +29,8 @@ class ApiInfoScan extends Equatable {
       isTracking: json['isTracking'],
       ownerInn: json['ownerInn'],
       saleOrders: json['saleOrders'].map<ApiInfoScanSaleOrder>((e) => ApiInfoScanSaleOrder.fromJson(e)).toList(),
+      saleOrderReturns: json['saleOrderReturns']
+        .map<ApiInfoScanSaleOrder>((e) => ApiInfoScanSaleOrder.fromJson(e)).toList(),
       codeErrorMessage: json['codeErrorMessage'],
     );
   }
@@ -39,6 +43,7 @@ class ApiInfoScan extends Equatable {
     isTracking,
     ownerInn,
     saleOrders,
+    saleOrderReturns,
     codeErrorMessage
   ];
 }

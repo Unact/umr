@@ -7,15 +7,18 @@ import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/sale_orders_repository.dart';
 import '/app/utils/page_helpers.dart';
+import '../sale_order_page.dart';
 
 part 'documents_state.dart';
 part 'documents_view_model.dart';
 
 class DocumentsPage extends StatelessWidget {
-  final ApiSaleOrder saleOrder;
+  final SaleOrderViewModel saleOrderVm;
+  final List<ApiSaleOrderDocument> documents;
 
   DocumentsPage({
-    required this.saleOrder,
+    required this.saleOrderVm,
+    required this.documents,
     super.key
   });
 
@@ -24,7 +27,8 @@ class DocumentsPage extends StatelessWidget {
     return BlocProvider<DocumentsViewModel>(
       create: (context) => DocumentsViewModel(
         RepositoryProvider.of<SaleOrdersRepository>(context),
-        saleOrder: saleOrder
+        saleOrderVm,
+        documents: documents
       ),
       child: _DocumentsView(),
     );
@@ -85,7 +89,7 @@ class _DocumentsViewState extends State<_DocumentsView> {
     return ExpansionTile(
       title: const Text('Файлы', style: TextStyle(fontSize: 14)),
       initiallyExpanded: true,
-      children: vm.state.saleOrder.documents.map((e) => _buildOrderDocumentTile(context, e)).toList()
+      children: vm.state.documents.map((e) => _buildOrderDocumentTile(context, e)).toList()
     );
   }
 

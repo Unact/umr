@@ -1,53 +1,55 @@
 import 'dart:async';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
-import '/app/data/database.dart';
+import '/app/constants/styles.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/sale_orders_repository.dart';
 import '/app/utils/page_helpers.dart';
-import 'scan/scan_page.dart';
+import '../sale_order_page.dart';
 
-part 'codes_state.dart';
-part 'codes_view_model.dart';
+part 'storage_codes_state.dart';
+part 'storage_codes_view_model.dart';
 
-class CodesPage extends StatelessWidget {
-  final ApiSaleOrder saleOrder;
-  final SaleOrderScanType type;
+class StorageCodesPage extends StatelessWidget {
+  final SaleOrderViewModel saleOrderVm;
+  final List<ApiSaleOrderStorageLineCode> storageCodes;
 
-  CodesPage({
-    required this.saleOrder,
-    required this.type,
+  StorageCodesPage({
+    required this.saleOrderVm,
+    required this.storageCodes,
     super.key
   });
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<CodesViewModel>(
-      create: (context) => CodesViewModel(
+    return BlocProvider<StorageCodesViewModel>(
+      create: (context) => StorageCodesViewModel(
         RepositoryProvider.of<AppRepository>(context),
         RepositoryProvider.of<SaleOrdersRepository>(context),
-        saleOrder: saleOrder,
-        type: type
+        saleOrderVm,
+        storageCodes: storageCodes
       ),
-      child: _CodesView(),
+      child: _StorageCodesView(),
     );
   }
 }
 
-class _CodesView extends StatefulWidget {
+class _StorageCodesView extends StatefulWidget {
   @override
-  _CodesViewState createState() => _CodesViewState();
+  _StorageCodesViewState createState() => _StorageCodesViewState();
 }
 
-class _CodesViewState extends State<_CodesView> {
+class _StorageCodesViewState extends State<_StorageCodesView> {
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
+  final player = AudioPlayer();
 
   @override
   void dispose() {
@@ -56,15 +58,24 @@ class _CodesViewState extends State<_CodesView> {
   }
 
   Future<void> showScan() async {
-    CodesViewModel vm = context.read<CodesViewModel>();
+    StorageCodesViewModel vm = context.read<StorageCodesViewModel>();
 
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (BuildContext context) => ScanPage(
-          saleOrder: vm.state.saleOrder,
-          type: vm.state.type,
-          groupCode: vm.state.currentGroupCode
+        builder: (BuildContext context) => ScanView(
+          onRead: vm.scan,
+          onError: (errorMessage) {
+            PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
+          },
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: const Text('Отсканируйте код', style: Styles.scanTitleText)
+              )
+            ]
+          )
         ),
         fullscreenDialog: true
       )
@@ -72,7 +83,7 @@ class _CodesViewState extends State<_CodesView> {
   }
 
   Future<void> showGroupScanView() async {
-    CodesViewModel vm = context.read<CodesViewModel>();
+    StorageCodesViewModel vm = context.read<StorageCodesViewModel>();
 
     await Navigator.push(
       context,
@@ -94,31 +105,34 @@ class _CodesViewState extends State<_CodesView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CodesViewModel, CodesState>(
+    return BlocConsumer<StorageCodesViewModel, StorageCodesState>(
       builder: (context, state) {
         return Scaffold(
           persistentFooterButtons: _buildFooterButtons(context),
           appBar: AppBar(
-            title: Text(state.type == SaleOrderScanType.realization ? 'Заказ' : 'Возврат'),
+            title: Text('Сканирование заказа'),
           ),
           body: _buildBody(context)
         );
       },
       listener: (context, state) async {
-        CodesViewModel vm = context.read<CodesViewModel>();
-
         switch (state.status) {
-          case CodesStateStatus.needUserConfirmation:
-            await PageHelpers.showConfirmationDialog(context, vm.completeScan, state.message);
+          case StorageCodesStateStatus.scanFailure:
+            PageHelpers.showMessage(context, state.message, Colors.red[400]!);
+            await player.play(AssetSource('beep_error.mp3'));
             break;
-          case CodesStateStatus.inProgress:
+          case StorageCodesStateStatus.scanSuccess:
+            PageHelpers.showMessage(context, state.message, Colors.green[400]!);
+            await player.play(AssetSource('beep_success.mp3'));
+            break;
+          case StorageCodesStateStatus.inProgress:
             _progressDialog.open();
             break;
-          case CodesStateStatus.failure:
+          case StorageCodesStateStatus.failure:
             _progressDialog.close();
             PageHelpers.showMessage(context, state.message, Colors.red[400]!);
             break;
-          case CodesStateStatus.success:
+          case StorageCodesStateStatus.success:
             _progressDialog.close();
             PageHelpers.showMessage(context, state.message, Colors.green[400]!);
             break;
@@ -129,7 +143,7 @@ class _CodesViewState extends State<_CodesView> {
   }
 
   Widget _buildBody(BuildContext context) {
-    CodesViewModel vm = context.read<CodesViewModel>();
+    StorageCodesViewModel vm = context.read<StorageCodesViewModel>();
 
     return ListView(
       children: [
@@ -137,8 +151,8 @@ class _CodesViewState extends State<_CodesView> {
           padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 16.0),
           child: Column(children: [
             InfoRow(
-              title: const Text('Статус'),
-              trailing: Text(vm.state.allTypeLineCodes.isEmpty ? 'Не отсканирован' : 'Отсканирован')
+              title: const Text('Отсканирован'),
+              trailing: Text(Format.dateTimeStr(vm.saleOrderVm.state.saleOrder.scanned))
             )
           ])
         ),
@@ -149,49 +163,44 @@ class _CodesViewState extends State<_CodesView> {
   }
 
   Widget _buildOrderLinesTile(BuildContext context) {
-    CodesViewModel vm = context.read<CodesViewModel>();
+    StorageCodesViewModel vm = context.read<StorageCodesViewModel>();
 
     return ExpansionTile(
       title: const Text('Сканирование позиций', style: TextStyle(fontSize: 14)),
       initiallyExpanded: true,
-      trailing: !vm.state.allowEdit ? null : IconButton(
+      trailing: vm.saleOrderVm.state.saleOrder.scanned != null ? null : IconButton(
         tooltip: 'Отсканировать код маркировки',
         icon: const Icon(Icons.barcode_reader),
         onPressed: showScan
       ),
-      children: vm.state.saleOrder.lines.map((e) => _buildOrderLineTile(context, e)).toList()
+      children: vm.saleOrderVm.state.saleOrder.lines.map((e) => _buildOrderLineTile(context, e)).toList()
     );
   }
 
   Widget _buildGroupCodesTile(BuildContext context) {
-    CodesViewModel vm = context.read<CodesViewModel>();
+    StorageCodesViewModel vm = context.read<StorageCodesViewModel>();
 
-    if (vm.state.lineCodes.none((e) => e.groupCode != null)) return Container();
+    if (vm.state.storageCodes.none((e) => e.groupCode != null)) return Container();
 
     return ExpansionTile(
       initiallyExpanded: true,
       title: Text('Агрегационные коды', style: TextStyle(fontSize: 14)),
       showTrailingIcon: false,
-      children: vm.state.lineCodes.where((e) => e.groupCode != null).map((e) => e.groupCode).toSet().map((e) {
+      children: vm.state.storageCodes.where((e) => e.groupCode != null).map((e) => e.groupCode).toSet().map((e) {
         return ExpansionTile(
           title: Text(e!, style: TextStyle(fontSize: 14)),
           initiallyExpanded: true,
-          trailing: !vm.state.allowEdit ? null : IconButton(
-            tooltip: 'Расформировать код агрегации',
-            icon: const Icon(Icons.delete),
-            onPressed: () => vm.clearGroupCodes(e)
-          ),
-          children: vm.state.lineCodes.where((lc) => lc.groupCode == e).map(
-            (lc) => _buildGroupCodeLineTile(context, lc)
+          children: vm.state.storageCodes.where((sc) => sc.groupCode == e).map(
+            (sc) => _buildGroupCodeLineTile(context, sc)
           ).toList()
         );
       }).toList()
     );
   }
 
-  Widget _buildGroupCodeLineTile(BuildContext context, SaleOrderLineCode line) {
-    CodesViewModel vm = context.read<CodesViewModel>();
-    final saleOrderLine = vm.state.saleOrder.lines.firstWhere((e) => e.subid == line.subid);
+  Widget _buildGroupCodeLineTile(BuildContext context, ApiSaleOrderStorageLineCode line) {
+    StorageCodesViewModel vm = context.read<StorageCodesViewModel>();
+    final saleOrderLine = vm.saleOrderVm.state.saleOrder.lines.firstWhere((e) => e.subid == line.subid);
 
     return ListTile(
       dense: true,
@@ -201,10 +210,10 @@ class _CodesViewState extends State<_CodesView> {
   }
 
   Widget _buildOrderLineTile(BuildContext context, ApiSaleOrderLine line) {
-    CodesViewModel vm = context.read<CodesViewModel>();
+    StorageCodesViewModel vm = context.read<StorageCodesViewModel>();
 
-    if (vm.state.allTypeLineCodes.isNotEmpty) {
-      final amount = vm.state.allTypeLineCodes.where((e) => e.subid == line.subid).fold(0.0, (v, el) => v + el.vol);
+    if (vm.saleOrderVm.state.saleOrder.scanned != null) {
+      final amount = vm.state.storageCodes.where((e) => e.subid == line.subid).fold(0.0, (v, el) => v + el.vol);
 
       return ListTile(
         dense: true,
@@ -212,7 +221,7 @@ class _CodesViewState extends State<_CodesView> {
         trailing: Text('${amount.toInt()} из ${line.vol.toInt()}')
       );
     } else {
-      final amount = vm.state.lineCodes.where((e) => e.subid == line.subid).fold(0.0, (v, el) => v + el.vol);
+      final amount = vm.state.storageCodes.where((e) => e.subid == line.subid).fold(0.0, (v, el) => v + el.vol);
 
       return ListTile(
         dense: true,
@@ -224,7 +233,7 @@ class _CodesViewState extends State<_CodesView> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('${amount.toInt()} из ${line.vol.toInt()}'),
-            vm.state.allowEdit ? IconButton(
+            vm.saleOrderVm.state.saleOrder.scanned == null ? IconButton(
               onPressed: () => vm.clearOrderLineCodes(line),
               icon: Icon(Icons.delete),
               tooltip: 'Удалить КМ',
@@ -236,22 +245,18 @@ class _CodesViewState extends State<_CodesView> {
   }
 
   List<Widget> _buildFooterButtons(BuildContext context) {
-    CodesViewModel vm = context.read<CodesViewModel>();
+    StorageCodesViewModel vm = context.read<StorageCodesViewModel>();
+    final fullyScanned = vm.state.storageCodes.fold(0.0, (prev, e) => prev + e.vol) ==
+      vm.saleOrderVm.state.saleOrder.lines.fold(0.0, (prev, e) => prev + e.vol);
 
-    if (!vm.state.allowEdit) return [];
-
-    if (vm.state.type == SaleOrderScanType.correction) {
-      return [
-        TextButton(onPressed: vm.tryCompleteScan, child: const Text('Завершить'))
-      ];
-    }
+    if (vm.saleOrderVm.state.saleOrder.scanned != null) return [];
 
     return [
       vm.state.currentGroupCode == null ?
         TextButton(onPressed: showGroupScanView, child: const Text('Добавить АК')) :
         TextButton(onPressed: vm.completeGroupScan, child: const Text('Завершить АК')),
       TextButton(
-        onPressed: vm.state.fullyScanned ? vm.tryCompleteScan : null,
+        onPressed: fullyScanned ? vm.completeScan : null,
         child: const Text('Завершить')
       )
     ];

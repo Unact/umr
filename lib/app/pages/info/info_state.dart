@@ -6,11 +6,12 @@ enum InfoStateStatus {
   inProgress,
   failure,
   findSaleOrderSuccess,
-  loadMarkirovkaOrganizationSuccess,
   findSupplySuccess,
   findCodeParentSuccess,
-  printCodeLabelSuccess,
-  findDeliveryStorageLoadSuccess
+  printLabelSuccess,
+  findDeliveryStorageLoadSuccess,
+  findStorageGroupCodeSuccess,
+  deleteStorageGroupCodeSuccess
 }
 
 class InfoState {
@@ -20,6 +21,7 @@ class InfoState {
     this.foundSupply,
     this.foundCodeParent,
     this.foundDeliveryStorageLoad,
+    this.foundStorageGroupCode,
     this.markirovkaOrganizations = const [],
     this.user,
     this.message = ''
@@ -30,6 +32,7 @@ class InfoState {
   final ApiSupply? foundSupply;
   final String? foundCodeParent;
   final ApiDeliveryStorageLoad? foundDeliveryStorageLoad;
+  final ApiStorageGroupCode? foundStorageGroupCode;
   final List<ApiMarkirovkaOrganization> markirovkaOrganizations;
   final String message;
   final User? user;
@@ -40,6 +43,7 @@ class InfoState {
     ApiSupply? foundSupply,
     String? foundCodeParent,
     ApiDeliveryStorageLoad? foundDeliveryStorageLoad,
+    ApiStorageGroupCode? foundStorageGroupCode,
     List<ApiMarkirovkaOrganization>? markirovkaOrganizations,
     ApiInfoScan? infoScan,
     User? user,
@@ -51,6 +55,7 @@ class InfoState {
       foundSupply: foundSupply ?? this.foundSupply,
       foundCodeParent: foundCodeParent ?? this.foundCodeParent,
       foundDeliveryStorageLoad: foundDeliveryStorageLoad ?? this.foundDeliveryStorageLoad,
+      foundStorageGroupCode: foundStorageGroupCode ?? this.foundStorageGroupCode,
       markirovkaOrganizations: markirovkaOrganizations ?? this.markirovkaOrganizations,
       message: message ?? this.message,
       user: user ?? this.user

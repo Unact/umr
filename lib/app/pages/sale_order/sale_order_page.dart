@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
-import 'package:umr/app/data/database.dart';
 
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/sale_orders_repository.dart';
-import 'codes/codes_page.dart';
 import 'documents/documents_page.dart';
+import 'return_storage_codes/return_storage_codes_page.dart';
+import 'storage_codes/storage_codes_page.dart';
+import '/app/utils/page_helpers.dart';
 
 part 'sale_order_state.dart';
 part 'sale_order_view_model.dart';
@@ -48,7 +49,7 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SaleOrderViewModel, SaleOrderState>(
+    return BlocConsumer<SaleOrderViewModel, SaleOrderState>(
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
@@ -56,6 +57,56 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
           ),
           body: _buildBody(context)
         );
+      },
+      listener: (context, state) {
+        SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
+
+        switch (state.status) {
+          case SaleOrderStateStatus.inProgress:
+            _progressDialog.open();
+            break;
+          case SaleOrderStateStatus.storageCodesLoaded:
+            _progressDialog.close();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => StorageCodesPage(
+                  storageCodes: state.loadedStorageCodes,
+                  saleOrderVm: vm
+                )
+              )
+            );
+            break;
+          case SaleOrderStateStatus.returnStorageCodesLoaded:
+            _progressDialog.close();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => ReturnStorageCodesPage(
+                  returnStorageCodes: state.loadedReturnStorageCodes,
+                  saleOrderVm: vm
+                )
+              )
+            );
+            break;
+          case SaleOrderStateStatus.documentsLoaded:
+            _progressDialog.close();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => DocumentsPage(
+                  documents: state.loadedDocuments,
+                  saleOrderVm: vm
+                )
+              )
+            );
+            break;
+          case SaleOrderStateStatus.loadFailure:
+            _progressDialog.close();
+            PageHelpers.showMessage(context, state.message, Colors.red[400]!);
+            break;
+          default:
+        }
       }
     );
   }
@@ -110,44 +161,15 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
       expandedAlignment: Alignment.centerLeft,
       children: [
         TextButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => CodesPage(
-                  saleOrder: vm.state.saleOrder,
-                  type: SaleOrderScanType.realization
-                )
-              )
-            );
-          },
+          onPressed: vm.loadStorageCodes,
           child: const Text('Сканирование заказа')
         ),
         TextButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => CodesPage(
-                  saleOrder: vm.state.saleOrder,
-                  type: SaleOrderScanType.correction
-                )
-              )
-            );
-          },
+          onPressed: vm.loadReturnStorageCodes,
           child: const Text('Сканирование возврата')
         ),
         TextButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => DocumentsPage(
-                  saleOrder: vm.state.saleOrder
-                )
-              )
-            );
-          },
+          onPressed: vm.loadDocuments,
           child: const Text('Печать маркировки')
         )
       ]

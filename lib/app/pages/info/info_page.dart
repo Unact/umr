@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
@@ -13,10 +14,12 @@ import '/app/pages/page_messages/page_messages_page.dart';
 import '/app/pages/person/person_page.dart';
 import '/app/pages/sale_order/sale_order_page.dart';
 import '/app/pages/supply/supply_page.dart';
+import '/app/pages/storage_group_code/storage_group_code_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/delivery_storage_loads_repository.dart';
 import '/app/repositories/sale_orders_repository.dart';
+import '/app/repositories/storage_group_codes_repository.dart';
 import '/app/repositories/supplies_repository.dart';
 import '/app/repositories/users_repository.dart';
 import '/app/utils/page_helpers.dart';
@@ -37,6 +40,7 @@ class InfoPage extends StatelessWidget {
         RepositoryProvider.of<AppRepository>(context),
         RepositoryProvider.of<DeliveryStorageLoadsRepository>(context),
         RepositoryProvider.of<SaleOrdersRepository>(context),
+        RepositoryProvider.of<StorageGroupCodesRepository>(context),
         RepositoryProvider.of<SuppliesRepository>(context),
         RepositoryProvider.of<UsersRepository>(context)
       ),
@@ -60,16 +64,14 @@ class _InfoViewState extends State<_InfoView> {
     super.dispose();
   }
 
-  Future<void> showPrinterScanView() async {
-    InfoViewModel vm = context.read<InfoViewModel>();
-
-    await Navigator.pushReplacement(
+  Future<void> showPrinterScanView(Function(String) onRead) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => ScanView(
           onRead: (String rawValue) {
             Navigator.pop(context);
-            vm.printCodeLabel(rawValue);
+            onRead.call(rawValue);
           },
           onError: (errorMessage) {
             PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
@@ -143,6 +145,52 @@ class _InfoViewState extends State<_InfoView> {
     if (!result) return;
 
     onRead.call(idController.text);
+  }
+
+  Future<void> showStorageCodeCountDialog() async {
+    InfoViewModel vm = context.read<InfoViewModel>();
+
+    final result = await showDialog<int?>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        TextEditingController countController = TextEditingController();
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return SimpleAlertDialog(
+              title: const Text('Укажите количество'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    TextFormField(
+                      autocorrect: false,
+                      controller: countController,
+                      keyboardType: const TextInputType.numberWithOptions(),
+                      decoration: const InputDecoration(labelText: 'Кол-во'),
+                      onChanged: (value) => setState(() {})
+                    )
+                  ]
+                )
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: int.tryParse(countController.text) == null ? null : () {
+                    Navigator.of(context).pop(int.parse(countController.text));
+                  },
+                  child: const Text(Strings.ok)
+                ),
+                TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(null))
+              ],
+            );
+          }
+        );
+      }
+    );
+
+    if (result == null) return;
+
+    await showPrinterScanView((rawValue) => vm.printStorageGroupCodeLabels(result, rawValue));
   }
 
   Future<void> showClearLineCodesDialog() async {
@@ -232,6 +280,8 @@ class _InfoViewState extends State<_InfoView> {
         );
       },
       listener: (context, state) async {
+        InfoViewModel vm = context.read<InfoViewModel>();
+
         switch (state.status) {
           case InfoStateStatus.inProgress:
             await _progressDialog.open();
@@ -260,7 +310,6 @@ class _InfoViewState extends State<_InfoView> {
               )
             );
             break;
-
           case InfoStateStatus.findDeliveryStorageLoadSuccess:
             await _progressDialog.close();
             await Navigator.pushReplacement(
@@ -273,17 +322,27 @@ class _InfoViewState extends State<_InfoView> {
               )
             );
             break;
+          case InfoStateStatus.findStorageGroupCodeSuccess:
+            await _progressDialog.close();
+            await Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => StorageGroupCodePage(
+                  storageGroupCode: state.foundStorageGroupCode!
+                ),
+                fullscreenDialog: false
+              )
+            );
+            break;
           case InfoStateStatus.findCodeParentSuccess:
             await _progressDialog.close();
-            await showPrinterScanView();
+            Navigator.pop(context);
+            await showPrinterScanView((rawValue) => vm.printCodeLabel(rawValue));
             break;
-          case InfoStateStatus.printCodeLabelSuccess:
+          case InfoStateStatus.deleteStorageGroupCodeSuccess:
+          case InfoStateStatus.printLabelSuccess:
             await _progressDialog.close();
             PageHelpers.showMessage(context, state.message, Colors.green[400]!);
-            break;
-          case InfoStateStatus.loadMarkirovkaOrganizationSuccess:
-            await _progressDialog.close();
-            await showMarkirovkaOrganizationDialog();
             break;
           default:
         }
@@ -291,14 +350,20 @@ class _InfoViewState extends State<_InfoView> {
     );
   }
 
-  Future<void> showMarkirovkaOrganizationDialog() async {
+  Future<void> showMarkirovkaOrganizationDialog(Function(ApiMarkirovkaOrganization) onSelect) async {
     InfoViewModel vm = context.read<InfoViewModel>();
+
+    if (vm.state.markirovkaOrganizations.isEmpty) {
+      PageHelpers.showMessage(context, 'Организации еще не загружены', Colors.red[400]!);
+      return;
+    }
 
     final result = await showDialog<ApiMarkirovkaOrganization?>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        ApiMarkirovkaOrganization? selectedMarkirovkaOrganization;
+        ApiMarkirovkaOrganization? selectedMarkirovkaOrganization =
+          vm.state.markirovkaOrganizations.firstWhereOrNull((e) => e.isDefault);
 
         return StatefulBuilder(
           builder: (context, setState) {
@@ -338,18 +403,14 @@ class _InfoViewState extends State<_InfoView> {
 
     if (result == null) return;
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) => InfoScanPage(markirovkaOrganization: result),
-        fullscreenDialog: false
-      )
-    );
+    onSelect.call(result);
   }
 
   List<Widget> buildCards(BuildContext context) {
     return <Widget>[
-      buildOrderCard(context),
+      buildProcessCard(context),
+      buildCodeCard(context),
+      buildStorageGroupCodeCard(context),
       buildInfoCard(context)
     ];
   }
@@ -377,7 +438,7 @@ class _InfoViewState extends State<_InfoView> {
     );
   }
 
-  Widget buildOrderCard(BuildContext context) {
+  Widget buildProcessCard(BuildContext context) {
     InfoViewModel vm = context.read<InfoViewModel>();
 
     return Card(
@@ -400,15 +461,77 @@ class _InfoViewState extends State<_InfoView> {
               TextButton(
                 onPressed: () => showScanView('Отсканируйте доставку', vm.findDeliveryStorageLoad),
                 child: const Text('Погрузка')
-              ),
+              )
+            ],
+          )
+        )
+      )
+    );
+  }
+
+  Widget buildCodeCard(BuildContext context) {
+    InfoViewModel vm = context.read<InfoViewModel>();
+
+    return Card(
+      child: ListTile(
+        isThreeLine: true,
+        title: Text('Коды маркировки', style: TextStyle(fontSize: 20)),
+        subtitle: Padding(
+          padding: EdgeInsets.only(top: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
               TextButton(
-                onPressed: () => vm.loadMarkirovkaOrganizations(),
+                onPressed: () {
+                  showMarkirovkaOrganizationDialog((result) => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => InfoScanPage(markirovkaOrganization: result),
+                      fullscreenDialog: false
+                    ))
+                  );
+                },
                 child: const Text('Информация о КМ')
               ),
               TextButton(
                 onPressed: () => showScanView('Отсканируйте КМ', vm.findCodeParent),
                 child: const Text('Восстановить КМ')
               )
+            ],
+          )
+        )
+      )
+    );
+  }
+
+  Widget buildStorageGroupCodeCard(BuildContext context) {
+    InfoViewModel vm = context.read<InfoViewModel>();
+
+    return Card(
+      child: ListTile(
+        isThreeLine: true,
+        title: Text('Маркировка АК', style: TextStyle(fontSize: 20)),
+        subtitle: Padding(
+          padding: EdgeInsets.only(top: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              TextButton(
+                onPressed: () {
+                  showMarkirovkaOrganizationDialog((result) => {
+                    showScanView('Отсканируйте АК', (groupCode) => vm.findStorageGroupCode(groupCode, result)),
+                  });
+                },
+                child: const Text('Сформировать')
+              ),
+              TextButton(
+                onPressed: () => showScanView('Отсканируйте АК', vm.deleteStorageGroupCode),
+                child: const Text('Расформировать')
+              ),
+              TextButton(
+                onPressed: showStorageCodeCountDialog,
+                child: const Text('Распечатать')
+              ),
             ],
           )
         )

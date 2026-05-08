@@ -4,6 +4,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   final AppRepository appRepository;
   final DeliveryStorageLoadsRepository deliveryStorageLoadsRepository;
   final SaleOrdersRepository saleOrdersRepository;
+  final StorageGroupCodesRepository storageGroupCodesRepository;
   final SuppliesRepository suppliesRepository;
   final UsersRepository usersRepository;
   StreamSubscription<User>? userSubscription;
@@ -14,6 +15,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     this.appRepository,
     this.deliveryStorageLoadsRepository,
     this.saleOrdersRepository,
+    this.storageGroupCodesRepository,
     this.suppliesRepository,
     this.usersRepository,
   ) : super(InfoState());
@@ -32,6 +34,10 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     userSubscription = usersRepository.watchUser().listen((event) {
       emit(state.copyWith(status: InfoStateStatus.dataLoaded, user: event));
     });
+
+    final markirovkaOrganizations = await appRepository.loadMarkirovkaOrganizations();
+
+    emit(state.copyWith(status: InfoStateStatus.dataLoaded, markirovkaOrganizations: markirovkaOrganizations));
   }
 
   @override
@@ -48,22 +54,6 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     } on AppError catch(_) {}
   }
 
-  Future<void> loadMarkirovkaOrganizations() async {
-    emit(state.copyWith(status: InfoStateStatus.inProgress));
-
-    try {
-      final markirovkaOrganizations = await appRepository.loadMarkirovkaOrganizations();
-
-      emit(state.copyWith(
-        status: InfoStateStatus.loadMarkirovkaOrganizationSuccess,
-        markirovkaOrganizations: markirovkaOrganizations
-      ));
-
-    } on AppError catch(e) {
-      emit(state.copyWith(status: InfoStateStatus.failure, message: e.message));
-    }
-  }
-
   Future<void> findSaleOrder(String ndoc) async {
     emit(state.copyWith(status: InfoStateStatus.inProgress));
 
@@ -78,7 +68,6 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
 
   Future<void> clearLineCodes() async {
     await appRepository.transaction(() async {
-      await saleOrdersRepository.clearSaleOrderLineCodes();
       await suppliesRepository.clearSupplyLineCodes();
       await suppliesRepository.clearSupplyLineCodeDetails();
     });
@@ -133,21 +122,73 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     }
   }
 
+  Future<void> findStorageGroupCode(String groupCode, ApiMarkirovkaOrganization markirovkaOrganization) async {
+    emit(state.copyWith(status: InfoStateStatus.inProgress));
+
+    try {
+      final storageGroupCode = await storageGroupCodesRepository.findStorageGroupCode(
+        groupCode,
+        markirovkaOrganization
+      );
+
+      emit(state.copyWith(
+        status: InfoStateStatus.findStorageGroupCodeSuccess,
+        foundStorageGroupCode: storageGroupCode
+      ));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: InfoStateStatus.failure, message: e.message));
+    }
+  }
+
+  Future<void> deleteStorageGroupCode(String groupCode) async {
+    emit(state.copyWith(status: InfoStateStatus.inProgress));
+
+    try {
+      await storageGroupCodesRepository.deleteStorageGroupCode(groupCode);
+
+      emit(state.copyWith(status: InfoStateStatus.deleteStorageGroupCodeSuccess, message: 'АК успешно расформирован'));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: InfoStateStatus.failure, message: e.message));
+    }
+  }
+
   Future<void> printCodeLabel(String printerIdStr) async {
     int? printerId = int.tryParse(printerIdStr.split(' ').elementAtOrNull(1) ?? '');
 
     if (printerId == null) {
-      emit(state.copyWith(status: InfoStateStatus.inProgress, message: 'Не удалось определить принтер'));
+      emit(state.copyWith(status: InfoStateStatus.failure, message: 'Не удалось определить принтер'));
       return;
     }
 
-    emit(state.copyWith(status: InfoStateStatus.failure));
+    emit(state.copyWith(status: InfoStateStatus.inProgress));
 
     try {
       await appRepository.printCodeLabel(state.foundCodeParent!, printerId);
 
       emit(state.copyWith(
-        status: InfoStateStatus.printCodeLabelSuccess,
+        status: InfoStateStatus.printLabelSuccess,
+        message: 'Создано задание на печать'
+      ));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: InfoStateStatus.failure, message: e.message));
+    }
+  }
+
+  Future<void> printStorageGroupCodeLabels(int count, String printerIdStr) async {
+    int? printerId = int.tryParse(printerIdStr.split(' ').elementAtOrNull(1) ?? '');
+
+    if (printerId == null) {
+      emit(state.copyWith(status: InfoStateStatus.failure, message: 'Не удалось определить принтер'));
+      return;
+    }
+
+    emit(state.copyWith(status: InfoStateStatus.inProgress));
+
+    try {
+      await appRepository.printStorageGroupCodeLabels(count, printerId);
+
+      emit(state.copyWith(
+        status: InfoStateStatus.printLabelSuccess,
         message: 'Создано задание на печать'
       ));
     } on AppError catch(e) {

@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
-import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/sale_orders_repository.dart';
@@ -149,7 +148,8 @@ class _InfoScanViewState extends State<_InfoScanView> {
             InfoRow(title: const Text('ОСУ'), trailing: ExpandingText(infoScan.isTracking ? 'Нет' : 'Да')),
           ])
         ),
-        _buildSaleOrdersTile(infoScan.saleOrders, context)
+        _buildSaleOrdersTile(context, infoScan.saleOrders, 'Продажа'),
+        _buildSaleOrdersTile(context, infoScan.saleOrderReturns, 'Возврат')
       ],
     );
   }
@@ -190,19 +190,11 @@ class _InfoScanViewState extends State<_InfoScanView> {
     );
   }
 
-  Widget _buildSaleOrdersTile(List<ApiInfoScanSaleOrder> saleOrders, BuildContext context) {
+  Widget _buildSaleOrdersTile(BuildContext context, List<ApiInfoScanSaleOrder> saleOrders, String title) {
     return ExpansionTile(
-      title: const Text('История движения по заказам', style: TextStyle(fontSize: 14)),
+      title: Text('История движения. $title', style: TextStyle(fontSize: 14)),
       initiallyExpanded: true,
-      children: saleOrders.map((e) => _buildSaleOrderTile(context, e)).toList()
-    );
-  }
-
-  Widget _buildSaleOrderTile(BuildContext context, ApiInfoScanSaleOrder infoScanSaleOrder) {
-    return ListTile(
-      dense: true,
-      title: Text(infoScanSaleOrder.ndoc),
-      trailing: Text(infoScanSaleOrder.type == SaleOrderScanType.realization ? 'Продажа' : 'Возврат')
+      children: saleOrders.map((e) => ListTile(dense: true, title: Text(e.ndoc))).toList()
     );
   }
 }
