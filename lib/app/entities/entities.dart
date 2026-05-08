@@ -17,6 +17,8 @@ part 'api_sale_order_return_storage_line_codes.dart';
 part 'api_sale_order_storage_line_code.dart';
 part 'api_sale_order_storage_line_codes.dart';
 part 'api_sale_order.dart';
+part 'api_storage_group_code_code.dart';
+part 'api_storage_group_code.dart';
 part 'api_supply_line_code_detail.dart';
 part 'api_supply_line_code.dart';
 part 'api_supply_line.dart';

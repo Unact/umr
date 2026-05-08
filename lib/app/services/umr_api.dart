@@ -135,6 +135,13 @@ extension UmrApi on RenewApi {
     await post('v1/umr/print_code_label', data: { 'code': code, 'printerId': printerId });
   }
 
+  Future<void> printStorageGroupCodeLabels({
+    required int count,
+    required int printerId
+  }) async {
+    await post('v1/umr/print_storage_group_code_labels', data: { 'count': count, 'printerId': printerId });
+  }
+
   Future<ApiSupply> suppliesIndex({ required int id }) async {
     return ApiSupply.fromJson(await get('v1/umr/supplies', query: { 'supplyId': id }));
   }
@@ -184,5 +191,54 @@ extension UmrApi on RenewApi {
         data: { 'deliveryStorageLoadId': deliveryStorageLoadId }
       )
     );
+  }
+
+  Future<ApiStorageGroupCode> storageGroupCodesIndex({
+    required String groupCode,
+    required int markirovkaOrganizationId
+  }) async {
+    return ApiStorageGroupCode.fromJson(
+      await get(
+        'v1/umr/storage_group_codes',
+        query: { 'groupCode': groupCode, 'markirovkaOrganizationId': markirovkaOrganizationId }
+      )
+    );
+  }
+
+  Future<ApiStorageGroupCode> storageGroupCodesScan({
+    required int storageGroupCodeId,
+    required String code
+  }) async {
+    return ApiStorageGroupCode.fromJson(
+      await post(
+        'v1/umr/storage_group_codes/scan',
+        data: { 'storageGroupCodeId': storageGroupCodeId, 'code': code }
+      )
+    );
+  }
+
+  Future<ApiStorageGroupCode> storageGroupCodesDeleteScan({
+    required int storageGroupCodeId,
+    required String code
+  }) async {
+    return ApiStorageGroupCode.fromJson(
+      await delete(
+        'v1/umr/storage_group_codes/delete_scan',
+        query: { 'storageGroupCodeId': storageGroupCodeId, 'code': code }
+      )
+    );
+  }
+
+  Future<ApiStorageGroupCode> storageGroupCodesCompleteScan({required int storageGroupCodeId}) async {
+    final result = await post(
+      'v1/umr/storage_group_codes/complete_scan',
+      data: { 'storageGroupCodeId': storageGroupCodeId }
+    );
+
+    return ApiStorageGroupCode.fromJson(result);
+  }
+
+  Future<void> storageGroupCodesDelete({required String groupCode}) async {
+    await delete('v1/umr/storage_group_codes', query: { 'groupCode': groupCode });
   }
 }

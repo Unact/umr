@@ -15,6 +15,7 @@ import 'app/pages/landing/landing_page.dart';
 import 'app/repositories/app_repository.dart';
 import 'app/repositories/delivery_storage_loads_repository.dart';
 import 'app/repositories/sale_orders_repository.dart';
+import 'app/repositories/storage_group_codes_repository.dart';
 import 'app/repositories/supplies_repository.dart';
 import 'app/repositories/users_repository.dart';
 
@@ -32,10 +33,11 @@ void main() async {
   AppDataStore dataStore = AppDataStore(logStatements: isDebug);
   AppRepository appRepository = AppRepository(dataStore, api);
 
-  DeliveryStorageLoadsRepository deliveryStorageLoadsRepository = DeliveryStorageLoadsRepository(dataStore, api);
-  SaleOrdersRepository saleOrdersRepository = SaleOrdersRepository(dataStore, api);
-  SuppliesRepository suppliesRepository = SuppliesRepository(dataStore, api);
-  UsersRepository usersRepository = UsersRepository(dataStore, api);
+  final deliveryStorageLoadsRepository = DeliveryStorageLoadsRepository(dataStore, api);
+  final storageGroupCodesRepository = StorageGroupCodesRepository(dataStore, api);
+  final saleOrdersRepository = SaleOrdersRepository(dataStore, api);
+  final suppliesRepository = SuppliesRepository(dataStore, api);
+  final usersRepository = UsersRepository(dataStore, api);
 
   GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
@@ -64,6 +66,7 @@ void main() async {
           RepositoryProvider.value(value: appRepository),
           RepositoryProvider.value(value: deliveryStorageLoadsRepository),
           RepositoryProvider.value(value: saleOrdersRepository),
+          RepositoryProvider.value(value: storageGroupCodesRepository),
           RepositoryProvider.value(value: suppliesRepository),
           RepositoryProvider.value(value: usersRepository)
         ],
