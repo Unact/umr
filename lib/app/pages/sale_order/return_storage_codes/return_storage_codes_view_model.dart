@@ -21,16 +21,18 @@ class ReturnStorageCodesViewModel extends PageViewModel<ReturnStorageCodesState,
   }
 
   Future<void> clearOrderLineCodes(ApiSaleOrderLine line) async {
-     try {
+    emit(state.copyWith(status: ReturnStorageCodesStateStatus.inProgress));
+
+    try {
       final returnStorageCodes = await saleOrdersRepository.deleteReturnScan(saleOrderVm.state.saleOrder, line);
 
       emit(state.copyWith(
-        status: ReturnStorageCodesStateStatus.scanDeleteSuccess,
+        status: ReturnStorageCodesStateStatus.success,
         returnStorageCodes: returnStorageCodes,
         message: 'КМ успешно удалены'
       ));
     } on AppError catch(e) {
-      emit(state.copyWith(status: ReturnStorageCodesStateStatus.scanDeleteFailure, message: e.message));
+      emit(state.copyWith(status: ReturnStorageCodesStateStatus.failure, message: e.message));
     }
   }
 

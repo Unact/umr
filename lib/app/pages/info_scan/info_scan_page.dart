@@ -192,9 +192,9 @@ class _InfoScanViewState extends State<_InfoScanView> {
 
   Widget _buildSaleOrdersTile(BuildContext context, List<ApiInfoScanSaleOrder> saleOrders, String title) {
     return ExpansionTile(
-      title: const Text('История движения по заказам', style: TextStyle(fontSize: 14)),
+      title: Text('История движения. $title', style: TextStyle(fontSize: 14)),
       initiallyExpanded: true,
-      children: saleOrders.map((e) => ListTile(dense: true, title: Text(e.ndoc), trailing: Text(title))).toList()
+      children: saleOrders.map((e) => ListTile(dense: true, title: Text(e.ndoc))).toList()
     );
   }
 }

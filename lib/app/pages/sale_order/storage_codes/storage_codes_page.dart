@@ -136,12 +136,6 @@ class _StorageCodesViewState extends State<_StorageCodesView> {
             _progressDialog.close();
             PageHelpers.showMessage(context, state.message, Colors.green[400]!);
             break;
-          case StorageCodesStateStatus.scanDeleteFailure:
-            PageHelpers.showMessage(context, state.message, Colors.red[400]!);
-            break;
-          case StorageCodesStateStatus.scanDeleteSuccess:
-            PageHelpers.showMessage(context, state.message, Colors.green[400]!);
-            break;
           default:
         }
       }
@@ -196,8 +190,8 @@ class _StorageCodesViewState extends State<_StorageCodesView> {
         return ExpansionTile(
           title: Text(e!, style: TextStyle(fontSize: 14)),
           initiallyExpanded: true,
-          children: vm.state.storageCodes.where((lc) => lc.groupCode == e).map(
-            (lc) => _buildGroupCodeLineTile(context, lc)
+          children: vm.state.storageCodes.where((sc) => sc.groupCode == e).map(
+            (sc) => _buildGroupCodeLineTile(context, sc)
           ).toList()
         );
       }).toList()

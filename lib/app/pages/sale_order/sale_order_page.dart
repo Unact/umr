@@ -62,7 +62,11 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
         SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
 
         switch (state.status) {
+          case SaleOrderStateStatus.inProgress:
+            _progressDialog.open();
+            break;
           case SaleOrderStateStatus.storageCodesLoaded:
+            _progressDialog.close();
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -74,6 +78,7 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
             );
             break;
           case SaleOrderStateStatus.returnStorageCodesLoaded:
+            _progressDialog.close();
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -85,6 +90,7 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
             );
             break;
           case SaleOrderStateStatus.documentsLoaded:
+            _progressDialog.close();
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -96,6 +102,7 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
             );
             break;
           case SaleOrderStateStatus.loadFailure:
+            _progressDialog.close();
             PageHelpers.showMessage(context, state.message, Colors.red[400]!);
             break;
           default:

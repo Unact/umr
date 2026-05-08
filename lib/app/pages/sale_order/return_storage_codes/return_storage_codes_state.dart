@@ -8,8 +8,6 @@ enum ReturnStorageCodesStateStatus {
   failure,
   scanSuccess,
   scanFailure,
-  scanDeleteSuccess,
-  scanDeleteFailure,
   needUserConfirmation,
 }
 

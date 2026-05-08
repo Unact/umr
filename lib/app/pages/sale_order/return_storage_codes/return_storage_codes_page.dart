@@ -119,12 +119,6 @@ class _ReturnStorageCodesViewState extends State<_ReturnStorageCodesView> {
             _progressDialog.close();
             PageHelpers.showMessage(context, state.message, Colors.green[400]!);
             break;
-          case ReturnStorageCodesStateStatus.scanDeleteFailure:
-            PageHelpers.showMessage(context, state.message, Colors.red[400]!);
-            break;
-          case ReturnStorageCodesStateStatus.scanDeleteSuccess:
-            PageHelpers.showMessage(context, state.message, Colors.green[400]!);
-            break;
           default:
         }
       }
