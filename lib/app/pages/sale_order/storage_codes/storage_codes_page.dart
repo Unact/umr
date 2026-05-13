@@ -116,7 +116,12 @@ class _StorageCodesViewState extends State<_StorageCodesView> {
         );
       },
       listener: (context, state) async {
+        StorageCodesViewModel vm = context.read<StorageCodesViewModel>();
+
         switch (state.status) {
+          case StorageCodesStateStatus.needUserConfirmation:
+            await PageHelpers.showConfirmationDialog(context, vm.completeScan, state.message);
+            break;
           case StorageCodesStateStatus.scanFailure:
             PageHelpers.showMessage(context, state.message, Colors.red[400]!);
             await player.play(AssetSource('beep_error.mp3'));
@@ -246,8 +251,6 @@ class _StorageCodesViewState extends State<_StorageCodesView> {
 
   List<Widget> _buildFooterButtons(BuildContext context) {
     StorageCodesViewModel vm = context.read<StorageCodesViewModel>();
-    final fullyScanned = vm.state.storageCodes.fold(0.0, (prev, e) => prev + e.vol) ==
-      vm.saleOrderVm.state.saleOrder.lines.fold(0.0, (prev, e) => prev + e.vol);
 
     if (vm.saleOrderVm.state.saleOrder.scanned != null) return [];
 
@@ -256,7 +259,7 @@ class _StorageCodesViewState extends State<_StorageCodesView> {
         TextButton(onPressed: showGroupScanView, child: const Text('Добавить АК')) :
         TextButton(onPressed: vm.completeGroupScan, child: const Text('Завершить АК')),
       TextButton(
-        onPressed: fullyScanned ? vm.completeScan : null,
+        onPressed: vm.tryCompleteScan,
         child: const Text('Завершить')
       )
     ];
