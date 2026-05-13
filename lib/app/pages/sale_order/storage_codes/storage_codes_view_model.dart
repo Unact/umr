@@ -66,7 +66,21 @@ class StorageCodesViewModel extends PageViewModel<StorageCodesState, StorageCode
     }
   }
 
-  Future<void> completeScan() async {
+  Future<void> tryCompleteScan() async {
+    final scannedVol = state.storageCodes.fold(0.0, (v, el) => v + el.vol);
+    final totalVol = saleOrderVm.state.saleOrder.lines.fold(0.0, (v, el) => v + el.vol);
+
+    if (!saleOrderVm.state.saleOrder.status4 && scannedVol != totalVol) {
+      emit(state.copyWith(
+        status: StorageCodesStateStatus.needUserConfirmation,
+        message: 'Количество отсканированного не равно количеству в заказе. Вы точно хотите завершить?'
+      ));
+    }
+  }
+
+  Future<void> completeScan(bool confirmed) async {
+    if (!confirmed) return;
+
     emit(state.copyWith(status: StorageCodesStateStatus.inProgress));
 
     try {

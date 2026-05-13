@@ -7,7 +7,8 @@ enum StorageCodesStateStatus {
   success,
   failure,
   scanSuccess,
-  scanFailure
+  scanFailure,
+  needUserConfirmation
 }
 
 class StorageCodesState {
