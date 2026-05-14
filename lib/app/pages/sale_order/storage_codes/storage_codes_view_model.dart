@@ -75,7 +75,11 @@ class StorageCodesViewModel extends PageViewModel<StorageCodesState, StorageCode
         status: StorageCodesStateStatus.needUserConfirmation,
         message: 'Количество отсканированного не равно количеству в заказе. Вы точно хотите завершить?'
       ));
+
+      return;
     }
+
+    await completeScan(true);
   }
 
   Future<void> completeScan(bool confirmed) async {
