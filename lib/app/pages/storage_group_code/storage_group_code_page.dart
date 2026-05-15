@@ -117,7 +117,11 @@ class _StorageGroupCodeViewState extends State<_StorageGroupCodeView> {
             InfoRow(
               title: const Text('Завершен'),
               trailing: Text(Format.dateTimeStr(vm.state.storageGroupCode.packaged), style: TextStyle(fontSize: 13))
-            )
+            ),
+            InfoRow(
+              title: const Text('Количество кодов'),
+              trailing: Text(vm.state.storageGroupCode.codes.length.toString(), style: TextStyle(fontSize: 13))
+            ),
           ])
         ),
         _buildStorageGroupCodeCodeTiles(context)
