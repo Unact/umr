@@ -167,8 +167,23 @@ extension UmrApi on RenewApi {
     );
   }
 
-  Future<ApiDeliveryStorageLoad> deliveryStorageLoadsIndex({ required String ndoc }) async {
-    return ApiDeliveryStorageLoad.fromJson(await get('v1/umr/delivery_storage_loads', query: { 'ndoc': ndoc }));
+  Future<ApiDeliveryStorageLoadFind> deliveryStorageLoadsFind({ required String ndoc }) async {
+    return ApiDeliveryStorageLoadFind.fromJson(
+      await get('v1/umr/delivery_storage_loads/find', query: { 'ndoc': ndoc })
+    );
+  }
+
+  Future<ApiDeliveryStorageLoad> deliveryStorageLoadsCreate({
+    required int deliveryId,
+    required int? truckId,
+    required int warehouseGateId
+  }) async {
+    return ApiDeliveryStorageLoad.fromJson(
+      await post(
+        'v1/umr/delivery_storage_loads',
+        data: { 'deliveryId': deliveryId, 'truckId': truckId, 'warehouseGateId': warehouseGateId  }
+      )
+    );
   }
 
   Future<ApiDeliveryStorageLoad> deliveryStorageLoadsStartLoadOrder({

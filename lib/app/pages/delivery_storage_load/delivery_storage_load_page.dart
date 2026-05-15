@@ -143,8 +143,23 @@ class _DeliveryStorageLoadViewState extends State<_DeliveryStorageLoadView> {
           icon: const Icon(Icons.barcode_reader),
           onPressed: showScanView
         ),
-      children: vm.state.deliveryStorageLoad.deliveryStorageLoadSaleOrders
-        .map((e) => _buildDeliveryStorageLoadSaleOrderTile(context, e)).toList()
+      children: [
+        ExpansionTile(
+          tilePadding: EdgeInsets.only(left: 32),
+          initiallyExpanded: true,
+          title: Text('Не погруженные', style: TextStyle(fontSize: 14)),
+          children: vm.state.deliveryStorageLoad.deliveryStorageLoadSaleOrders
+            .where((e) => e.started == null)
+            .map((e) => _buildDeliveryStorageLoadSaleOrderTile(context, e)).toList()
+        ),
+        ExpansionTile(
+          tilePadding: EdgeInsets.only(left: 32),
+          title: Text('Погруженные', style: TextStyle(fontSize: 14)),
+          children: vm.state.deliveryStorageLoad.deliveryStorageLoadSaleOrders
+            .where((e) => e.started != null)
+            .map((e) => _buildDeliveryStorageLoadSaleOrderTile(context, e)).toList()
+        )
+      ]
     );
   }
 
