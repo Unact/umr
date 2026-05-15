@@ -111,11 +111,38 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     emit(state.copyWith(status: InfoStateStatus.inProgress));
 
     try {
-      final deliveryStorageLoad = (await deliveryStorageLoadsRepository.findDeliveryStorageLoad(code));
+      final deliveryStorageLoadFind = await deliveryStorageLoadsRepository.findDeliveryStorageLoad(code);
 
       emit(state.copyWith(
         status: InfoStateStatus.findDeliveryStorageLoadSuccess,
-        foundDeliveryStorageLoad: deliveryStorageLoad
+        deliveryStorageLoadFind: deliveryStorageLoadFind
+      ));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: InfoStateStatus.failure, message: e.message));
+    }
+  }
+
+  Future<void> createDeliveryStorageLoad(String warehouseGateStr, String? truckStr) async {
+    final renewTruckBarcode = RenewBarcode.parse(truckStr ?? '');
+    final renewWarehouseGateBarcode = RenewBarcode.parse(warehouseGateStr);
+
+    if (renewWarehouseGateBarcode == null || renewWarehouseGateBarcode.intId == null) {
+      emit(state.copyWith(status: InfoStateStatus.failure, message: 'Не удалось определить ворота'));
+      return;
+    }
+
+    emit(state.copyWith(status: InfoStateStatus.inProgress));
+
+    try {
+      final createdDeliveryStorageLoad = await deliveryStorageLoadsRepository.createDeliveryStorageLoad(
+        state.deliveryStorageLoadFind!.deliveryId,
+        renewWarehouseGateBarcode.intId!,
+        renewTruckBarcode?.intId
+      );
+
+      emit(state.copyWith(
+        status: InfoStateStatus.findDeliveryStorageLoadCreated,
+        createdDeliveryStorageLoad: createdDeliveryStorageLoad
       ));
     } on AppError catch(e) {
       emit(state.copyWith(status: InfoStateStatus.failure, message: e.message));
@@ -153,9 +180,9 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   }
 
   Future<void> printCodeLabel(String printerIdStr) async {
-    int? printerId = int.tryParse(printerIdStr.split(' ').elementAtOrNull(1) ?? '');
+    final renewBarcode = RenewBarcode.parse(printerIdStr);
 
-    if (printerId == null) {
+    if (renewBarcode == null || renewBarcode.intId == null) {
       emit(state.copyWith(status: InfoStateStatus.failure, message: 'Не удалось определить принтер'));
       return;
     }
@@ -163,7 +190,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     emit(state.copyWith(status: InfoStateStatus.inProgress));
 
     try {
-      await appRepository.printCodeLabel(state.foundCodeParent!, printerId);
+      await appRepository.printCodeLabel(state.foundCodeParent!, renewBarcode.intId!);
 
       emit(state.copyWith(
         status: InfoStateStatus.printLabelSuccess,
@@ -175,9 +202,9 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   }
 
   Future<void> printStorageGroupCodeLabels(int count, String printerIdStr) async {
-    int? printerId = int.tryParse(printerIdStr.split(' ').elementAtOrNull(1) ?? '');
+    final renewBarcode = RenewBarcode.parse(printerIdStr);
 
-    if (printerId == null) {
+    if (renewBarcode == null || renewBarcode.intId == null) {
       emit(state.copyWith(status: InfoStateStatus.failure, message: 'Не удалось определить принтер'));
       return;
     }
@@ -185,7 +212,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     emit(state.copyWith(status: InfoStateStatus.inProgress));
 
     try {
-      await appRepository.printStorageGroupCodeLabels(count, printerId);
+      await appRepository.printStorageGroupCodeLabels(count, renewBarcode.intId!);
 
       emit(state.copyWith(
         status: InfoStateStatus.printLabelSuccess,

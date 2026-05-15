@@ -7,6 +7,7 @@ import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/sale_orders_repository.dart';
 import '/app/utils/page_helpers.dart';
+import '/app/utils/renew_barcode.dart';
 import '../sale_order_page.dart';
 
 part 'documents_state.dart';

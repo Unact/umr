@@ -14,9 +14,9 @@ class DocumentsViewModel extends PageViewModel<DocumentsState, DocumentsStateSta
   DocumentsStateStatus get status => state.status;
 
   Future<void> printDocuments(String printerIdStr) async {
-    int? printerId = int.tryParse(printerIdStr.split(' ').elementAtOrNull(1) ?? '');
+    final renewBarcode = RenewBarcode.parse(printerIdStr);
 
-    if (printerId == null) {
+    if (renewBarcode == null || renewBarcode.intId == null) {
       emit(state.copyWith(status: DocumentsStateStatus.failure, message: 'Не удалось определить принтер'));
       return;
     }
@@ -24,7 +24,7 @@ class DocumentsViewModel extends PageViewModel<DocumentsState, DocumentsStateSta
     emit(state.copyWith(status: DocumentsStateStatus.inProgress));
 
     try {
-      await saleOrdersRepository.printDocuments(saleOrderVm.state.saleOrder, printerId);
+      await saleOrdersRepository.printDocuments(saleOrderVm.state.saleOrder, renewBarcode.intId!);
 
       emit(state.copyWith(
         status: DocumentsStateStatus.success,

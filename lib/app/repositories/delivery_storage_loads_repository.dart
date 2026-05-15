@@ -8,9 +8,28 @@ import '/app/services/umr_api.dart';
 class DeliveryStorageLoadsRepository extends BaseRepository {
   DeliveryStorageLoadsRepository(super.dataStore, super.api);
 
-  Future<ApiDeliveryStorageLoad> findDeliveryStorageLoad(String ndoc) async {
+  Future<ApiDeliveryStorageLoadFind> findDeliveryStorageLoad(String ndoc) async {
     try {
-      return await api.deliveryStorageLoadsIndex(ndoc: ndoc);
+      return await api.deliveryStorageLoadsFind(ndoc: ndoc);
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await Misc.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
+  Future<ApiDeliveryStorageLoad> createDeliveryStorageLoad(
+    int deliveryId,
+    int warehouseGateId,
+    int? truckId
+  ) async {
+    try {
+      return await api.deliveryStorageLoadsCreate(
+        deliveryId: deliveryId,
+        warehouseGateId: warehouseGateId,
+        truckId: truckId
+      );
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {

@@ -11,7 +11,9 @@ enum InfoStateStatus {
   printLabelSuccess,
   findDeliveryStorageLoadSuccess,
   findStorageGroupCodeSuccess,
-  deleteStorageGroupCodeSuccess
+  deleteStorageGroupCodeSuccess,
+  findDeliveryStorageLoadNeedCreation,
+  findDeliveryStorageLoadCreated
 }
 
 class InfoState {
@@ -20,8 +22,9 @@ class InfoState {
     this.foundSaleOrder,
     this.foundSupply,
     this.foundCodeParent,
-    this.foundDeliveryStorageLoad,
+    this.deliveryStorageLoadFind,
     this.foundStorageGroupCode,
+    this.createdDeliveryStorageLoad,
     this.markirovkaOrganizations = const [],
     this.user,
     this.message = ''
@@ -31,9 +34,10 @@ class InfoState {
   final ApiSaleOrder? foundSaleOrder;
   final ApiSupply? foundSupply;
   final String? foundCodeParent;
-  final ApiDeliveryStorageLoad? foundDeliveryStorageLoad;
+  final ApiDeliveryStorageLoadFind? deliveryStorageLoadFind;
   final ApiStorageGroupCode? foundStorageGroupCode;
   final List<ApiMarkirovkaOrganization> markirovkaOrganizations;
+  final ApiDeliveryStorageLoad? createdDeliveryStorageLoad;
   final String message;
   final User? user;
 
@@ -42,8 +46,9 @@ class InfoState {
     ApiSaleOrder? foundSaleOrder,
     ApiSupply? foundSupply,
     String? foundCodeParent,
-    ApiDeliveryStorageLoad? foundDeliveryStorageLoad,
+    ApiDeliveryStorageLoadFind? deliveryStorageLoadFind,
     ApiStorageGroupCode? foundStorageGroupCode,
+    ApiDeliveryStorageLoad? createdDeliveryStorageLoad,
     List<ApiMarkirovkaOrganization>? markirovkaOrganizations,
     ApiInfoScan? infoScan,
     User? user,
@@ -54,8 +59,9 @@ class InfoState {
       foundSaleOrder: foundSaleOrder ?? this.foundSaleOrder,
       foundSupply: foundSupply ?? this.foundSupply,
       foundCodeParent: foundCodeParent ?? this.foundCodeParent,
-      foundDeliveryStorageLoad: foundDeliveryStorageLoad ?? this.foundDeliveryStorageLoad,
+      deliveryStorageLoadFind: deliveryStorageLoadFind ?? this.deliveryStorageLoadFind,
       foundStorageGroupCode: foundStorageGroupCode ?? this.foundStorageGroupCode,
+      createdDeliveryStorageLoad: createdDeliveryStorageLoad ?? this.createdDeliveryStorageLoad,
       markirovkaOrganizations: markirovkaOrganizations ?? this.markirovkaOrganizations,
       message: message ?? this.message,
       user: user ?? this.user

@@ -23,6 +23,7 @@ import '/app/repositories/storage_group_codes_repository.dart';
 import '/app/repositories/supplies_repository.dart';
 import '/app/repositories/users_repository.dart';
 import '/app/utils/page_helpers.dart';
+import '/app/utils/renew_barcode.dart';
 import '/app/widgets/widgets.dart';
 
 part 'info_state.dart';
@@ -93,10 +94,16 @@ class _InfoViewState extends State<_InfoView> {
               color: Colors.white,
               icon: const Icon(Icons.text_fields),
               tooltip: 'Ручной поиск',
-              onPressed: () => showManualInput(onRead)
+              onPressed: () {
+                Navigator.pop(context);
+                showManualInput(onRead);
+              }
             ),
           ],
-          onRead: onRead,
+          onRead: (scanResult) {
+            Navigator.pop(context);
+            onRead.call(scanResult);
+          },
           onError: (errorMessage) {
             PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
           },
@@ -292,7 +299,7 @@ class _InfoViewState extends State<_InfoView> {
             break;
           case InfoStateStatus.findSaleOrderSuccess:
             await _progressDialog.close();
-            await Navigator.pushReplacement(
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (BuildContext context) => SaleOrderPage(saleOrder: state.foundSaleOrder!),
@@ -302,7 +309,7 @@ class _InfoViewState extends State<_InfoView> {
             break;
           case InfoStateStatus.findSupplySuccess:
             await _progressDialog.close();
-            await Navigator.pushReplacement(
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (BuildContext context) => SupplyPage(supply: state.foundSupply!),
@@ -312,19 +319,36 @@ class _InfoViewState extends State<_InfoView> {
             break;
           case InfoStateStatus.findDeliveryStorageLoadSuccess:
             await _progressDialog.close();
-            await Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => DeliveryStorageLoadPage(
-                  deliveryStorageLoad: state.foundDeliveryStorageLoad!
-                ),
-                fullscreenDialog: false
-              )
-            );
+            if (state.deliveryStorageLoadFind!.deliveryStorageLoad != null) {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (BuildContext context) => DeliveryStorageLoadPage(
+                    deliveryStorageLoad: state.deliveryStorageLoadFind!.deliveryStorageLoad!
+                  ),
+                  fullscreenDialog: false
+                )
+              );
+            } else {
+              showScanView(
+                'Отсканируйте ворота',
+                (warehouseGateStr) {
+                  if (!state.deliveryStorageLoadFind!.needTruckScan) {
+                    vm.createDeliveryStorageLoad(warehouseGateStr, null);
+                    return;
+                  }
+
+                  showScanView(
+                    'Отсканируйте машину',
+                    (truckStr) => vm.createDeliveryStorageLoad(warehouseGateStr, truckStr)
+                  );
+                }
+              );
+            }
             break;
           case InfoStateStatus.findStorageGroupCodeSuccess:
             await _progressDialog.close();
-            await Navigator.pushReplacement(
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (BuildContext context) => StorageGroupCodePage(
@@ -336,9 +360,19 @@ class _InfoViewState extends State<_InfoView> {
             break;
           case InfoStateStatus.findCodeParentSuccess:
             await _progressDialog.close();
-            Navigator.pop(context);
             await showPrinterScanView((rawValue) => vm.printCodeLabel(rawValue));
             break;
+          case InfoStateStatus.findDeliveryStorageLoadCreated:
+            await _progressDialog.close();
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => DeliveryStorageLoadPage(
+                  deliveryStorageLoad: state.createdDeliveryStorageLoad!
+                ),
+                fullscreenDialog: false
+              )
+            );
           case InfoStateStatus.deleteStorageGroupCodeSuccess:
           case InfoStateStatus.printLabelSuccess:
             await _progressDialog.close();
