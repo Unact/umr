@@ -29,6 +29,12 @@ class SaleOrdersRepository extends BaseRepository {
     );
   }
 
+  Future<void> groupScan(ApiSaleOrder saleOrder, String groupCode) async {
+    return await sendSafeRequest<void>(() async =>
+      (await api.saleOrdersStorageCodesGroupScan(saleOrderId: saleOrder.id, groupCode: groupCode))
+    );
+  }
+
   Future<List<ApiSaleOrderStorageLineCode>> scan(ApiSaleOrder saleOrder, String code, String? groupCode) async {
     return await sendSafeRequest<List<ApiSaleOrderStorageLineCode>>(() async =>
       (await api.saleOrderStorageCodesScan(code: code, groupCode: groupCode, saleOrderId: saleOrder.id)).codes
