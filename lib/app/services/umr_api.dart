@@ -31,6 +31,16 @@ extension UmrApi on RenewApi {
     );
   }
 
+  Future<void> saleOrdersStorageCodesGroupScan({
+    required int saleOrderId,
+    required String groupCode
+  }) async {
+    await post(
+      'v2/umr/sale_orders/storage_codes/group_scan',
+      data: { 'saleOrderId': saleOrderId, 'groupCode': groupCode }
+    );
+  }
+
   Future<ApiSaleOrderStorageLineCodes> saleOrderStorageCodesScan({
     required int saleOrderId,
     required String code,

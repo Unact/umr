@@ -37,11 +37,17 @@ class StorageCodesViewModel extends PageViewModel<StorageCodesState, StorageCode
   }
 
   Future<void> startGroupScan(String code) async {
-    emit(state.copyWith(
-      status: StorageCodesStateStatus.success,
-      message: 'Начат режим агрегации кодов',
-      currentGroupCode: (value: code)
-    ));
+    try {
+      await saleOrdersRepository.groupScan(saleOrderVm.state.saleOrder, code);
+
+      emit(state.copyWith(
+        status: StorageCodesStateStatus.scanSuccess,
+        message: 'Начат режим агрегации кодов',
+        currentGroupCode: (value: code)
+      ));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: StorageCodesStateStatus.scanFailure, message: e.message));
+    }
   }
 
   Future<void> completeGroupScan() async {
