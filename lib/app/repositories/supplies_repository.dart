@@ -64,21 +64,31 @@ class SuppliesRepository extends BaseRepository {
     return dataStore.suppliesDao.watchSupplyLineCodeDetails(id);
   }
 
-  Future<void> addSupplyLineCode({
-    required int id,
-    required int subid,
-    required String code,
-    required int vol,
+  Future<void> addSupplyMarkirovkaCode({
+    required ApiSupply supply,
+    required ApiSupplyMarkirovkaCode supplyMarkirovkaCode,
   }) {
-    return dataStore.suppliesDao.addSupplyLineCode(
-      SupplyLineCodesCompanion.insert(
-        id: id,
-        subid: subid,
-        code: code,
-        vol: vol.toDouble(),
-        localTs: DateTime.now()
-      )
-    );
+    final supplyLineCodes = supplyMarkirovkaCode.supgoods.map((e) => SupplyLineCodesCompanion.insert(
+      id: supply.id,
+      subid: e.subid,
+      code: supplyMarkirovkaCode.code,
+      vol: e.vol.toDouble(),
+      localTs: DateTime.now()
+    )).toList();
+    final supplyLineCodeDetails = supplyMarkirovkaCode.supgoods.map((e) => supplyMarkirovkaCode.details.map(
+      (k) => SupplyLineCodeDetailsCompanion.insert(
+        id: supply.id,
+        subid: e.subid,
+        cis: k.cis,
+        parent: Value(k.parent),
+        initiator: supplyMarkirovkaCode.code
+      ))
+    ).expand((e) => e).toList();
+
+    return dataStore.suppliesDao.transaction(() async {
+      await dataStore.suppliesDao.addSupplyLineCodes(supplyLineCodes);
+      await dataStore.suppliesDao.addSupplyLineCodeDetails(supplyLineCodeDetails);
+    });
   }
 
   Future<void> clearSupplyLineCodes({ApiSupply? supply, ApiSupplyLine? line}) async {
@@ -93,23 +103,6 @@ class SuppliesRepository extends BaseRepository {
     }
 
     await dataStore.suppliesDao.clearSupplyLineCodes(id: supply.id);
-  }
-  Future<void> addSupplyLineCodeDetail({
-    required int id,
-    required int subid,
-    required String cis,
-    required String? parent,
-    required String initiator,
-  }) {
-    return dataStore.suppliesDao.addSupplyLineCodeDetail(
-      SupplyLineCodeDetailsCompanion.insert(
-        id: id,
-        subid: subid,
-        cis: cis,
-        parent: Value(parent),
-        initiator: initiator
-      )
-    );
   }
 
   Future<void> clearSupplyLineCodeDetails({ApiSupply? supply, ApiSupplyLine? line}) async {
