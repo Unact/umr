@@ -46,11 +46,15 @@ class SuppliesDao extends DatabaseAccessor<AppDataStore> with _$SuppliesDaoMixin
     await (delete(supplyLineCodeDetails)..where((tbl) => tbl.id.equals(id))..where((tbl) => tbl.subid.equals(subid))).go();
   }
 
-  Future<void> addSupplyLineCode(SupplyLineCodesCompanion newLineCode) async {
-    await into(supplyLineCodes).insert(newLineCode, mode: InsertMode.insertOrReplace);
+  Future<void> addSupplyLineCodes(List<SupplyLineCodesCompanion> newLineCodes) async {
+    await batch((batch) {
+      batch.insertAll(supplyLineCodes, newLineCodes, mode: InsertMode.insertOrIgnore);
+    });
   }
 
-  Future<void> addSupplyLineCodeDetail(SupplyLineCodeDetailsCompanion newLineCodeDetail) async {
-    await into(supplyLineCodeDetails).insert(newLineCodeDetail, mode: InsertMode.insertOrReplace);
+  Future<void> addSupplyLineCodeDetails(List<SupplyLineCodeDetailsCompanion> newLineCodeDetails) async {
+    await batch((batch) {
+      batch.insertAll(supplyLineCodeDetails, newLineCodeDetails, mode: InsertMode.insertOrIgnore);
+    });
   }
 }
