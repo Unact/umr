@@ -66,13 +66,6 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     }
   }
 
-  Future<void> clearLineCodes() async {
-    await appRepository.transaction(() async {
-      await suppliesRepository.clearSupplyLineCodes();
-      await suppliesRepository.clearSupplyLineCodeDetails();
-    });
-  }
-
   Future<void> findSupply(String idStr) async {
     final id = int.tryParse(idStr);
 
