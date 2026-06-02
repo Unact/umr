@@ -5,7 +5,8 @@ import 'package:u_app_utils/u_app_utils.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/supplies_repository.dart';
-import 'codes/codes_page.dart';
+import 'storage_codes/storage_codes_page.dart';
+import '/app/utils/page_helpers.dart';
 
 part 'supply_state.dart';
 part 'supply_view_model.dart';
@@ -46,7 +47,7 @@ class _SupplyViewState extends State<_SupplyView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SupplyViewModel, SupplyState>(
+    return BlocConsumer<SupplyViewModel, SupplyState>(
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
@@ -54,6 +55,32 @@ class _SupplyViewState extends State<_SupplyView> {
           ),
           body: _buildBody(context)
         );
+      },
+      listener: (context, state) {
+        SupplyViewModel vm = context.read<SupplyViewModel>();
+
+        switch (state.status) {
+          case SupplyStateStatus.inProgress:
+            _progressDialog.open();
+            break;
+          case SupplyStateStatus.storageCodesLoaded:
+            _progressDialog.close();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => StorageCodesPage(
+                  storageCodes: state.loadedStorageCodes,
+                  supplyVm: vm
+                )
+              )
+            );
+            break;
+          case SupplyStateStatus.loadFailure:
+            _progressDialog.close();
+            PageHelpers.showMessage(context, state.message, Colors.red[400]!);
+            break;
+          default:
+        }
       }
     );
   }
@@ -105,16 +132,7 @@ class _SupplyViewState extends State<_SupplyView> {
       expandedAlignment: Alignment.centerLeft,
       children: [
         TextButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => CodesPage(
-                  supply: vm.state.supply
-                )
-              )
-            );
-          },
+          onPressed: vm.loadStorageCodes,
           child: const Text('Сканирование поставки')
         )
       ]

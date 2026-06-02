@@ -200,37 +200,6 @@ class _InfoViewState extends State<_InfoView> {
     await showPrinterScanView((rawValue) => vm.printStorageGroupCodeLabels(result, rawValue));
   }
 
-  Future<void> showClearLineCodesDialog() async {
-    InfoViewModel vm = context.read<InfoViewModel>();
-
-    bool result = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return SimpleAlertDialog(
-          title: Text('Вы точно хотите удалить данные о КМ?'),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop(true);
-              },
-              child: const Text('Да')
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text('Нет')
-            )
-          ]
-        );
-      }
-    ) ?? false;
-
-    if (!result) return;
-
-    await vm.clearLineCodes();
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<InfoViewModel, InfoState>(
@@ -239,11 +208,6 @@ class _InfoViewState extends State<_InfoView> {
           appBar: AppBar(
             title: const Text(Strings.ruAppName),
             actions: <Widget>[
-              IconButton(
-                onPressed: showClearLineCodesDialog,
-                icon: Icon(Icons.delete),
-                tooltip: 'Удалить данные',
-              ),
               IconButton(
                 color: Colors.white,
                 icon: const Icon(Icons.notifications),

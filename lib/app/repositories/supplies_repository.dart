@@ -1,8 +1,6 @@
-import 'package:drift/drift.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
-import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/repositories/base_repository.dart';
 import '/app/services/umr_api.dart';
@@ -21,101 +19,27 @@ class SuppliesRepository extends BaseRepository {
     }
   }
 
-  Future<ApiSupplyMarkirovkaCode> scan(ApiSupply supply, String code) async {
-    try {
-      return await api.suppliesScan(code: code, supplyId: supply.id);
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await Misc.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
+  Future<List<ApiSupplyStorageLineCode>> findSupplyStorageCodes(ApiSupply supplyId) async {
+    return await sendSafeRequest<List<ApiSupplyStorageLineCode>>(() async =>
+      (await api.suppliesStorageCodesIndex(supplyId: supplyId.id)).codes
+    );
   }
 
-  Future<ApiSupply> completeScan(
-    ApiSupply supply,
-    List<SupplyLineCode> lineCodes
-  ) async {
-    final codes = lineCodes.map((e) => {
-      'subid': e.subid,
-      'code': e.code,
-      'vol': e.vol,
-      'localTs': e.localTs.toIso8601String()
-    }).toList();
-
-    try {
-      return await api.suppliesCompleteScan(
-        supplyId: supply.id,
-        codes: codes
-      );
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      await Misc.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
+  Future<List<ApiSupplyStorageLineCode>> scan(ApiSupply supply, String code, bool onlyPiece) async {
+    return await sendSafeRequest<List<ApiSupplyStorageLineCode>>(() async =>
+      (await api.suppliesStorageCodesScan(code: code, onlyPiece: onlyPiece, supplyId: supply.id)).codes
+    );
   }
 
-  Stream<List<SupplyLineCode>> watchSupplyLineCodes(int id) {
-    return dataStore.suppliesDao.watchSupplyLineCodes(id);
+  Future<List<ApiSupplyStorageLineCode>> deleteScan(ApiSupply supply, ApiSupplyLine supplyLine) async {
+    return await sendSafeRequest<List<ApiSupplyStorageLineCode>>(() async =>
+      (await api.suppliesStorageCodesDeleteScan(supplySubid: supplyLine.subid, supplyId: supply.id)).codes
+    );
   }
 
-  Stream<List<SupplyLineCodeDetail>> watchSupplyLineCodeDetails(int id) {
-    return dataStore.suppliesDao.watchSupplyLineCodeDetails(id);
-  }
-
-  Future<void> addSupplyMarkirovkaCode({
-    required ApiSupply supply,
-    required ApiSupplyMarkirovkaCode supplyMarkirovkaCode,
-  }) {
-    final supplyLineCodes = supplyMarkirovkaCode.supgoods.map((e) => SupplyLineCodesCompanion.insert(
-      id: supply.id,
-      subid: e.subid,
-      code: supplyMarkirovkaCode.code,
-      vol: e.vol.toDouble(),
-      localTs: DateTime.now()
-    )).toList();
-    final supplyLineCodeDetails = supplyMarkirovkaCode.supgoods.map((e) => supplyMarkirovkaCode.details.map(
-      (k) => SupplyLineCodeDetailsCompanion.insert(
-        id: supply.id,
-        subid: e.subid,
-        cis: k.cis,
-        parent: Value(k.parent),
-        initiator: supplyMarkirovkaCode.code
-      ))
-    ).expand((e) => e).toList();
-
-    return dataStore.suppliesDao.transaction(() async {
-      await dataStore.suppliesDao.addSupplyLineCodes(supplyLineCodes);
-      await dataStore.suppliesDao.addSupplyLineCodeDetails(supplyLineCodeDetails);
-    });
-  }
-
-  Future<void> clearSupplyLineCodes({ApiSupply? supply, ApiSupplyLine? line}) async {
-    if (supply == null) {
-      await dataStore.suppliesDao.clearSupplyLineCodes();
-      return;
-    }
-
-    if (line != null) {
-      await dataStore.suppliesDao.clearSupplyLineCodes(id: supply.id, subid: line.subid);
-      return;
-    }
-
-    await dataStore.suppliesDao.clearSupplyLineCodes(id: supply.id);
-  }
-
-  Future<void> clearSupplyLineCodeDetails({ApiSupply? supply, ApiSupplyLine? line}) async {
-    if (supply == null) {
-      await dataStore.suppliesDao.clearSupplyLineCodeDetails();
-      return;
-    }
-
-    if (line != null) {
-      await dataStore.suppliesDao.clearSupplyLineCodeDetails(id: supply.id, subid: line.subid);
-      return;
-    }
-
-    await dataStore.suppliesDao.clearSupplyLineCodeDetails(id: supply.id);
+  Future<ApiSupply> completeScan(ApiSupply supply) async {
+    return await sendSafeRequest<ApiSupply>(() async =>
+      (await api.suppliesStorageCodesCompleteScan(supplyId: supply.id))
+    );
   }
 }

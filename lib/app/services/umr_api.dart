@@ -153,28 +153,47 @@ extension UmrApi on RenewApi {
   }
 
   Future<ApiSupply> suppliesIndex({ required int id }) async {
-    return ApiSupply.fromJson(await get('v1/umr/supplies', query: { 'supplyId': id }));
+    return ApiSupply.fromJson(await get('v2/umr/supplies', query: { 'supplyId': id }));
   }
 
-  Future<ApiSupply> suppliesCompleteScan({
+  Future<ApiSupplyStorageLineCodes> suppliesStorageCodesIndex({ required int supplyId }) async {
+    return ApiSupplyStorageLineCodes.fromJson(
+      await get('v2/umr/supplies/storage_codes', query: { 'supplyId': supplyId })
+    );
+  }
+
+  Future<ApiSupplyStorageLineCodes> suppliesStorageCodesScan({
     required int supplyId,
-    required List<Map<String, dynamic>> codes
+    required String code,
+    required bool onlyPiece
   }) async {
+    return ApiSupplyStorageLineCodes.fromJson(
+      await post(
+        'v2/umr/supplies/storage_codes/scan',
+        data: { 'supplyId': supplyId, 'code': code, 'onlyPiece': onlyPiece }
+      )
+    );
+  }
+
+  Future<ApiSupplyStorageLineCodes> suppliesStorageCodesDeleteScan({
+    required int supplyId,
+    required int supplySubid
+  }) async {
+    return ApiSupplyStorageLineCodes.fromJson(
+      await delete(
+        'v2/umr/supplies/storage_codes/delete_scan',
+        query: { 'supplyId': supplyId, 'supplySubid': supplySubid }
+      )
+    );
+  }
+
+  Future<ApiSupply> suppliesStorageCodesCompleteScan({required int supplyId}) async {
     final result = await post(
-      'v1/umr/supplies/complete_scan',
-      data: { 'supplyId': supplyId, 'codes': codes }
+      'v2/umr/supplies/storage_codes/complete_scan',
+      data: { 'supplyId': supplyId }
     );
 
     return ApiSupply.fromJson(result);
-  }
-
-  Future<ApiSupplyMarkirovkaCode> suppliesScan({
-    required int supplyId,
-    required String code
-  }) async {
-    return ApiSupplyMarkirovkaCode.fromJson(
-      await get('v1/umr/supplies/scan', query: { 'supplyId': supplyId, 'code': code })
-    );
   }
 
   Future<ApiDeliveryStorageLoadFind> deliveryStorageLoadsFind({ required String ndoc }) async {
