@@ -56,6 +56,7 @@ class _InfoView extends StatefulWidget {
 }
 
 class _InfoViewState extends State<_InfoView> {
+  final key = GlobalKey();
   final ScrollController scrollController = ScrollController();
   late final ProgressDialog _progressDialog = ProgressDialog(context: context);
 
@@ -89,6 +90,7 @@ class _InfoViewState extends State<_InfoView> {
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => ScanView(
+          key: key,
           actions: [
             IconButton(
               color: Colors.white,
