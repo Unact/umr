@@ -132,6 +132,16 @@ extension UmrApi on RenewApi {
     );
   }
 
+  Future<void> saleOrdersPrintStatus2Set({
+    required int saleOrderId,
+    required int printerId
+  }) async {
+    await post(
+      'v2/umr/sale_orders/print_status2_set',
+      data: { 'saleOrderId': saleOrderId, 'printerId': printerId }
+    );
+  }
+
   Future<ApiMarkirovkaCode> saleOrdersFindCodeParent({
     required String code
   }) async {

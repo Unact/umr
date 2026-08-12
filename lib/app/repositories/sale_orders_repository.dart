@@ -94,4 +94,13 @@ class SaleOrdersRepository extends BaseRepository {
       await api.saleOrdersDocumentsPrintAll(saleOrderId: saleOrder.id, printerId: printerId)
     );
   }
+
+  Future<void> printStatus2Set(
+    ApiSaleOrder saleOrder,
+    int printerId
+  ) async {
+    return await sendSafeRequest<void>(() async =>
+      await api.saleOrdersPrintStatus2Set(saleOrderId: saleOrder.id, printerId: printerId)
+    );
+  }
 }

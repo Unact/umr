@@ -60,4 +60,26 @@ class SaleOrderViewModel extends PageViewModel<SaleOrderState, SaleOrderStateSta
       emit(state.copyWith(status: SaleOrderStateStatus.loadFailure, message: e.message));
     }
   }
+
+  Future<void> printStatus2Set(String printerIdStr) async {
+    final renewBarcode = RenewBarcode.parse(printerIdStr);
+
+    if (renewBarcode == null || renewBarcode.intId == null) {
+      emit(state.copyWith(status: SaleOrderStateStatus.printFailure, message: 'Не удалось определить принтер'));
+      return;
+    }
+
+    emit(state.copyWith(status: SaleOrderStateStatus.printInProgress));
+
+    try {
+      await saleOrdersRepository.printStatus2Set(state.saleOrder, renewBarcode.intId!);
+
+      emit(state.copyWith(
+        status: SaleOrderStateStatus.printSuccess,
+        message: 'Создано задание на печать'
+      ));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: SaleOrderStateStatus.printFailure, message: e.message));
+    }
+  }
 }
