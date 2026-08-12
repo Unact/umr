@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
+import '/app/constants/strings.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/sale_orders_repository.dart';
@@ -9,6 +10,7 @@ import 'documents/documents_page.dart';
 import 'return_storage_codes/return_storage_codes_page.dart';
 import 'storage_codes/storage_codes_page.dart';
 import '/app/utils/page_helpers.dart';
+import '/app/utils/renew_barcode.dart';
 
 part 'sale_order_state.dart';
 part 'sale_order_view_model.dart';
@@ -105,6 +107,12 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
             _progressDialog.close();
             PageHelpers.showMessage(context, state.message, Colors.red[400]!);
             break;
+          case SaleOrderStateStatus.printFailure:
+            PageHelpers.showMessage(context, state.message, Colors.red[400]!);
+            break;
+          case SaleOrderStateStatus.printSuccess:
+            PageHelpers.showMessage(context, state.message, Colors.green[400]!);
+            break;
           default:
         }
       }
@@ -171,8 +179,33 @@ class _SaleOrderViewState extends State<_SaleOrderView> {
         TextButton(
           onPressed: vm.loadDocuments,
           child: const Text('Печать маркировки')
+        ),
+        TextButton(
+          onPressed: showPrinterScanView,
+          child: const Text('Печать комплектовочного листа')
         )
       ]
+    );
+  }
+
+  Future<void> showPrinterScanView() async {
+    SaleOrderViewModel vm = context.read<SaleOrderViewModel>();
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => ScanView(
+          onRead: (String rawValue) {
+            Navigator.pop(context);
+            vm.printStatus2Set(rawValue);
+          },
+          onError: (errorMessage) {
+            PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
+          },
+          child: Text('Отсканируйте принтер', style: const TextStyle(color: Colors.white, fontSize: 20))
+        ),
+        fullscreenDialog: true
+      )
     );
   }
 }

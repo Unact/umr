@@ -8,7 +8,10 @@ enum SaleOrderStateStatus {
   returnStorageCodesLoaded,
   documentsLoaded,
   loadFailure,
-  saleOrderUpdated
+  saleOrderUpdated,
+  printInProgress,
+  printFailure,
+  printSuccess
 }
 
 class SaleOrderState {
