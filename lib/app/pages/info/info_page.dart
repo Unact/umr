@@ -156,7 +156,7 @@ class _InfoViewState extends State<_InfoView> {
     onRead.call(idController.text);
   }
 
-  Future<void> showStorageCodeCountDialog() async {
+  Future<void> showStorageCodeCountDialog(ApiMarkirovkaOrganization markirovkaOrganization) async {
     InfoViewModel vm = context.read<InfoViewModel>();
 
     final result = await showDialog<int?>(
@@ -199,7 +199,7 @@ class _InfoViewState extends State<_InfoView> {
 
     if (result == null) return;
 
-    await showPrinterScanView((rawValue) => vm.printStorageGroupCodeLabels(result, rawValue));
+    await showPrinterScanView((rawValue) => vm.printStorageGroupCodeLabels(result, rawValue, markirovkaOrganization));
   }
 
   @override
@@ -529,7 +529,9 @@ class _InfoViewState extends State<_InfoView> {
                 child: const Text('Расформировать')
               ),
               TextButton(
-                onPressed: showStorageCodeCountDialog,
+                onPressed: () {
+                  showMarkirovkaOrganizationDialog((result) => showStorageCodeCountDialog(result));
+                },
                 child: const Text('Распечатать')
               ),
             ],
