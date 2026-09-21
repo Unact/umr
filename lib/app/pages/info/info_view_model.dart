@@ -194,7 +194,11 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     }
   }
 
-  Future<void> printStorageGroupCodeLabels(int count, String printerIdStr) async {
+  Future<void> printStorageGroupCodeLabels(
+    int count,
+    String printerIdStr,
+    ApiMarkirovkaOrganization markirovkaOrganization
+  ) async {
     final renewBarcode = RenewBarcode.parse(printerIdStr);
 
     if (renewBarcode == null || renewBarcode.intId == null) {
@@ -205,7 +209,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     emit(state.copyWith(status: InfoStateStatus.inProgress));
 
     try {
-      await appRepository.printStorageGroupCodeLabels(count, renewBarcode.intId!);
+      await appRepository.printStorageGroupCodeLabels(count, renewBarcode.intId!, markirovkaOrganization);
 
       emit(state.copyWith(
         status: InfoStateStatus.printLabelSuccess,

@@ -40,9 +40,17 @@ class AppRepository extends BaseRepository {
     }
   }
 
-  Future<void> printStorageGroupCodeLabels(int count, int printerId) async {
+  Future<void> printStorageGroupCodeLabels(
+    int count,
+    int printerId,
+    ApiMarkirovkaOrganization markirovkaOrganization
+  ) async {
     try {
-      return await api.printStorageGroupCodeLabels(count: count, printerId: printerId);
+      return await api.printStorageGroupCodeLabels(
+        count: count,
+        printerId: printerId,
+        markirovkaOrganizationId: markirovkaOrganization.id
+      );
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {

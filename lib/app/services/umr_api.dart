@@ -157,9 +157,13 @@ extension UmrApi on RenewApi {
 
   Future<void> printStorageGroupCodeLabels({
     required int count,
-    required int printerId
+    required int printerId,
+    required int markirovkaOrganizationId
   }) async {
-    await post('v1/umr/print_storage_group_code_labels', data: { 'count': count, 'printerId': printerId });
+    await post(
+      'v1/umr/print_storage_group_code_labels',
+      data: { 'count': count, 'printerId': printerId, 'markirovkaOrganizationId': markirovkaOrganizationId }
+    );
   }
 
   Future<ApiSupply> suppliesIndex({ required int id }) async {
