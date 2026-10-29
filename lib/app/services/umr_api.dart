@@ -210,6 +210,45 @@ extension UmrApi on RenewApi {
     return ApiSupply.fromJson(result);
   }
 
+  Future<ApiSupplyReturnStorageLineCodes> suppliesReturnStorageCodesIndex({ required int supplyId }) async {
+    return ApiSupplyReturnStorageLineCodes.fromJson(
+      await get('v2/umr/supplies/return_storage_codes', query: { 'supplyId': supplyId })
+    );
+  }
+
+  Future<ApiSupplyReturnStorageLineCodes> suppliesReturnStorageCodesScan({
+    required int supplyId,
+    required String code
+  }) async {
+    return ApiSupplyReturnStorageLineCodes.fromJson(
+      await post(
+        'v2/umr/supplies/return_storage_codes/scan',
+        data: { 'supplyId': supplyId, 'code': code }
+      )
+    );
+  }
+
+  Future<ApiSupplyReturnStorageLineCodes> suppliesReturnStorageCodesDeleteScan({
+    required int supplyId,
+    required int supplySubid
+  }) async {
+    return ApiSupplyReturnStorageLineCodes.fromJson(
+      await delete(
+        'v2/umr/supplies/return_storage_codes/delete_scan',
+        query: { 'supplyId': supplyId, 'supplySubid': supplySubid }
+      )
+    );
+  }
+
+  Future<ApiSupply> suppliesReturnStorageCodesCompleteScan({required int supplyId}) async {
+    final result = await post(
+      'v2/umr/supplies/return_storage_codes/complete_scan',
+      data: { 'supplyId': supplyId }
+    );
+
+    return ApiSupply.fromJson(result);
+  }
+
   Future<ApiDeliveryStorageLoadFind> deliveryStorageLoadsFind({ required String ndoc }) async {
     return ApiDeliveryStorageLoadFind.fromJson(
       await get('v1/umr/delivery_storage_loads/find', query: { 'ndoc': ndoc })

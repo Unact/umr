@@ -42,4 +42,28 @@ class SuppliesRepository extends BaseRepository {
       (await api.suppliesStorageCodesCompleteScan(supplyId: supply.id))
     );
   }
+
+  Future<List<ApiSupplyReturnStorageLineCode>> findSupplyReturnStorageCodes(ApiSupply supplyId) async {
+    return await sendSafeRequest<List<ApiSupplyReturnStorageLineCode>>(() async =>
+      (await api.suppliesReturnStorageCodesIndex(supplyId: supplyId.id)).codes
+    );
+  }
+
+  Future<List<ApiSupplyReturnStorageLineCode>> returnScan(ApiSupply supply, String code) async {
+    return await sendSafeRequest<List<ApiSupplyReturnStorageLineCode>>(() async =>
+      (await api.suppliesReturnStorageCodesScan(code: code, supplyId: supply.id)).codes
+    );
+  }
+
+  Future<List<ApiSupplyReturnStorageLineCode>> deleteReturnScan(ApiSupply supply, ApiSupplyLine supplyLine) async {
+    return await sendSafeRequest<List<ApiSupplyReturnStorageLineCode>>(() async =>
+      (await api.suppliesReturnStorageCodesDeleteScan(supplySubid: supplyLine.subid, supplyId: supply.id)).codes
+    );
+  }
+
+  Future<ApiSupply> completeReturnScan(ApiSupply supply) async {
+    return await sendSafeRequest<ApiSupply>(() async =>
+      (await api.suppliesReturnStorageCodesCompleteScan(supplyId: supply.id))
+    );
+  }
 }

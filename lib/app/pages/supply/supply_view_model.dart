@@ -30,4 +30,19 @@ class SupplyViewModel extends PageViewModel<SupplyState, SupplyStateStatus> {
       emit(state.copyWith(status: SupplyStateStatus.loadFailure, message: e.message));
     }
   }
+
+  Future<void> loadReturnStorageCodes() async {
+    emit(state.copyWith(status: SupplyStateStatus.inProgress));
+
+    try {
+      final returnStorageCodes = await suppliesRepository.findSupplyReturnStorageCodes(state.supply);
+
+      emit(state.copyWith(
+        status: SupplyStateStatus.returnStorageCodesLoaded,
+        loadedReturnStorageCodes: returnStorageCodes
+      ));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: SupplyStateStatus.loadFailure, message: e.message));
+    }
+  }
 }
