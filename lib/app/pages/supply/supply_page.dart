@@ -6,6 +6,7 @@ import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/supplies_repository.dart';
 import 'storage_codes/storage_codes_page.dart';
+import 'return_storage_codes/return_storage_codes_page.dart';
 import '/app/utils/page_helpers.dart';
 
 part 'supply_state.dart';
@@ -75,6 +76,18 @@ class _SupplyViewState extends State<_SupplyView> {
               )
             );
             break;
+          case SupplyStateStatus.returnStorageCodesLoaded:
+            _progressDialog.close();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => ReturnStorageCodesPage(
+                  returnStorageCodes: state.loadedReturnStorageCodes,
+                  supplyVm: vm
+                )
+              )
+            );
+            break;
           case SupplyStateStatus.loadFailure:
             _progressDialog.close();
             PageHelpers.showMessage(context, state.message, Colors.red[400]!);
@@ -134,6 +147,10 @@ class _SupplyViewState extends State<_SupplyView> {
         TextButton(
           onPressed: vm.loadStorageCodes,
           child: const Text('Сканирование поставки')
+        ),
+        TextButton(
+          onPressed: vm.loadReturnStorageCodes,
+          child: const Text('Сканирование возврата')
         )
       ]
     );

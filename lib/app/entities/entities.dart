@@ -23,6 +23,8 @@ part 'api_storage_group_code.dart';
 part 'api_supply_storage_line_code.dart';
 part 'api_supply_storage_line_codes.dart';
 part 'api_supply_line.dart';
+part 'api_supply_return_storage_line_code.dart';
+part 'api_supply_return_storage_line_codes.dart';
 part 'api_supply.dart';
 part 'api_user_data.dart';
 part 'app_error.dart';
