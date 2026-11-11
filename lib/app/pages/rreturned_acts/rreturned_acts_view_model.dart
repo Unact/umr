@@ -15,17 +15,17 @@ class RreturnedActsViewModel extends PageViewModel<RreturnedActsState, Rreturned
     emit(state.copyWith(status: RreturnedActsStateStatus.rreturnedActUpdated, rreturnedAct: rreturnedAct));
   }
 
-  Future<void> clearOrderLineCodes(ApiRreturnedActLine line) async {
+  Future<void> deleteOrderLineScan(ApiRreturnedActLine line) async {
     emit(state.copyWith(status: RreturnedActsStateStatus.inProgress));
 
     try {
-      final rreturnedAct = await rreturnedActsRepository.deleteScan(state.rreturnedAct, line);
+      final rreturnedAct = await rreturnedActsRepository.deleteLineScan(state.rreturnedAct, line);
 
       updateRreturnedAct(rreturnedAct);
 
       emit(state.copyWith(
         status: RreturnedActsStateStatus.success,
-        message: 'КМ успешно удалены'
+        message: 'Сканирование успешно удалено'
       ));
     } on AppError catch(e) {
       emit(state.copyWith(status: RreturnedActsStateStatus.failure, message: e.message));
@@ -34,7 +34,7 @@ class RreturnedActsViewModel extends PageViewModel<RreturnedActsState, Rreturned
 
   Future<void> scan(String code) async {
     try {
-      final rreturnedAct = await rreturnedActsRepository.scan(state.rreturnedAct, code);
+      final rreturnedAct = await rreturnedActsRepository.scanLine(state.rreturnedAct, code);
 
       updateRreturnedAct(rreturnedAct);
 

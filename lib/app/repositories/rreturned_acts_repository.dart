@@ -19,7 +19,7 @@ class RreturnedActsRepository extends BaseRepository {
 
   Future<ApiRreturnedAct> deleteScan(ApiRreturnedAct rreturnedAct, ApiRreturnedActLine rreturnedActLine) async {
     return await sendSafeRequest<ApiRreturnedAct>(() async =>
-      (await api.rreturnedActLinesDeleteScan(rreturnedActId: rreturnedActLine.id, code: rreturnedActLine.code))
+      (await api.rreturnedActLinesDeleteScan(rreturnedActId: rreturnedAct.id, code: rreturnedActLine.code))
     );
   }
 

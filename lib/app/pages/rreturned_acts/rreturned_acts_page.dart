@@ -184,9 +184,9 @@ class _RreturnedActsViewState extends State<_RreturnedActsView> {
           children: [
             Text('${scannedAmount.toInt()} из ${amount.toInt()}'),
             vm.state.rreturnedAct.storageScanned == null ? IconButton(
-              onPressed: () => vm.clearOrderLineCodes(line),
+              onPressed: () => vm.deleteOrderLineScan(line),
               icon: Icon(Icons.delete),
-              tooltip: 'Удалить КМ',
+              tooltip: 'Удалить сканирование',
             ) : null
           ].whereType<Widget>().toList()
         )
