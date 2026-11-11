@@ -249,6 +249,43 @@ extension UmrApi on RenewApi {
     return ApiSupply.fromJson(result);
   }
 
+  Future<ApiRreturnedAct> rreturnedActsIndex({ required String ndoc }) async {
+    return ApiRreturnedAct.fromJson(await get('v1/umr/rreturned_acts', query: { 'ndoc': ndoc }));
+  }
+
+  Future<ApiRreturnedAct> rreturnedActLinesScan({
+    required int rreturnedActId,
+    required String code
+  }) async {
+    final result = await post(
+      'v1/umr/rreturned_acts/lines/scan',
+      data: { 'rreturnedActId': rreturnedActId, 'code': code }
+    );
+
+    return ApiRreturnedAct.fromJson(result);
+  }
+
+  Future<ApiRreturnedAct> rreturnedActLinesDeleteScan({
+    required int rreturnedActId,
+    required String code
+  }) async {
+    final result = await delete(
+      'v1/umr/rreturned_acts/lines/delete_scan',
+      query: { 'rreturnedActId': rreturnedActId, 'code': code }
+    );
+
+    return ApiRreturnedAct.fromJson(result);
+  }
+
+  Future<ApiRreturnedAct> rreturnedActLinesCompleteScan({required int rreturnedActId}) async {
+    final result = await post(
+      'v1/umr/rreturned_acts/lines/complete_scan',
+      data: { 'rreturnedActId': rreturnedActId }
+    );
+
+    return ApiRreturnedAct.fromJson(result);
+  }
+
   Future<ApiDeliveryStorageLoadFind> deliveryStorageLoadsFind({ required String ndoc }) async {
     return ApiDeliveryStorageLoadFind.fromJson(
       await get('v1/umr/delivery_storage_loads/find', query: { 'ndoc': ndoc })

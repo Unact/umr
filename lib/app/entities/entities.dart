@@ -10,6 +10,8 @@ part 'api_info_scan_sale_order.dart';
 part 'api_info_scan.dart';
 part 'api_markirovka_code.dart';
 part 'api_markirovka_organization.dart';
+part 'api_rreturned_act_line.dart';
+part 'api_rreturned_act.dart';
 part 'api_sale_order_document.dart';
 part 'api_sale_order_documents.dart';
 part 'api_sale_order_line.dart';
