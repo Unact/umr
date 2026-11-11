@@ -11,13 +11,13 @@ class RreturnedActsRepository extends BaseRepository {
     );
   }
 
-  Future<ApiRreturnedAct> scan(ApiRreturnedAct rreturnedAct, String code) async {
+  Future<ApiRreturnedAct> scanLine(ApiRreturnedAct rreturnedAct, String code) async {
     return await sendSafeRequest<ApiRreturnedAct>(() async =>
       (await api.rreturnedActLinesScan(code: code, rreturnedActId: rreturnedAct.id))
     );
   }
 
-  Future<ApiRreturnedAct> deleteScan(ApiRreturnedAct rreturnedAct, ApiRreturnedActLine rreturnedActLine) async {
+  Future<ApiRreturnedAct> deleteLineScan(ApiRreturnedAct rreturnedAct, ApiRreturnedActLine rreturnedActLine) async {
     return await sendSafeRequest<ApiRreturnedAct>(() async =>
       (await api.rreturnedActLinesDeleteScan(rreturnedActId: rreturnedAct.id, code: rreturnedActLine.code))
     );
