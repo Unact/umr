@@ -3,6 +3,7 @@ part of 'info_page.dart';
 class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   final AppRepository appRepository;
   final DeliveryStorageLoadsRepository deliveryStorageLoadsRepository;
+  final RreturnedActsRepository rreturnedActsRepository;
   final SaleOrdersRepository saleOrdersRepository;
   final StorageGroupCodesRepository storageGroupCodesRepository;
   final SuppliesRepository suppliesRepository;
@@ -14,6 +15,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   InfoViewModel(
     this.appRepository,
     this.deliveryStorageLoadsRepository,
+    this.rreturnedActsRepository,
     this.saleOrdersRepository,
     this.storageGroupCodesRepository,
     this.suppliesRepository,
@@ -83,6 +85,18 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       final supply = await suppliesRepository.findSupply(id);
 
       emit(state.copyWith(status: InfoStateStatus.findSupplySuccess, foundSupply: supply));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: InfoStateStatus.failure, message: e.message));
+    }
+  }
+
+  Future<void> findRreturnedAct(String ndoc) async {
+    emit(state.copyWith(status: InfoStateStatus.inProgress));
+
+    try {
+      final rreturnedAct = await rreturnedActsRepository.findRreturnedAct(ndoc);
+
+      emit(state.copyWith(status: InfoStateStatus.findRreturnedActSuccess, foundRreturnedAct: rreturnedAct));
     } on AppError catch(e) {
       emit(state.copyWith(status: InfoStateStatus.failure, message: e.message));
     }

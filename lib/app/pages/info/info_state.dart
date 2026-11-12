@@ -7,6 +7,7 @@ enum InfoStateStatus {
   failure,
   findSaleOrderSuccess,
   findSupplySuccess,
+  findRreturnedActSuccess,
   findCodeParentSuccess,
   printLabelSuccess,
   findDeliveryStorageLoadSuccess,
@@ -21,6 +22,7 @@ class InfoState {
     this.status = InfoStateStatus.initial,
     this.foundSaleOrder,
     this.foundSupply,
+    this.foundRreturnedAct,
     this.foundCodeParent,
     this.deliveryStorageLoadFind,
     this.foundStorageGroupCode,
@@ -33,6 +35,7 @@ class InfoState {
   final InfoStateStatus status;
   final ApiSaleOrder? foundSaleOrder;
   final ApiSupply? foundSupply;
+  final ApiRreturnedAct? foundRreturnedAct;
   final String? foundCodeParent;
   final ApiDeliveryStorageLoadFind? deliveryStorageLoadFind;
   final ApiStorageGroupCode? foundStorageGroupCode;
@@ -45,6 +48,7 @@ class InfoState {
     InfoStateStatus? status,
     ApiSaleOrder? foundSaleOrder,
     ApiSupply? foundSupply,
+    ApiRreturnedAct? foundRreturnedAct,
     String? foundCodeParent,
     ApiDeliveryStorageLoadFind? deliveryStorageLoadFind,
     ApiStorageGroupCode? foundStorageGroupCode,
@@ -58,6 +62,7 @@ class InfoState {
       status: status ?? this.status,
       foundSaleOrder: foundSaleOrder ?? this.foundSaleOrder,
       foundSupply: foundSupply ?? this.foundSupply,
+      foundRreturnedAct: foundRreturnedAct ?? this.foundRreturnedAct,
       foundCodeParent: foundCodeParent ?? this.foundCodeParent,
       deliveryStorageLoadFind: deliveryStorageLoadFind ?? this.deliveryStorageLoadFind,
       foundStorageGroupCode: foundStorageGroupCode ?? this.foundStorageGroupCode,

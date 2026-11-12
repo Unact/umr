@@ -9,6 +9,7 @@ import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/delivery_storage_load/delivery_storage_load_page.dart';
+import '/app/pages/rreturned_acts/rreturned_acts_page.dart';
 import '/app/pages/info_scan/info_scan_page.dart';
 import '/app/pages/page_messages/page_messages_page.dart';
 import '/app/pages/person/person_page.dart';
@@ -18,6 +19,7 @@ import '/app/pages/storage_group_code/storage_group_code_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/delivery_storage_loads_repository.dart';
+import '/app/repositories/rreturned_acts_repository.dart';
 import '/app/repositories/sale_orders_repository.dart';
 import '/app/repositories/storage_group_codes_repository.dart';
 import '/app/repositories/supplies_repository.dart';
@@ -40,6 +42,7 @@ class InfoPage extends StatelessWidget {
       create: (context) => InfoViewModel(
         RepositoryProvider.of<AppRepository>(context),
         RepositoryProvider.of<DeliveryStorageLoadsRepository>(context),
+        RepositoryProvider.of<RreturnedActsRepository>(context),
         RepositoryProvider.of<SaleOrdersRepository>(context),
         RepositoryProvider.of<StorageGroupCodesRepository>(context),
         RepositoryProvider.of<SuppliesRepository>(context),
@@ -264,38 +267,21 @@ class _InfoViewState extends State<_InfoView> {
             PageHelpers.showMessage(context, state.message, Colors.red[400]!);
             break;
           case InfoStateStatus.findSaleOrderSuccess:
-            await _progressDialog.close();
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => SaleOrderPage(saleOrder: state.foundSaleOrder!),
-                fullscreenDialog: false
-              )
-            );
+            await pushPage(SaleOrderPage(saleOrder: state.foundSaleOrder!));
             break;
           case InfoStateStatus.findSupplySuccess:
-            await _progressDialog.close();
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => SupplyPage(supply: state.foundSupply!),
-                fullscreenDialog: false
-              )
-            );
+            await pushPage(SupplyPage(supply: state.foundSupply!));
+            break;
+          case InfoStateStatus.findRreturnedActSuccess:
+            await pushPage(RreturnedActsPage(rreturnedAct: state.foundRreturnedAct!));
             break;
           case InfoStateStatus.findDeliveryStorageLoadSuccess:
-            await _progressDialog.close();
             if (state.deliveryStorageLoadFind!.deliveryStorageLoad != null) {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (BuildContext context) => DeliveryStorageLoadPage(
-                    deliveryStorageLoad: state.deliveryStorageLoadFind!.deliveryStorageLoad!
-                  ),
-                  fullscreenDialog: false
-                )
-              );
+              await pushPage(DeliveryStorageLoadPage(
+                deliveryStorageLoad: state.deliveryStorageLoadFind!.deliveryStorageLoad!
+              ));
             } else {
+              await _progressDialog.close();
               showScanView(
                 'Отсканируйте ворота',
                 (warehouseGateStr) {
@@ -313,32 +299,14 @@ class _InfoViewState extends State<_InfoView> {
             }
             break;
           case InfoStateStatus.findStorageGroupCodeSuccess:
-            await _progressDialog.close();
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => StorageGroupCodePage(
-                  storageGroupCode: state.foundStorageGroupCode!
-                ),
-                fullscreenDialog: false
-              )
-            );
+            await pushPage(StorageGroupCodePage(storageGroupCode: state.foundStorageGroupCode!));
             break;
           case InfoStateStatus.findCodeParentSuccess:
             await _progressDialog.close();
             await showPrinterScanView((rawValue) => vm.printCodeLabel(rawValue));
             break;
           case InfoStateStatus.findDeliveryStorageLoadCreated:
-            await _progressDialog.close();
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => DeliveryStorageLoadPage(
-                  deliveryStorageLoad: state.createdDeliveryStorageLoad!
-                ),
-                fullscreenDialog: false
-              )
-            );
+            await pushPage(DeliveryStorageLoadPage(deliveryStorageLoad: state.createdDeliveryStorageLoad!));
           case InfoStateStatus.deleteStorageGroupCodeSuccess:
           case InfoStateStatus.printLabelSuccess:
             await _progressDialog.close();
@@ -347,6 +315,17 @@ class _InfoViewState extends State<_InfoView> {
           default:
         }
       }
+    );
+  }
+
+  Future<void> pushPage(Widget page) async {
+    await _progressDialog.close();
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => page,
+        fullscreenDialog: false
+      )
     );
   }
 
@@ -457,6 +436,10 @@ class _InfoViewState extends State<_InfoView> {
               TextButton(
                 onPressed: () => showScanView('Отсканируйте поставку', vm.findSupply),
                 child: const Text('Приемка'),
+              ),
+              TextButton(
+                onPressed: () => showScanView('Отсканируйте акт возврата', vm.findRreturnedAct),
+                child: const Text('Акт возврата'),
               ),
               TextButton(
                 onPressed: () => showScanView('Отсканируйте доставку', vm.findDeliveryStorageLoad),
