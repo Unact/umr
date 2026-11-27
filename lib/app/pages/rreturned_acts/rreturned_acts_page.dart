@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
@@ -11,6 +12,7 @@ import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/rreturned_acts_repository.dart';
 import '/app/utils/page_helpers.dart';
+import '/app/widgets/simple_alert_dialog.dart';
 
 part 'rreturned_acts_state.dart';
 part 'rreturned_acts_view_model.dart';
@@ -53,11 +55,14 @@ class _RreturnedActsViewState extends State<_RreturnedActsView> {
   Future<void> showScan() async {
     RreturnedActsViewModel vm = context.read<RreturnedActsViewModel>();
 
+    final result = await showSellerStorageSelection(context, vm);
+    if (result == null || result.$1 == null || result.$2 == null) return;
+
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => ScanView(
-          onRead: (scanResult) => vm.scan(scanResult),
+          onRead: (scanResult) => vm.scan(scanResult, result.$1!, result.$2!),
           onError: (errorMessage) {
             PageHelpers.showMessage(context, errorMessage ?? Strings.genericErrorMsg, Colors.red[400]!);
           },
@@ -72,6 +77,81 @@ class _RreturnedActsViewState extends State<_RreturnedActsView> {
         ),
         fullscreenDialog: true
       )
+    );
+  }
+
+  Future<(ApiSeller?, ApiStorage?)?> showSellerStorageSelection(
+    BuildContext context,
+    RreturnedActsViewModel vm
+  ) async {
+    ApiStorage? selectedStorage;
+    ApiSeller? selectedSeller;
+
+    return await showDialog<(ApiSeller?, ApiStorage?)?>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final filteredSellers = selectedStorage != null ?
+              vm.state.sellers.where((e) => e.id == selectedStorage?.sellerId).toList() :
+              <ApiSeller>[];
+
+            return SimpleAlertDialog(
+              title: const Text('Укажите данные для товара'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    DropdownButtonFormField<ApiStorage>(
+                      isExpanded: true,
+                      menuMaxHeight: 200,
+                      decoration: const InputDecoration(labelText: 'Состояние'),
+                      items: vm.state.storages.map((e) => DropdownMenuItem(
+                        value: e,
+                        child: Text(e.name)
+                      )).toList(),
+                      initialValue: selectedStorage,
+                      onChanged: (newVal) {
+                        setState(() {
+                          selectedStorage = newVal;
+                          selectedSeller = null;
+                        });
+                      }
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<ApiSeller>(
+                      isExpanded: true,
+                      menuMaxHeight: 200,
+                      initialValue: selectedSeller,
+                      decoration: const InputDecoration(labelText: 'Причина возврата'),
+                      items: filteredSellers.map((e) => DropdownMenuItem(
+                        value: e,
+                        child: Text(e.name)
+                      )).toList(),
+                      onChanged: (newVal) {
+                        setState(() {
+                          selectedSeller = newVal;
+                        });
+                      }
+                    )
+                  ]
+                )
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: selectedSeller == null || selectedStorage == null ?
+                    null :
+                    () => Navigator.of(context).pop((selectedSeller, selectedStorage)),
+                  child: const Text(Strings.ok)
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Отмена')
+                )
+              ]
+            );
+          }
+        );
+      }
     );
   }
 
@@ -93,6 +173,10 @@ class _RreturnedActsViewState extends State<_RreturnedActsView> {
         switch (state.status) {
           case RreturnedActsStateStatus.needUserConfirmation:
             await PageHelpers.showConfirmationDialog(context, vm.completeScan, state.message);
+            break;
+          case RreturnedActsStateStatus.dataLoadFailure:
+            Navigator.of(context).pop();
+            PageHelpers.showMessage(context, state.message, Colors.red[400]!);
             break;
           case RreturnedActsStateStatus.scanFailure:
             PageHelpers.showMessage(context, state.message, Colors.red[400]!);
@@ -165,11 +249,27 @@ class _RreturnedActsViewState extends State<_RreturnedActsView> {
     RreturnedActsViewModel vm = context.read<RreturnedActsViewModel>();
     final amount = line.volume;
     final scannedAmount = line.storageScanned == null ? 0 : line.volume;
+    final sellerName = vm.state.sellers.firstWhereOrNull((e) => e.id == line.sellerId)?.name ?? '';
+    final storageName = vm.state.storages.firstWhereOrNull((e) => e.id == line.storageId)?.name ?? '';
+    final subtitle = RichText(
+      text: TextSpan(children: <TextSpan>[
+        TextSpan(
+          text: 'Состояние: $storageName\n',
+          style: TextStyle(color: Colors.grey, fontSize: 12.0)
+        ),
+        TextSpan(
+          text: 'Причина возврата: $sellerName\n',
+          style: const TextStyle(color: Colors.grey, fontSize: 12.0),
+        )
+      ]
+      )
+    );
 
     if (vm.state.rreturnedAct.storageScanned != null) {
       return ListTile(
         dense: true,
         title: Text(line.goodsName),
+        subtitle: subtitle,
         trailing: Text('${scannedAmount.toInt()} из ${amount.toInt()}')
       );
     } else {
@@ -179,6 +279,7 @@ class _RreturnedActsViewState extends State<_RreturnedActsView> {
           Icon(Icons.check, color: Colors.green) :
           Icon(Icons.hourglass_empty, color: Colors.yellow),
         title: Text(line.goodsName),
+        subtitle: subtitle,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

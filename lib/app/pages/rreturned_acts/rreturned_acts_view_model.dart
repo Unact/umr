@@ -9,6 +9,23 @@ class RreturnedActsViewModel extends PageViewModel<RreturnedActsState, Rreturned
   ) : super(RreturnedActsState(rreturnedAct: rreturnedAct));
 
   @override
+  Future<void> initViewModel() async {
+    await super.initViewModel();
+
+    try {
+      final dictionaries = await rreturnedActsRepository.dictionaries();
+
+      emit(state.copyWith(
+        sellers: dictionaries.sellers,
+        storages: dictionaries.storages,
+        status: RreturnedActsStateStatus.dataLoaded
+      ));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: RreturnedActsStateStatus.dataLoadFailure, message: e.message));
+    }
+  }
+
+  @override
   RreturnedActsStateStatus get status => state.status;
 
   void updateRreturnedAct(ApiRreturnedAct rreturnedAct) {
@@ -32,9 +49,9 @@ class RreturnedActsViewModel extends PageViewModel<RreturnedActsState, Rreturned
     }
   }
 
-  Future<void> scan(String code) async {
+  Future<void> scan(String code, ApiSeller seller, ApiStorage storage) async {
     try {
-      final rreturnedAct = await rreturnedActsRepository.scanLine(state.rreturnedAct, code);
+      final rreturnedAct = await rreturnedActsRepository.scanLine(state.rreturnedAct, code, seller, storage);
 
       updateRreturnedAct(rreturnedAct);
 
