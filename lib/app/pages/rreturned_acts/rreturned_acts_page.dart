@@ -55,7 +55,7 @@ class _RreturnedActsViewState extends State<_RreturnedActsView> {
   Future<void> showScan() async {
     RreturnedActsViewModel vm = context.read<RreturnedActsViewModel>();
 
-    final result = await showSellerStorageSelection(context, vm);
+    final result = await showSellerStorageSelection();
     if (result == null || result.$1 == null || result.$2 == null) return;
 
     await Navigator.push(
@@ -80,10 +80,8 @@ class _RreturnedActsViewState extends State<_RreturnedActsView> {
     );
   }
 
-  Future<(ApiSeller?, ApiStorage?)?> showSellerStorageSelection(
-    BuildContext context,
-    RreturnedActsViewModel vm
-  ) async {
+  Future<(ApiSeller?, ApiStorage?)?> showSellerStorageSelection() async {
+    RreturnedActsViewModel vm = context.read<RreturnedActsViewModel>();
     ApiStorage? selectedStorage;
     ApiSeller? selectedSeller;
 
@@ -252,16 +250,17 @@ class _RreturnedActsViewState extends State<_RreturnedActsView> {
     final sellerName = vm.state.sellers.firstWhereOrNull((e) => e.id == line.sellerId)?.name ?? '';
     final storageName = vm.state.storages.firstWhereOrNull((e) => e.id == line.storageId)?.name ?? '';
     final subtitle = RichText(
-      text: TextSpan(children: <TextSpan>[
-        TextSpan(
-          text: 'Состояние: $storageName\n',
-          style: TextStyle(color: Colors.grey, fontSize: 12.0)
-        ),
-        TextSpan(
-          text: 'Причина возврата: $sellerName\n',
-          style: const TextStyle(color: Colors.grey, fontSize: 12.0),
-        )
-      ]
+      text: TextSpan(
+        children: <TextSpan>[
+          TextSpan(
+            text: 'Состояние: $storageName\n',
+            style: TextStyle(color: Colors.grey, fontSize: 12.0)
+          ),
+          TextSpan(
+            text: 'Причина возврата: $sellerName\n',
+            style: const TextStyle(color: Colors.grey, fontSize: 12.0),
+          )
+        ]
       )
     );
 
