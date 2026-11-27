@@ -5,15 +5,31 @@ import '/app/services/umr_api.dart';
 class RreturnedActsRepository extends BaseRepository {
   RreturnedActsRepository(super.dataStore, super.api);
 
+  Future<ApiRreturnedActsDictionaries> dictionaries() async {
+    return await sendSafeRequest<ApiRreturnedActsDictionaries>(() async =>
+      (await api.dictionariesRreturnedActs())
+    );
+  }
+
   Future<ApiRreturnedAct> findRreturnedAct(String ndoc) async {
     return await sendSafeRequest<ApiRreturnedAct>(() async =>
       (await api.rreturnedActsIndex(ndoc: ndoc))
     );
   }
 
-  Future<ApiRreturnedAct> scanLine(ApiRreturnedAct rreturnedAct, String code) async {
+  Future<ApiRreturnedAct> scanLine(
+    ApiRreturnedAct rreturnedAct,
+    String code,
+    ApiSeller seller,
+    ApiStorage storage
+  ) async {
     return await sendSafeRequest<ApiRreturnedAct>(() async =>
-      (await api.rreturnedActLinesScan(code: code, rreturnedActId: rreturnedAct.id))
+      (await api.rreturnedActLinesScan(
+        code: code,
+        rreturnedActId: rreturnedAct.id,
+        sellerId: seller.id,
+        storageId: storage.id
+      ))
     );
   }
 

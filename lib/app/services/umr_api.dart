@@ -15,6 +15,12 @@ extension UmrApi on RenewApi {
     ).toList();
   }
 
+  Future<ApiRreturnedActsDictionaries> dictionariesRreturnedActs() async {
+    return ApiRreturnedActsDictionaries.fromJson(
+      await get('v1/umr/dictionaries/rreturned_acts')
+    );
+  }
+
   Future<ApiInfoScan> saleOrdersInfoScan({ required String code, required int markirovkaOrganizationId}) async {
     final query = { 'code': code, 'markirovkaOrganizationId': markirovkaOrganizationId };
 
@@ -255,11 +261,13 @@ extension UmrApi on RenewApi {
 
   Future<ApiRreturnedAct> rreturnedActLinesScan({
     required int rreturnedActId,
-    required String code
+    required String code,
+    required int sellerId,
+    required int storageId
   }) async {
     final result = await post(
       'v1/umr/rreturned_acts/lines/scan',
-      data: { 'rreturnedActId': rreturnedActId, 'code': code }
+      data: { 'rreturnedActId': rreturnedActId, 'code': code, 'sellerId': sellerId, 'storageId': storageId }
     );
 
     return ApiRreturnedAct.fromJson(result);

@@ -7,6 +7,8 @@ class ApiRreturnedActLine extends Equatable {
   final String goodsName;
   final String gtin;
   final String code;
+  final int sellerId;
+  final int storageId;
   final DateTime? storageScanned;
 
   const ApiRreturnedActLine({
@@ -16,6 +18,8 @@ class ApiRreturnedActLine extends Equatable {
     required this.goodsName,
     required this.gtin,
     required this.code,
+    required this.sellerId,
+    required this.storageId,
     this.storageScanned
   });
 
@@ -27,6 +31,8 @@ class ApiRreturnedActLine extends Equatable {
       goodsName: json['goodsName'],
       gtin: json['gtin'],
       code: json['code'],
+      sellerId: json['sellerId'],
+      storageId: json['storageId'],
       storageScanned: Parsing.parseDate(json['storageScanned']),
     );
   }
@@ -39,6 +45,8 @@ class ApiRreturnedActLine extends Equatable {
     goodsName,
     gtin,
     code,
+    sellerId,
+    storageId,
     storageScanned
   ];
 }
